@@ -1,0 +1,12 @@
+<mvc:View controllerName="zuiaprocess.controller.Main"
+    xmlns:mvc="sap.ui.core.mvc" 
+    xmlns:c="zuiaprocess.control"
+    xmlns="sap.m"
+    displayBlock="true">
+    <Page id="page" title="{i18n>title}" showHeader="false">
+        <content>
+            <c:DynamicTable id="mainTable" class="sapUiSizeCompact" selectionMode="None" showColumnVisibilityMenu="true">
+            </c:DynamicTable>
+        </content>
+    </Page>
+</mvc:View>

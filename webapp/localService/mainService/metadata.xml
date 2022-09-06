@@ -1,0 +1,49 @@
+<?xml version="1.0" encoding="utf-8"?>
+<edmx:Edmx Version="1.0" xmlns:edmx="http://schemas.microsoft.com/ado/2007/06/edmx" xmlns:m="http://schemas.microsoft.com/ado/2007/08/dataservices/metadata" xmlns:sap="http://www.sap.com/Protocols/SAPData">
+    <edmx:DataServices m:DataServiceVersion="2.0">
+        <Schema Namespace="ZGW_3DERP_ANP_SRV" xml:lang="en" sap:schema-version="1" xmlns="http://schemas.microsoft.com/ado/2008/09/edm">
+            <EntityType Name="Main" sap:content-version="1">
+                <Key>
+                    <PropertyRef Name="Prnumber"/>
+                    <PropertyRef Name="Pritemno"/>
+                </Key>
+                <Property Name="Mandt" Type="Edm.String" Nullable="false" MaxLength="3" sap:unicode="false" sap:label="Client" sap:creatable="false" sap:updatable="false" sap:sortable="false" sap:filterable="false"/>
+                <Property Name="Vendor" Type="Edm.String" Nullable="false" MaxLength="10" sap:unicode="false" sap:label="Vendor" sap:creatable="false" sap:updatable="false"/>
+                <Property Name="Name" Type="Edm.String" Nullable="false" MaxLength="35" sap:unicode="false" sap:label="Name" sap:creatable="false" sap:updatable="false"/>
+                <Property Name="Materialno" Type="Edm.String" Nullable="false" MaxLength="40" sap:unicode="false" sap:label="Material No." sap:creatable="false" sap:updatable="false"/>
+                <Property Name="Gmcdescen" Type="Edm.String" Nullable="false" MaxLength="500" sap:unicode="false" sap:label="GMC Desc (EN)" sap:creatable="false" sap:updatable="false"/>
+                <Property Name="Gmcdesczh" Type="Edm.String" Nullable="false" MaxLength="500" sap:unicode="false" sap:label="GMC Desc (CN)" sap:creatable="false" sap:updatable="false"/>
+                <Property Name="Addtldesc" Type="Edm.String" Nullable="false" MaxLength="500" sap:unicode="false" sap:label="Additional Desc" sap:creatable="false" sap:updatable="false"/>
+                <Property Name="Qty" Type="Edm.Decimal" Nullable="false" Precision="13" Scale="3" sap:unicode="false" sap:unit="Unit" sap:label="Qty" sap:creatable="false" sap:updatable="false"/>
+                <Property Name="Orderqty" Type="Edm.Decimal" Nullable="false" Precision="13" Scale="3" sap:unicode="false" sap:unit="Unit" sap:label="Ordered Qty" sap:creatable="false" sap:updatable="false"/>
+                <Property Name="Unit" Type="Edm.String" Nullable="false" MaxLength="3" sap:unicode="false" sap:label="Unit" sap:creatable="false" sap:updatable="false" sap:semantics="unit-of-measure"/>
+                <Property Name="Delvdate" Type="Edm.DateTime" Nullable="false" Precision="7" sap:unicode="false" sap:label="Delivery Date" sap:creatable="false" sap:updatable="false"/>
+                <Property Name="Ionumber" Type="Edm.String" Nullable="false" MaxLength="10" sap:unicode="false" sap:label="IO Number" sap:creatable="false" sap:updatable="false"/>
+                <Property Name="Iodesc" Type="Edm.String" Nullable="false" MaxLength="50" sap:unicode="false" sap:label="IO Desc" sap:creatable="false" sap:updatable="false"/>
+                <Property Name="Materialgrp" Type="Edm.String" Nullable="false" MaxLength="9" sap:unicode="false" sap:label="Material Group" sap:creatable="false" sap:updatable="false"/>
+                <Property Name="Materialtype" Type="Edm.String" Nullable="false" MaxLength="4" sap:unicode="false" sap:label="Material Type" sap:creatable="false" sap:updatable="false"/>
+                <Property Name="Season" Type="Edm.String" Nullable="false" MaxLength="10" sap:unicode="false" sap:label="Season" sap:creatable="false" sap:updatable="false"/>
+                <Property Name="Shiptoplant" Type="Edm.String" Nullable="false" MaxLength="4" sap:unicode="false" sap:label="Ship-to Plant" sap:creatable="false" sap:updatable="false"/>
+                <Property Name="Purchplant" Type="Edm.String" Nullable="false" MaxLength="4" sap:unicode="false" sap:label="Purch. Plant" sap:creatable="false" sap:updatable="false"/>
+                <Property Name="Purchgrp" Type="Edm.String" Nullable="false" MaxLength="3" sap:unicode="false" sap:label="Purch. Group" sap:creatable="false" sap:updatable="false"/>
+                <Property Name="Purchorg" Type="Edm.String" Nullable="false" MaxLength="4" sap:unicode="false" sap:label="Purch. Org." sap:creatable="false" sap:updatable="false"/>
+                <Property Name="Supplytype" Type="Edm.String" Nullable="false" MaxLength="10" sap:unicode="false" sap:label="Supply Type" sap:creatable="false" sap:updatable="false"/>
+                <Property Name="Trackingno" Type="Edm.String" Nullable="false" MaxLength="10" sap:unicode="false" sap:label="Tracking Number" sap:creatable="false" sap:updatable="false"/>
+                <Property Name="Prnumber" Type="Edm.String" Nullable="false" MaxLength="10" sap:unicode="false" sap:label="PR Number" sap:creatable="false" sap:updatable="false"/>
+                <Property Name="Pritemno" Type="Edm.String" Nullable="false" MaxLength="5" sap:unicode="false" sap:label="Item" sap:creatable="false" sap:updatable="false"/>
+                <Property Name="Requisitioner" Type="Edm.String" Nullable="false" MaxLength="12" sap:unicode="false" sap:label="Requisitioner" sap:creatable="false" sap:updatable="false"/>
+                <Property Name="Createdby" Type="Edm.String" Nullable="false" MaxLength="12" sap:unicode="false" sap:label="Created By" sap:creatable="false" sap:updatable="false"/>
+                <Property Name="Doctype" Type="Edm.String" Nullable="false" MaxLength="4" sap:unicode="false" sap:label="Document Type" sap:creatable="false" sap:updatable="false"/>
+                <Property Name="Shorttext" Type="Edm.String" Nullable="false" MaxLength="40" sap:unicode="false" sap:label="Short Text" sap:creatable="false" sap:updatable="false"/>
+                <Property Name="Inforecord" Type="Edm.String" Nullable="false" MaxLength="10" sap:unicode="false" sap:label="Info Record" sap:creatable="false" sap:updatable="false"/>
+                <Property Name="Company" Type="Edm.String" Nullable="false" MaxLength="4" sap:unicode="false" sap:label="Company" sap:creatable="false" sap:updatable="false"/>
+                <Property Name="Custgrp" Type="Edm.String" Nullable="false" MaxLength="2" sap:unicode="false" sap:label="Customer Group" sap:creatable="false" sap:updatable="false"/>
+            </EntityType>
+            <EntityContainer Name="ZGW_3DERP_ANP_SRV_Entities" m:IsDefaultEntityContainer="true" sap:supported-formats="atom json xlsx">
+                <EntitySet Name="MainSet" EntityType="ZGW_3DERP_ANP_SRV.Main" sap:creatable="false" sap:updatable="false" sap:deletable="false" sap:pageable="false" sap:content-version="1"/>
+            </EntityContainer>
+            <atom:link rel="self" href="http://159.138.39.203:8000/sap/opu/odata/sap/ZGW_3DERP_ANP_SRV/$metadata" xmlns:atom="http://www.w3.org/2005/Atom"/>
+            <atom:link rel="latest-version" href="http://159.138.39.203:8000/sap/opu/odata/sap/ZGW_3DERP_ANP_SRV/$metadata" xmlns:atom="http://www.w3.org/2005/Atom"/>
+        </Schema>
+    </edmx:DataServices>
+</edmx:Edmx>
