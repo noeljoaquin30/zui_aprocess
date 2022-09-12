@@ -1,0 +1,57 @@
+<mvc:View controllerName="zuiaprocess.controller.AssignVendor"
+    xmlns:mvc="sap.ui.core.mvc" 
+    xmlns:core="sap.ui.core"
+    xmlns:uiL="sap.ui.layout"
+    xmlns:uiT="sap.ui.table"
+    xmlns="sap.m"
+    xmlns:f="sap.f"
+    xmlns:semantic="sap.m.semantic"
+    displayBlock="true">
+    <Page showHeader="false" title="Assign Vendor" showNavButton="true" navButtonPress="onNavBack">
+        <content>
+            <VBox fitContainer="true">
+                <!-- <MessageStrip id="AssignMaterialMessageStrip" text="" showIcon="true" showCloseButton="true" class="sapUiMediumMarginBottom" type="Error" visible="false"/> -->
+                <Panel><Text text="Assign Vendor"/>
+                </Panel>
+                <uiT:Table id="assignVendorTab"
+                    class="sapUiSizeCompact sidePadding"
+                    visibleRowCountMode="Auto"
+                    showColumnVisibilityMenu="true"
+                    enableColumnFreeze="true"
+                    selectionMode="MultiToggle"
+                    sort="onSorted">
+                    <uiT:extension>
+                        <Toolbar>
+                            <ToolbarSpacer/>
+                            <!-- <SearchField
+                                id="searchFieldMain"
+                                placeholder="Search"
+                                value=""
+                                search="filterGlobally"
+                                width="15rem"/>
+                            <ToolbarSeparator /> -->
+                            <Button id="btnAssign" 
+                                icon="sap-icon://multiselect-all"
+                                press="onAssign"
+                                tooltip="{i18n>AssignVendor}"
+                                visible="true"/>
+                            <Button id="btnUnassign" 
+                                icon="sap-icon://multiselect-none"
+                                press="onUnassign"
+                                tooltip="{i18n>UndoAssignment}"
+                                visible="true"/>
+                            <Button id="btnCreatePO" 
+                                icon="sap-icon://add-document"
+                                press="onCreatePO" 
+                                tooltip="{i18n>CreatePO}"
+                                visible="true" />
+                        </Toolbar>
+                    </uiT:extension>
+                    <uiT:layoutData>
+                        <FlexItemData growFactor="1" baseSize="0%"/>
+                    </uiT:layoutData>                  
+                </uiT:Table> 
+            </VBox>
+        </content>
+    </Page>
+</mvc:View>

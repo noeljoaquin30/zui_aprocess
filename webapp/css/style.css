@@ -1,1 +1,42 @@
 /* Enter your custom styles here */
+
+.sidePadding {
+    padding: 0 0.5rem;
+}
+
+.borderX {
+    border-right: 1px ridge #d9d9d9;
+    border-left: 1px ridge #d9d9d9;
+}
+
+.margin2 {
+    margin: 0.5rem;
+}
+
+.bgAliceblue {
+    background: #eff4f9;
+}
+
+.cursorPointer {
+    cursor: pointer;
+}
+
+.padding1 {
+    padding: 0.25rem;
+}
+
+.paddingTop1 {
+    padding-top: 0.25rem;
+}
+
+.borderRightRidge {
+    border-right: 1px ridge #d9d9d9;
+}
+
+.borderRight {
+    border-right: 1px ridge #d9d9d9;
+}
+
+.mbTag {
+    margin-bottom: 0.15rem !important;
+}

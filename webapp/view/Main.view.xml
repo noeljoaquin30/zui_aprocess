@@ -1,12 +1,216 @@
 <mvc:View controllerName="zuiaprocess.controller.Main"
     xmlns:mvc="sap.ui.core.mvc" 
     xmlns:c="zuiaprocess.control"
+    xmlns:core="sap.ui.core"
+    xmlns:uiL="sap.ui.layout"
+    xmlns:uiT="sap.ui.table"
     xmlns="sap.m"
-    displayBlock="true">
+    xmlns:f="sap.f"
+    xmlns:semantic="sap.m.semantic"
+    xmlns:smartfilterbar="sap.ui.comp.smartfilterbar"
+    displayBlock="true"> 
     <Page id="page" title="{i18n>title}" showHeader="false">
-        <content>
-            <c:DynamicTable id="mainTable" class="sapUiSizeCompact" selectionMode="None" showColumnVisibilityMenu="true">
-            </c:DynamicTable>
+        <content> 
+            <!-- <uiL:FixFlex id="fixFlexMain" class="fixFlexFixedSize sidePadding" fixContentSize="100px">
+                <uiL:fixContent>
+                <HBox fitContainer="true" class="filters sidePadding bgAliceblue">
+                    <VBox width="250px" justifyContent="Center">
+                        <HBox wrap="Wrap">
+                            <VBox id="pdfAllPR" alignItems="Center" justifyContent="Center" class="cursorPointer padding1">
+                                <Text text="{counts>/total}" class="cursorPointer labelFS" />
+                                <Text text="PRs" class="cursorPointer labelFS" />
+                            </VBox>
+                            <VBox class="borderX margin2"></VBox> 
+                            <HBox id="pdfUnassigned" class="padding1 cursorPointer"> 
+                                <VBox class="padding1" alignItems="Center">
+                                    <f:Avatar
+                                            src="sap-icon://multiselect-none"
+                                            displaySize="S"
+                                            backgroundColor="Accent2">
+                                    </f:Avatar>
+                                    <Text text="Unassigned" class="cursorPointer labelFS" />
+                                </VBox>
+                                <VBox class="paddingTop1">
+                                    <Text text="{counts>/unassigned}" class="cursorPointer labelFS" />
+                                </VBox>
+                            </HBox>
+                            <HBox id="pdfPartial" class="padding1 cursorPointer">
+                                <VBox class="padding1" alignItems="Center">
+                                    <f:Avatar
+                                            src="sap-icon://process"
+                                            displaySize="S"
+                                            backgroundColor="Accent1">
+                                    </f:Avatar>
+                                    <Text text="Partial" class="cursorPointer labelFS" />
+                                </VBox>
+                                <VBox class="paddingTop1">
+                                    <Text text="{counts>/partial}" class="cursorPointer labelFS" />
+                                </VBox>
+                            </HBox>
+                        </HBox>
+                    </VBox>
+                    <VBox class="borderRight margin2"></VBox>
+                    <VBox class="padding1" justifyContent="Center">
+                        <HBox wrap="Wrap">
+                            <smartfilterbar:SmartFilterBar id="smartFilterBar" entitySet="ZVB_3DERP_ANP_FILTERS" search="onSearch" persistencyKey="3DERP_StylesPKey" >
+                                <smartfilterbar:controlConfiguration>
+                                    <smartfilterbar:ControlConfiguration key="PRNumber" groupId="_ADVANCED" label="{i18n>PRNUMBER}" />
+                                </smartfilterbar:controlConfiguration>
+                                <smartfilterbar:controlConfiguration>
+                                    <smartfilterbar:ControlConfiguration key="PRItemNo" groupId="_ADVANCED" label="{i18n>PRITEMNO}"/>
+                                </smartfilterbar:controlConfiguration>
+                                <smartfilterbar:controlConfiguration>
+                                    <smartfilterbar:ControlConfiguration id="filterVendor" key="Vendor" groupId="_BASIC" label="{i18n>VENDOR}" mandatory="notMandatory" displayBehaviour="descriptionAndId"
+                                        preventInitialDataFetchInValueHelpDialog="false">
+                                    </smartfilterbar:ControlConfiguration>
+                                </smartfilterbar:controlConfiguration>
+                            </smartfilterbar:SmartFilterBar>
+                        </HBox>
+                    </VBox>
+                </HBox>
+                </uiL:fixContent> 
+                <uiL:flexContent>
+                    <uiT:Table id="mainTab"
+                        class="sidePadding"                        
+                        visibleRowCountMode="Auto"
+                        showColumnVisibilityMenu="true"
+                        enableColumnFreeze="true"
+                        enableCellFilter="true"
+                        selectionMode="MultiToggle"
+                        sort="onSorted">
+                        <uiT:extension>
+                            <Toolbar>
+                                <ToolbarSpacer/>
+                                <SearchField
+                                    id="searchFieldMain"
+                                    placeholder="Search"
+                                    value=""
+                                    search="filterGlobally"
+                                    width="15rem"/>
+                                <ToolbarSeparator />
+                                <Button id="btnAssign" 
+                                    icon="sap-icon://multiselect-all"
+                                    press="onAssign"
+                                    tooltip="{i18n>AssignVendor}"
+                                    visible="true"/>
+                                <Button id="btnUnassign" 
+                                    icon="sap-icon://multiselect-none"
+                                    press="onUnassign"
+                                    tooltip="{i18n>UndoAssignment}"
+                                    visible="true"/>
+                                <Button id="btnCreatePO" 
+                                    icon="sap-icon://add-document"
+                                    press="onCreatePO" 
+                                    tooltip="{i18n>CreatePO}"
+                                    visible="true" />
+                            </Toolbar>
+                        </uiT:extension>
+                    </uiT:Table>                
+                </uiL:flexContent>
+            </uiL:FixFlex> -->
+            <VBox fitContainer="true">
+                <smartfilterbar:SmartFilterBar id="smartFilterBar" entitySet="ZVB_3DERP_ANP_FILTERS" search="onSearch" persistencyKey="3DERP_StylesPKey" filterContainerWidth="15rem">
+                    <smartfilterbar:controlConfiguration>
+                        <smartfilterbar:ControlConfiguration key="DOCTYPE" groupId="_BASIC" label="{i18n>DOCTYPE}" preventInitialDataFetchInValueHelpDialog="false" />
+                    </smartfilterbar:controlConfiguration>
+                    <smartfilterbar:controlConfiguration>
+                        <smartfilterbar:ControlConfiguration key="PRNUMBER" groupId="_BASIC" label="{i18n>PRNUMBER}" preventInitialDataFetchInValueHelpDialog="false" />
+                    </smartfilterbar:controlConfiguration>
+                    <smartfilterbar:controlConfiguration>
+                        <smartfilterbar:ControlConfiguration key="SHIPTOPLANT" groupId="_BASIC" label="{i18n>SHIPTOPLANT}" preventInitialDataFetchInValueHelpDialog="false" />
+                    </smartfilterbar:controlConfiguration>
+                    <smartfilterbar:controlConfiguration>
+                        <smartfilterbar:ControlConfiguration key="PURCHPLANT" groupId="_BASIC" label="{i18n>PURCHPLANT}" preventInitialDataFetchInValueHelpDialog="false" />
+                    </smartfilterbar:controlConfiguration>
+                    <smartfilterbar:controlConfiguration>
+                        <smartfilterbar:ControlConfiguration key="PURCHGRP" groupId="_BASIC" label="{i18n>PURCHGRP}" preventInitialDataFetchInValueHelpDialog="false" />
+                    </smartfilterbar:controlConfiguration>
+                    <smartfilterbar:controlConfiguration>
+                        <smartfilterbar:ControlConfiguration id="filterVendor" key="VENDOR" groupId="_BASIC" label="{i18n>VENDOR}" displayBehaviour="descriptionAndId"
+                            preventInitialDataFetchInValueHelpDialog="false"> 
+                        </smartfilterbar:ControlConfiguration>
+                    </smartfilterbar:controlConfiguration>
+
+                    <smartfilterbar:controlConfiguration>
+                        <smartfilterbar:ControlConfiguration key="MATERIALGRP" groupId="_BASIC" label="{i18n>MATERIALGRP}" preventInitialDataFetchInValueHelpDialog="false" />
+                    </smartfilterbar:controlConfiguration>
+                    <smartfilterbar:controlConfiguration>
+                        <smartfilterbar:ControlConfiguration key="MATERIALTYPE" groupId="_BASIC" label="{i18n>MATERIALTYPE}" preventInitialDataFetchInValueHelpDialog="false" />
+                    </smartfilterbar:controlConfiguration>
+
+                    <smartfilterbar:controlConfiguration>
+                        <smartfilterbar:ControlConfiguration key="IONUMBER" groupId="_BASIC" label="{i18n>IONUMBER}" preventInitialDataFetchInValueHelpDialog="false" />
+                    </smartfilterbar:controlConfiguration>
+                    <smartfilterbar:controlConfiguration>
+                        <smartfilterbar:ControlConfiguration key="SEASON" groupId="_BASIC" label="{i18n>SEASON}" preventInitialDataFetchInValueHelpDialog="false" />
+                    </smartfilterbar:controlConfiguration>
+                    <smartfilterbar:layoutData>
+                        <FlexItemData growFactor="0"/>
+                    </smartfilterbar:layoutData>
+                </smartfilterbar:SmartFilterBar>
+
+                <!-- Statistics -->
+                <!-- <uiL:HorizontalLayout class="sapUiResponsiveContentPadding">
+                    <GenericTag text="{i18n>TOTAL}" design="StatusIconHidden" status="Information" class="sapUiSmallMarginBottom tag">
+                        <ObjectNumber emphasized="true" number="{counts>/total}" state="Information" id="forecastNumber"/>
+                    </GenericTag>
+                    <GenericTag text="{i18n>UNASSIGNED}" design="StatusIconHidden" status="Danger" class="sapUiSmallMarginBottom tag">
+                        <ObjectNumber emphasized="true" number="{counts>/unassigned}" state="Danger" id="orderNumber"/>
+                    </GenericTag>
+                    <GenericTag text="{i18n>PARTIAL}" design="StatusIconHidden" status="Warning" class="sapUiSmallMarginBottom tag">
+                        <ObjectNumber emphasized="true" number="{counts>/partial}" state="Warning" id="shippedNumber"/>
+                    </GenericTag>
+                </uiL:HorizontalLayout> -->
+
+                <uiT:Table id="mainTab"
+                    class="sapUiSizeCompact sidePadding"
+                    visibleRowCountMode="Auto"
+                    showColumnVisibilityMenu="true"
+                    enableColumnFreeze="true"
+                    selectionMode="MultiToggle"
+                    sort="onSorted">
+                    <uiT:extension>
+                        <Toolbar>
+                            <!-- <Text text="{counts>/total} PRs" /> -->
+                            <GenericTag text="{i18n>TOTAL}" design="StatusIconHidden" status="Information" class="mbTag">
+                                <ObjectNumber emphasized="true" number="{counts>/total}" state="Information" id="forecastNumber"/>
+                            </GenericTag>
+                            <GenericTag text="{i18n>UNASSIGNED}" design="StatusIconHidden" status="None" class="mbTag">
+                                <ObjectNumber emphasized="true" number="{counts>/unassigned}" state="None" id="orderNumber"/>
+                            </GenericTag>
+                            <GenericTag text="{i18n>PARTIAL}" design="StatusIconHidden" status="Warning" class="mbTag">
+                                <ObjectNumber emphasized="true" number="{counts>/partial}" state="Warning" id="shippedNumber"/>
+                            </GenericTag>
+                            <ToolbarSpacer/>
+                            <SearchField
+                                id="searchFieldMain"
+                                placeholder="Search"
+                                value=""
+                                search="filterGlobally"
+                                width="15rem"/>
+                            <ToolbarSeparator />
+                            <Button id="btnAssign" 
+                                icon="sap-icon://multiselect-all"
+                                press="onAssign"
+                                tooltip="{i18n>AssignVendor}"
+                                visible="true"/>
+                            <Button id="btnUnassign" 
+                                icon="sap-icon://multiselect-none"
+                                press="onUnassign"
+                                tooltip="{i18n>UndoAssignment}"
+                                visible="true"/>
+                            <!-- <Button id="btnCreatePO" 
+                                icon="sap-icon://add-document"
+                                press="onCreatePO" 
+                                tooltip="{i18n>CreatePO}"
+                                visible="true" /> -->
+                        </Toolbar>
+                    </uiT:extension>
+                    <uiT:layoutData>
+                        <FlexItemData growFactor="1" baseSize="0%"/>
+                    </uiT:layoutData>                        
+                </uiT:Table> 
+            </VBox>
         </content>
     </Page>
 </mvc:View>
