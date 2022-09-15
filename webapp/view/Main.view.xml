@@ -162,27 +162,27 @@
                 </smartfilterbar:SmartFilterBar>
 
                 <!-- Statistics -->
-                <uiL:HorizontalLayout class="sapUiNoContentPadding">
-                    <GenericTag text="{i18n>TOTAL}" design="StatusIconHidden" status="Information" class="sapUiSmallMarginBottom tag">
+                <uiL:HorizontalLayout class="sapUiTinyMarginTop sapUiTinyMarginBegin sapUiTinyMarginEnd">
+                    <GenericTag text="{i18n>TOTAL}" design="StatusIconHidden" status="Information" class="mbTag">
                         <ObjectNumber emphasized="true" number="{counts>/total}" state="Information" id="forecastNumber"/>
                     </GenericTag>
-                    <GenericTag text="{i18n>UNASSIGNED}" design="StatusIconHidden" status="Danger" class="sapUiSmallMarginBottom tag">
-                        <ObjectNumber emphasized="true" number="{counts>/unassigned}" state="Danger" id="orderNumber"/>
+                    <GenericTag text="{i18n>UNASSIGNED}" design="StatusIconHidden" status="None" class="mbTag">
+                        <ObjectNumber emphasized="true" number="{counts>/unassigned}" state="None" id="orderNumber"/>
                     </GenericTag>
-                    <GenericTag text="{i18n>PARTIAL}" design="StatusIconHidden" status="Warning" class="sapUiSmallMarginBottom tag">
-                        <ObjectNumber emphasized="true" number="{counts>/partial}" state="Warning" id="shippedNumber"/>
+                    <GenericTag text="{i18n>PARTIAL}" design="StatusIconHidden" status="Warning" class="mbTag">
+                        <ObjectNumber emphasized="true" number="{counts>/partial}" state="Warning" id="shippedNumber" />
                     </GenericTag>
                 </uiL:HorizontalLayout>
 
                 <uiT:Table id="mainTab"
-                    class="sapUiSizeCompact sidePadding"
+                    class="sapUiTinyMarginBottom sapUiTinyMarginBegin sapUiTinyMarginEnd"
                     visibleRowCountMode="Auto"
                     showColumnVisibilityMenu="true"
                     enableColumnFreeze="true"
                     selectionMode="MultiToggle"
                     sort="onSorted">
                     <uiT:extension>
-                        <Toolbar>
+                        <Toolbar class="sapUiTinyMarginBottom">
                             <!-- <Text text="{counts>/total} PRs" /> -->
                             <!-- <GenericTag text="{i18n>TOTAL}" design="StatusIconHidden" status="Information" class="mbTag">
                                 <ObjectNumber emphasized="true" number="{counts>/total}" state="Information" id="forecastNumber"/>
