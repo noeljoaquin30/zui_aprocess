@@ -4,10 +4,12 @@
     xmlns:core="sap.ui.core"
     xmlns:uiL="sap.ui.layout"
     xmlns:uiT="sap.ui.table"
+    xmlns:plugins="sap.ui.table.plugins"
     xmlns="sap.m"
     xmlns:f="sap.f"
     xmlns:semantic="sap.m.semantic"
     xmlns:smartfilterbar="sap.ui.comp.smartfilterbar"
+    xmlns:fb="sap.ui.comp.filterbar" 
     displayBlock="true"> 
     <Page id="page" title="{i18n>title}" showHeader="false">
         <content> 
@@ -111,46 +113,56 @@
             <VBox fitContainer="true">
                 <smartfilterbar:SmartFilterBar id="smartFilterBar" entitySet="ZVB_3DERP_ANP_FILTERS" search="onSearch" persistencyKey="3DERP_StylesPKey" filterContainerWidth="15rem">
                     <smartfilterbar:controlConfiguration>
-                        <smartfilterbar:ControlConfiguration key="DOCTYPE" groupId="_BASIC" label="{i18n>DOCTYPE}" preventInitialDataFetchInValueHelpDialog="false" />
+                        <smartfilterbar:ControlConfiguration key="DOCTYPE" groupId="_BASIC" preventInitialDataFetchInValueHelpDialog="false" />
                     </smartfilterbar:controlConfiguration>
                     <smartfilterbar:controlConfiguration>
-                        <smartfilterbar:ControlConfiguration key="PRNUMBER" groupId="_BASIC" label="{i18n>PRNUMBER}" preventInitialDataFetchInValueHelpDialog="false" />
+                        <smartfilterbar:ControlConfiguration key="PRNUMBER" groupId="_BASIC" preventInitialDataFetchInValueHelpDialog="false" />
                     </smartfilterbar:controlConfiguration>
                     <smartfilterbar:controlConfiguration>
-                        <smartfilterbar:ControlConfiguration key="SHIPTOPLANT" groupId="_BASIC" label="{i18n>SHIPTOPLANT}" preventInitialDataFetchInValueHelpDialog="false" />
+                        <smartfilterbar:ControlConfiguration key="SHIPTOPLANT" groupId="_BASIC" preventInitialDataFetchInValueHelpDialog="false" />
                     </smartfilterbar:controlConfiguration>
                     <smartfilterbar:controlConfiguration>
-                        <smartfilterbar:ControlConfiguration key="PURCHPLANT" groupId="_BASIC" label="{i18n>PURCHPLANT}" preventInitialDataFetchInValueHelpDialog="false" />
+                        <smartfilterbar:ControlConfiguration key="PURCHPLANT" groupId="_BASIC" preventInitialDataFetchInValueHelpDialog="false" />
                     </smartfilterbar:controlConfiguration>
                     <smartfilterbar:controlConfiguration>
-                        <smartfilterbar:ControlConfiguration key="PURCHGRP" groupId="_BASIC" label="{i18n>PURCHGRP}" preventInitialDataFetchInValueHelpDialog="false" />
+                        <smartfilterbar:ControlConfiguration key="PURCHGRP" groupId="_BASIC" preventInitialDataFetchInValueHelpDialog="false" />
                     </smartfilterbar:controlConfiguration>
                     <smartfilterbar:controlConfiguration>
-                        <smartfilterbar:ControlConfiguration id="filterVendor" key="VENDOR" groupId="_BASIC" label="{i18n>VENDOR}" displayBehaviour="descriptionAndId"
+                        <smartfilterbar:ControlConfiguration id="filterVendor" key="VENDOR" groupId="_BASIC" displayBehaviour="descriptionAndId"
                             preventInitialDataFetchInValueHelpDialog="false"> 
                         </smartfilterbar:ControlConfiguration>
                     </smartfilterbar:controlConfiguration>
 
                     <smartfilterbar:controlConfiguration>
-                        <smartfilterbar:ControlConfiguration key="MATERIALGRP" groupId="_BASIC" label="{i18n>MATERIALGRP}" preventInitialDataFetchInValueHelpDialog="false" />
+                        <smartfilterbar:ControlConfiguration key="MATERIALGRP" groupId="_BASIC" preventInitialDataFetchInValueHelpDialog="false" />
                     </smartfilterbar:controlConfiguration>
                     <smartfilterbar:controlConfiguration>
-                        <smartfilterbar:ControlConfiguration key="MATERIALTYPE" groupId="_BASIC" label="{i18n>MATERIALTYPE}" preventInitialDataFetchInValueHelpDialog="false" />
+                        <smartfilterbar:ControlConfiguration key="MATERIALTYPE" groupId="_BASIC" preventInitialDataFetchInValueHelpDialog="false" />
                     </smartfilterbar:controlConfiguration>
 
                     <smartfilterbar:controlConfiguration>
-                        <smartfilterbar:ControlConfiguration key="IONUMBER" groupId="_BASIC" label="{i18n>IONUMBER}" preventInitialDataFetchInValueHelpDialog="false" />
+                        <smartfilterbar:ControlConfiguration key="IONUMBER" groupId="_BASIC" preventInitialDataFetchInValueHelpDialog="false" />
                     </smartfilterbar:controlConfiguration>
                     <smartfilterbar:controlConfiguration>
-                        <smartfilterbar:ControlConfiguration key="SEASON" groupId="_BASIC" label="{i18n>SEASON}" preventInitialDataFetchInValueHelpDialog="false" />
+                        <smartfilterbar:ControlConfiguration key="SEASON" groupId="_BASIC" preventInitialDataFetchInValueHelpDialog="false" />
                     </smartfilterbar:controlConfiguration>
+
+                    <!-- <smartfilterbar:controlConfiguration>
+                        <smartfilterbar:ControlConfiguration key="DELVDATE">
+                            <smartfilterbar:customControl>
+                                <DateRangeSelection id="DelvDatePicker" value="{parts: [{path: ''}, {path: ''}], type: 'sap.ui.model.type.DateInterval',
+                                    formatOptions: { UTC: false, format: 'yyyyMMdd' }}"/>    
+                            </smartfilterbar:customControl>
+                        </smartfilterbar:ControlConfiguration>
+                    </smartfilterbar:controlConfiguration> -->
+
                     <smartfilterbar:layoutData>
                         <FlexItemData growFactor="0"/>
                     </smartfilterbar:layoutData>
                 </smartfilterbar:SmartFilterBar>
 
                 <!-- Statistics -->
-                <!-- <uiL:HorizontalLayout class="sapUiResponsiveContentPadding">
+                <uiL:HorizontalLayout class="sapUiNoContentPadding">
                     <GenericTag text="{i18n>TOTAL}" design="StatusIconHidden" status="Information" class="sapUiSmallMarginBottom tag">
                         <ObjectNumber emphasized="true" number="{counts>/total}" state="Information" id="forecastNumber"/>
                     </GenericTag>
@@ -160,7 +172,7 @@
                     <GenericTag text="{i18n>PARTIAL}" design="StatusIconHidden" status="Warning" class="sapUiSmallMarginBottom tag">
                         <ObjectNumber emphasized="true" number="{counts>/partial}" state="Warning" id="shippedNumber"/>
                     </GenericTag>
-                </uiL:HorizontalLayout> -->
+                </uiL:HorizontalLayout>
 
                 <uiT:Table id="mainTab"
                     class="sapUiSizeCompact sidePadding"
@@ -172,15 +184,15 @@
                     <uiT:extension>
                         <Toolbar>
                             <!-- <Text text="{counts>/total} PRs" /> -->
-                            <GenericTag text="{i18n>TOTAL}" design="StatusIconHidden" status="Information" class="mbTag">
+                            <!-- <GenericTag text="{i18n>TOTAL}" design="StatusIconHidden" status="Information" class="mbTag">
                                 <ObjectNumber emphasized="true" number="{counts>/total}" state="Information" id="forecastNumber"/>
                             </GenericTag>
                             <GenericTag text="{i18n>UNASSIGNED}" design="StatusIconHidden" status="None" class="mbTag">
                                 <ObjectNumber emphasized="true" number="{counts>/unassigned}" state="None" id="orderNumber"/>
                             </GenericTag>
                             <GenericTag text="{i18n>PARTIAL}" design="StatusIconHidden" status="Warning" class="mbTag">
-                                <ObjectNumber emphasized="true" number="{counts>/partial}" state="Warning" id="shippedNumber"/>
-                            </GenericTag>
+                                <ObjectNumber emphasized="true" number="{counts>/partial}" state="Warning" id="shippedNumber" />
+                            </GenericTag> -->
                             <ToolbarSpacer/>
                             <SearchField
                                 id="searchFieldMain"
@@ -204,6 +216,9 @@
                                 press="onCreatePO" 
                                 tooltip="{i18n>CreatePO}"
                                 visible="true" /> -->
+                            <Button icon="sap-icon://grid" 
+                                tooltip="{i18n>Savetablelayout}" 
+                                press="onSaveTableLayout"/>                                
                         </Toolbar>
                     </uiT:extension>
                     <uiT:layoutData>

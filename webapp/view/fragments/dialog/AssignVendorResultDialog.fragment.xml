@@ -31,6 +31,12 @@
                         <Text text="{PRITEMNO}" wrapping="false" />
                     </uit:template>
                 </uit:Column>
+                <uit:Column width="15rem">
+                    <Label text="Remarks" />
+                    <uit:template>
+                        <Text text="{REMARKS}" wrapping="false" />
+                    </uit:template>
+                </uit:Column>
                 <uit:Column width="10rem">
                     <Label text="Material No." />
                     <uit:template>
@@ -77,12 +83,6 @@
                     <Label text="Purch Group" />
                     <uit:template>
                         <Text text="{PURCHGRP}" wrapping="false" />
-                    </uit:template>
-                </uit:Column>
-                <uit:Column width="15rem">
-                    <Label text="Remarks" />
-                    <uit:template>
-                        <Text text="{REMARKS}" wrapping="false" />
                     </uit:template>
                 </uit:Column>
             </uit:columns>

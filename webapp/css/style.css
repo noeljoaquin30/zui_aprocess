@@ -40,3 +40,7 @@
 .mbTag {
     margin-bottom: 0.15rem !important;
 }
+
+.warningBGColor {
+    background-color: #f9a429 !important;
+}
