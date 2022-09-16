@@ -113,6 +113,24 @@
             <VBox fitContainer="true">
                 <smartfilterbar:SmartFilterBar id="smartFilterBar" entitySet="ZVB_3DERP_ANP_FILTERS" search="onSearch" persistencyKey="3DERP_StylesPKey" filterContainerWidth="15rem">
                     <smartfilterbar:controlConfiguration>
+                        <smartfilterbar:ControlConfiguration key="SBU" groupId="_BASIC" label="SBU" mandatory="mandatory" width="50px">
+                            <smartfilterbar:customControl>
+                                <ComboBox id="cboxSBU"
+                                    selectedKey="{ui>/sbu}"
+                                    change="onSBUChange"
+                                    items="{
+                                        path: '/ZVB_3DERP_SBU_SH'
+                                    }">
+                                    <core:Item key="{SBU}" text="{SBU}" />
+                                </ComboBox>                                  
+                            </smartfilterbar:customControl>
+                        </smartfilterbar:ControlConfiguration>
+                    </smartfilterbar:controlConfiguration>
+
+                    <!-- <smartfilterbar:controlConfiguration>
+                        <smartfilterbar:ControlConfiguration key="SBU" groupId="_BASIC" mandatory="mandatory" controlType="dropDownList"  preventInitialDataFetchInValueHelpDialog="false" />
+                    </smartfilterbar:controlConfiguration> -->
+                    <smartfilterbar:controlConfiguration>
                         <smartfilterbar:ControlConfiguration key="DOCTYPE" groupId="_BASIC" preventInitialDataFetchInValueHelpDialog="false" />
                     </smartfilterbar:controlConfiguration>
                     <smartfilterbar:controlConfiguration>
@@ -141,7 +159,7 @@
                     </smartfilterbar:controlConfiguration>
 
                     <smartfilterbar:controlConfiguration>
-                        <smartfilterbar:ControlConfiguration key="IONUMBER" groupId="_BASIC" preventInitialDataFetchInValueHelpDialog="false" />
+                        <smartfilterbar:ControlConfiguration key="IONUMBER" groupId="_BASIC" preventInitialDataFetchInValueHelpDialog="false" width="15rem" />
                     </smartfilterbar:controlConfiguration>
                     <smartfilterbar:controlConfiguration>
                         <smartfilterbar:ControlConfiguration key="SEASON" groupId="_BASIC" preventInitialDataFetchInValueHelpDialog="false" />
@@ -163,10 +181,10 @@
 
                 <!-- Statistics -->
                 <uiL:HorizontalLayout class="sapUiTinyMarginTop sapUiTinyMarginBegin sapUiTinyMarginEnd">
-                    <GenericTag text="{i18n>TOTAL}" design="StatusIconHidden" status="Information" class="mbTag">
+                    <GenericTag text="{i18n>TOTAL}" design="StatusIconHidden" status="Information" class="sapUiTinyMarginEnd">
                         <ObjectNumber emphasized="true" number="{counts>/total}" state="Information" id="forecastNumber"/>
                     </GenericTag>
-                    <GenericTag text="{i18n>UNASSIGNED}" design="StatusIconHidden" status="None" class="mbTag">
+                    <GenericTag text="{i18n>UNASSIGNED}" design="StatusIconHidden" status="None" class="sapUiTinyMarginEnd">
                         <ObjectNumber emphasized="true" number="{counts>/unassigned}" state="None" id="orderNumber"/>
                     </GenericTag>
                     <GenericTag text="{i18n>PARTIAL}" design="StatusIconHidden" status="Warning" class="mbTag">
@@ -193,6 +211,17 @@
                             <GenericTag text="{i18n>PARTIAL}" design="StatusIconHidden" status="Warning" class="mbTag">
                                 <ObjectNumber emphasized="true" number="{counts>/partial}" state="Warning" id="shippedNumber" />
                             </GenericTag> -->
+                            <!-- <Label text="SBU: " />
+                            <ComboBox id="cboxSBU"
+                                width="100px"
+                                change="onSBUChange"
+                                selectedKey="{ui>/sbu}"
+                                items="{
+                                    path: '/SBURscSet'
+                                }"
+                                class="marginTopNone">
+                                <core:Item key="{SBU}" text="{SBU}" />
+                            </ComboBox> -->
                             <ToolbarSpacer/>
                             <SearchField
                                 id="searchFieldMain"
@@ -211,12 +240,13 @@
                                 press="onUnassign"
                                 tooltip="{i18n>UndoAssignment}"
                                 visible="true"/>
-                            <!-- <Button id="btnCreatePO" 
+                            <Button id="btnCreatePO" 
                                 icon="sap-icon://add-document"
                                 press="onCreatePO" 
                                 tooltip="{i18n>CreatePO}"
-                                visible="true" /> -->
-                            <Button icon="sap-icon://grid" 
+                                visible="true" />
+                            <Button id="btnTabLayout"
+                                icon="sap-icon://grid" 
                                 tooltip="{i18n>Savetablelayout}" 
                                 press="onSaveTableLayout"/>                                
                         </Toolbar>

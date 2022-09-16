@@ -25,7 +25,6 @@ sap.ui.define([
                 // Common.openLoadingDialog(that);
 
                 this.showLoadingDialog('Loading...');
-                this.getColumns();
 
                 this._counts = {
                     total: 0,
@@ -33,6 +32,11 @@ sap.ui.define([
                     partial: 0
                 }
 
+                this.getView().setModel(new JSONModel({
+                    sbu: ''
+                }), "ui");
+
+                this._sbuChange = false;
                 var oJSONDataModel = new JSONModel(); 
                 oJSONDataModel.setData(this._counts);
 
@@ -40,27 +44,47 @@ sap.ui.define([
                 this.getView().setModel(oJSONDataModel, "counts");
 
                 this.setSmartFilterModel();
-
                 this._oAssignVendorData = [];
 
-                var vSBU = 'VER';
-                this._oModel.read("/ZERPCheckSet", {
-                    urlParameters: {
-                        "$filter": "Sbu eq '" + vSBU + "'"
-                    },
+                var oModel = this.getOwnerComponent().getModel("ZVB_3DERP_ANP_FILTERS_CDS");
+                oModel.read("/ZVB_3DERP_SBU_SH", {
                     success: function (oData, oResponse) {
-                        console.log(oData)
-
-                        
+                        // console.log(oData)
+                        if (oData.results.length === 1) {
+                            that.getView().getModel("ui").setProperty("/sbu", oData.results[0].SBU);
+                            that.getColumns("AUTO_INIT");
+                        }
+                        else {
+                            that.closeLoadingDialog();
+                            that.byId("searchFieldMain").setEnabled(false);
+                            that.byId("btnAssign").setEnabled(false);
+                            that.byId("btnAssign").setEnabled(false);
+                            that.byId("btnUnassign").setEnabled(false);
+                            that.byId("btnCreatePO").setEnabled(false);
+                            that.byId("btnTabLayout").setEnabled(false);
+                        }
                     },
-                    error: function (err) { 
-                        
-                    }
+                    error: function (err) { }
                 });
-
             },
 
-            getColumns() {
+            onSBUChange: function(oEvent) {
+                this._sbuChange = true;
+                // console.log(this.byId('cboxSBU').getSelectedKey());
+                // var vSBU = this.byId('cboxSBU').getSelectedKey();
+                
+                // this.showLoadingDialog('Loading...');
+                // this.getGMC();
+                // console.log(this.getView().byId("btnTabLayout"))
+                this.byId("searchFieldMain").setEnabled(false);
+                this.byId("btnAssign").setEnabled(false);
+                this.byId("btnAssign").setEnabled(false);
+                this.byId("btnUnassign").setEnabled(false);
+                this.byId("btnCreatePO").setEnabled(false);
+                this.byId("btnTabLayout").setEnabled(false);
+            },
+
+            getColumns(arg) {
                 var me = this;
 
                 //get dynamic columns based on saved layout or ZERP_CHECK
@@ -68,20 +92,41 @@ sap.ui.define([
                 // this.oJSONModel = new JSONModel();
 
                 var oModel = this.getOwnerComponent().getModel("ZGW_3DERP_COMMON_SRV");
+                var vSBU = this.getView().getModel("ui").getData().sbu;
                 // console.log(oModel)
                 oModel.setHeaders({
-                    sbu: 'VER',
+                    sbu: vSBU,
                     type: 'APROCESS',
                     tabname: 'ZDV_3DERP_ANP'
                 });
 
                 oModel.read("/ColumnsSet", {
                     success: function (oData, oResponse) {
-                        console.log(oData);
+                        // console.log(oData);
                         oJSONColumnsModel.setData(oData);
                         // me.oJSONModel.setData(oData);
                         me.getView().setModel(oJSONColumnsModel, "columns"); //set the view model
-                        me.getTableData(oData.results);
+
+                        if (oData.results.length > 0) {
+                            if (arg === "AUTO_INIT") {
+                                me.getInitTableData();
+                            }
+                            else {
+                                me.getTableData();
+                            }
+                        }
+                        else {
+                            me.closeLoadingDialog();
+                            sap.m.MessageBox.information("No table layout retrieve.");
+                            console.log(me.byId("mainTab"))
+                            if (me.byId("mainTab").getColumns().length > 0) {
+                                me.byId("mainTab").removeAllColumns();
+                                me._counts.total = 0;
+                                me._counts.unassigned = 0;
+                                me._counts.partial = 0;
+                                me.getView().getModel("counts").setData(me._counts);
+                            }
+                        }
                     },
                     error: function (err) {
                         Common.closeLoadingDialog(that);
@@ -89,7 +134,7 @@ sap.ui.define([
                 });
             },
 
-            getTableData: function (columns) {
+            getInitTableData: function () {
                 var me = this;
                 var oModel = this.getOwnerComponent().getModel();
 
@@ -308,11 +353,35 @@ sap.ui.define([
                 this.byId("searchFieldMain").setProperty("value", "");
                 this.showLoadingDialog('Loading...');
 
+                var vSBU = this.getView().byId("cboxSBU").getSelectedKey();
+                
+                if (this.getView().getModel("ui").getData().sbu === '' || this._sbuChange) {
+                    this.getColumns('MANUAL_INIT');
+                }
+                else {
+                    this.getView().getModel("ui").setProperty("/sbu", vSBU);
+                    
+                    if (this.getView().getModel("columns") === undefined) {
+                        this.getColumns('SEARCH');
+                    }
+                    else {
+                        if (this.getView().getModel("columns").getData().results.length === 0) {
+                            this.getColumns('SEARCH');
+                        }
+                        else {
+                            this.getTableData();
+                        }
+                    }
+                }                
+            },
+
+            getTableData() {
+                // return;
                 var me = this;
                 var oModel = this.getOwnerComponent().getModel();
                 var aFilters = this.getView().byId("smartFilterBar").getFilters();
-                var oJSONDataModel = new JSONModel();                 
-                // console.log(aFilters)
+                var oJSONDataModel = new JSONModel();                                
+
                 if (aFilters.length > 0) {
                     aFilters[0].aFilters.forEach(item => {
                         console.log(item)
@@ -324,9 +393,9 @@ sap.ui.define([
                     })
                 }
 
-                // console.log(aFilters)
+                // console.log(this.byId('mainTab').getColumns());
                 // this.addDateFilters(aFilters); //date not automatically added to filters
-
+                
                 oModel.read("/MainSet", { 
                     filters: aFilters,
                     success: function (oData, oResponse) {
@@ -347,14 +416,23 @@ sap.ui.define([
                         me.getView().setModel(oJSONDataModel, "mainData");
                         me.closeLoadingDialog();
                         me.setTableData();
+
+                        if (me.byId('mainTab').getColumns().length === 0) me.setTableColumns();
+                        
                         // me.setChangeStatus(false);
+
+                        me.byId("searchFieldMain").setEnabled(true);
+                        me.byId("btnAssign").setEnabled(true);
+                        me.byId("btnAssign").setEnabled(true);
+                        me.byId("btnUnassign").setEnabled(true);
+                        me.byId("btnCreatePO").setEnabled(true);
+                        me.byId("btnTabLayout").setEnabled(true);
                     },
                     error: function (err) { 
                         console.log(err)
                         me.closeLoadingDialog();
                     }
                 });
-
             },
 
             onAssign: function() {
@@ -368,7 +446,8 @@ sap.ui.define([
                 var oParamData = [];
                 var oParam = {};
                 var oModel = this.getOwnerComponent().getModel("ZGW_3DERP_RFC_SRV");
-                var vSBU = 'VER';
+                var vSBU = this.getView().getModel("ui").getData().sbu;
+                var vMatTypExist = false;
 
                 if (oSelectedIndices.length > 0) {
                     this._oModel.read("/ZERPCheckSet", {
@@ -383,7 +462,7 @@ sap.ui.define([
                             })
 
                             oSelectedIndices = oTmpSelectedIndices;
-        
+                            // console.log(oSelectedIndices)
                             oSelectedIndices.forEach((item, index) => {
                                 if (oDataCheck.results.length > 0) {
                                     if (oDataCheck.results.filter(fItem => fItem.Field2 === aData.at(item).MATERIALTYPE).length === 0) {
@@ -392,7 +471,8 @@ sap.ui.define([
                                             Material: aData.at(item).MATERIALNO,
                                             PurchOrg: aData.at(item).PURCHORG,
                                             PurGroup: aData.at(item).PURCHGRP,
-                                            Plant: aData.at(item).PURCHPLANT
+                                            Plant: ''
+                                            // Plant: aData.at(item).PURCHPLANT
                                         })
                 
                                         me._oAssignVendorData.push({
@@ -409,6 +489,7 @@ sap.ui.define([
                                             REMARKS: ''
                                         })
                                     }
+                                    else vMatTypExist = true;
                                 }
                                 else {
                                     oParamData.push({
@@ -416,7 +497,8 @@ sap.ui.define([
                                         Material: aData.at(item).MATERIALNO,
                                         PurchOrg: aData.at(item).PURCHORG,
                                         PurGroup: aData.at(item).PURCHGRP,
-                                        Plant: aData.at(item).PURCHPLANT
+                                        Plant: ''
+                                        // Plant: aData.at(item).PURCHPLANT
                                     })
             
                                     me._oAssignVendorData.push({
@@ -447,7 +529,7 @@ sap.ui.define([
                                 oModel.create("/GetInfoRecordSet", oParam, {
                                     method: "POST",
                                     success: function(oResult, oResponse) {
-                                        // console.log(oResult.N_GetInfoRecReturn)
+                                        console.log(oResult.N_GetInfoRecReturn)
                                         var oManualAssignVendorData = [];
                                         oParamData = [];
                                         oParam = {};
@@ -528,7 +610,8 @@ sap.ui.define([
             
                                                     if (oResultCPR.N_ChangePRReturn.results.length > 0) {
                                                         me._oAssignVendorData.forEach(item => {
-                                                            var oRetMsg = oResultCPR.N_ChangePRReturn.results.filter(fItem => fItem.PreqNo === item.PRNUMBER && fItem.PreqItem === item.PRITEMNO);
+                                                            // var oRetMsg = oResultCPR.N_ChangePRReturn.results.filter(fItem => fItem.PreqNo === item.PRNUMBER && fItem.PreqItem === item.PRITEMNO);
+                                                            var oRetMsg = oResultCPR.N_ChangePRReturn.results.filter(fItem => fItem.PreqNo === item.PRNUMBER);
             
                                                             if (oRetMsg.length > 0) {
                                                                 if (oRetMsg[0].Type === 'S') {
@@ -545,11 +628,11 @@ sap.ui.define([
                                                                         item.REMARKS = 'Purchasing Org updated.';
                                                                     }
                                                                     else {
-                                                                        item.REMARKS = Message;
+                                                                        item.REMARKS = oRetMsg[0].Message;
                                                                     }
                                                                 }
                                                                 else {
-                                                                    item.REMARKS = Message;
+                                                                    item.REMARKS = oRetMsg[0].Message;
                                                                 }
                                                             }
                                                             else {
@@ -625,7 +708,13 @@ sap.ui.define([
                             }
                             else {
                                 me.closeLoadingDialog();
-                                sap.m.MessageBox.information("No record(s) to process.");
+
+                                if (vMatTypExist) {
+                                    sap.m.MessageBox.information("Material type of selected record(s) exists in zerp_check.");
+                                }
+                                else {
+                                    sap.m.MessageBox.information("No record(s) to process.");
+                                }
                             }
                         },
                         error: function (err) {
@@ -855,7 +944,7 @@ sap.ui.define([
     
                                 if (oResultCPR.N_ChangePRReturn.results.length > 0) {
                                     me._oAssignVendorData.forEach(item => {
-                                        var oRetMsg = oResultCPR.N_ChangePRReturn.results.filter(fItem => fItem.PreqNo === item.PRNUMBER && fItem.PreqItem === item.PRITEMNO);
+                                        var oRetMsg = oResultCPR.N_ChangePRReturn.results.filter(fItem => fItem.PreqNo === item.PRNUMBER);
     
                                         if (oRetMsg.length > 0) {
                                             item.REMARKS = oRetMsg[0].Message;
@@ -941,8 +1030,10 @@ sap.ui.define([
                 var ctr = 1;
                 var oTable = this.getView().byId("mainTab");
                 var oColumns = oTable.getColumns();
+                var vSBU = this.getView().getModel("ui").getData().sbu;
+
                 var oParam = {
-                    "SBU": "VER",
+                    "SBU": vSBU,
                     "TYPE": "APROCESS",
                     "TABNAME": "ZDV_3DERP_ANP",
                     "TableLayoutToItems": []
