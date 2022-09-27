@@ -1,0 +1,119 @@
+<core:FragmentDefinition
+		xmlns="sap.m"
+        xmlns:form="sap.ui.layout.form"
+		xmlns:core="sap.ui.core"
+        xmlns:uit="sap.ui.table"
+        id="fragment-fabspecs" 
+        fragmentName="fabspecs">
+    <Dialog contentWidth="75%"
+        contentHeight="300px"
+        title="Fabric Specs"
+        beforeOpen="beforeOpenFabSpecs"
+        resizable="true"
+        draggable="true">
+        <content>
+            <!-- <Toolbar style="Clear" class="sapUiTinyMarginBeginEnd sapUiTinyMarginTop">
+                <ToolbarSpacer />
+                <Button icon="sap-icon://save" text="{i18n>Save}" tooltip="{i18n>Save}" press="onSaveFabSpecs" />
+                <Button icon="sap-icon://delete" text="{i18n>Delete}" tooltip="{i18n>Delete}" press="onDeleteFabSpecs" />
+                <Button icon="sap-icon://decline" text="{i18n>Close}" tooltip="{i18n>Close}" press="onCloseFabSpecs" />
+            </Toolbar> -->
+
+            <form:Form id="FabSpecsForm" editable="true" class="sapUiNoContentPadding">
+                <form:layout>
+                    <form:ResponsiveGridLayout columnsXL="2" columnsL="2" />
+                </form:layout>
+                <form:formContainers>
+                    <form:FormContainer ariaLabelledBy="Grp1" class="sapUiNoContentPadding">
+                        <form:formElements>
+                            <form:FormElement label="{i18n>Additional Description}">
+                                <form:fields>
+                                    <!-- <Text text="Color Fastness to Crocking Wet" /> -->
+                                    <Input id="ZZMAKT" value="{fs>/ZZMAKT}" change="onFabSpecsChange" liveChange="onFabSpecsChange" maxLength="68">
+                                    </Input>
+                                </form:fields>
+                            </form:FormElement>
+                            <form:FormElement label="{i18n>Handfeel}">
+                                <form:fields>
+                                    <Input id="ZZHAFE" value="{fs>/ZZHAFE}" change="onFabSpecsChange" liveChange="onFabSpecsChange" maxLength="40"/>
+                                </form:fields>
+                            </form:FormElement>
+                            <form:FormElement label="{i18n>Shrinkage}">
+                                <form:fields>
+                                    <Input id="ZZSHNK" value="{fs>/ZZSHNK}" change="onFabSpecsChange" liveChange="onFabSpecsChange" maxLength="5"/>
+                                </form:fields>
+                            </form:FormElement>
+                            <form:FormElement label="{i18n>Change}">
+                                <form:fields>
+                                    <Input id="ZZCHNG" value="{fs>/ZZCHNG}" change="onFabSpecsChange" liveChange="onFabSpecsChange" maxLength="8"/>
+                                </form:fields>
+                            </form:FormElement>
+                            <form:FormElement label="{i18n>Stain}">
+                                <form:fields>
+                                    <Input id="ZZSTAN" value="{fs>/ZZSTAN}" change="onFabSpecsChange" liveChange="onFabSpecsChange" maxLength="8"/>
+                                </form:fields>
+                            </form:FormElement>
+                            <form:FormElement label="{i18n>Dry}">
+                                <form:fields>
+                                    <Input id="ZZDRY" value="{fs>/ZZDRY}" change="onFabSpecsChange" liveChange="onFabSpecsChange" maxLength="8"/>
+                                </form:fields>
+                            </form:FormElement>
+                            <form:FormElement label="{i18n>Color Fastness to Washing}">
+                                <form:fields>
+                                    <Input id="ZZCFWA" value="{fs>/ZZCFWA}" change="onFabSpecsChange" liveChange="onFabSpecsChange" maxLength="8"/>
+                                </form:fields>
+                            </form:FormElement>
+                        </form:formElements>
+                    </form:FormContainer>
+                    <form:FormContainer ariaLabelledBy="Grp2">
+                        <form:formElements>
+                            <form:FormElement label="{i18n>Color Fastness to Crocking Wet}">
+                                <form:fields>
+                                    <Input id="ZZCFCW" value="{fs>/ZZCFCW}" change="onFabSpecsChange" liveChange="onFabSpecsChange" maxLength="8" />
+                                </form:fields>
+                            </form:FormElement>
+                            <form:FormElement label="{i18n>Shipment Sample Requirements}">
+                                <form:fields>
+                                    <Input id="ZZSHRQ" value="{fs>/ZZSHRQ}" change="onFabSpecsChange" liveChange="onFabSpecsChange" maxLength="40" />
+                                </form:fields>
+                            </form:FormElement>
+                            <form:FormElement label="{i18n>Sample Shipment Date}">
+                                <form:fields>
+                                    <DatePicker
+                                        id="ZZSHDA"
+                                        placeholder="Enter Date"
+                                        displayFormat="MM/dd/yyyy"
+                                        valueFormat="MM/dd/yyyy"
+                                        value="{fs>/ZZSHDA}"
+                                        change="onFabSpecsChange"
+                                        />
+                                    <!-- <Input id="ZZSHDA" value="{fabspecs>/ZZSHDA}" change="onHeaderChange" liveChange="onHeaderChange"/> -->
+                                </form:fields>
+                            </form:FormElement>
+                            <form:FormElement label="{i18n>Prod Month/Year}">
+                                <form:fields>
+                                    <Text id="PLANMONTH1" text="{fs>/PLANMONTH}" />
+                                </form:fields>
+                            </form:FormElement>
+                            <form:FormElement label="{i18n>Other Requirements (1)}">
+                                <form:fields>
+                                    <Input id="ZZREQ1" value="{fs>/ZZREQ1}" change="onFabSpecsChange" liveChange="onFabSpecsChange" maxLength="40" />
+                                </form:fields>
+                            </form:FormElement>
+                            <form:FormElement label="{i18n>Other Requirements (2)}">
+                                <form:fields>
+                                    <Input id="ZZREQ2" value="{fs>/ZZREQ2}" change="onFabSpecsChange" liveChange="onFabSpecsChange" maxLength="40" />
+                                </form:fields>
+                            </form:FormElement>                            
+                        </form:formElements>
+                    </form:FormContainer>
+                </form:formContainers>
+            </form:Form>
+        </content>
+        <buttons>
+            <Button icon="sap-icon://save" text="{i18n>Save}" tooltip="{i18n>Save}" press="onSaveFabSpecs" />
+            <Button icon="sap-icon://delete" text="{i18n>Delete}" tooltip="{i18n>Delete}" press="onDeleteFabSpecs" />
+            <Button icon="sap-icon://decline" text="{i18n>Close}" tooltip="{i18n>Close}" press="onCloseFabSpecs" />        
+        </buttons>
+    </Dialog>
+</core:FragmentDefinition>

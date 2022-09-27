@@ -44,3 +44,11 @@
 .warningBGColor {
     background-color: #f9a429 !important;
 }
+
+.titleAlignLeft {
+    text-align: left !important;
+}
+
+.requiredField {
+    color: red !important;
+}

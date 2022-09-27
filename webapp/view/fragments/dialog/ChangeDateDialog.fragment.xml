@@ -1,0 +1,31 @@
+<core:FragmentDefinition
+		xmlns="sap.m"
+        xmlns:f="sap.ui.layout.form"
+		xmlns:core="sap.ui.core"
+        xmlns:uit="sap.ui.table"
+        id="fragment-changedate" 
+        fragmentName="changedate">
+    <Dialog contentWidth="150px"
+        contentHeight="80px"
+        title="Change Delivery Date"
+        resizable="false"
+        draggable="true">
+        <beginButton>
+            <Button icon="sap-icon://accept" text="Execute" press="onChangeDate"/>
+		</beginButton>        
+        <endButton>
+			<Button icon="sap-icon://decline" text="Close" press="onCloseChangeDate"/>
+		</endButton>
+        <content>
+            <!-- <Panel class="sapUiSmallMargin"> -->
+                <DatePicker
+                    id="DP1"
+                    placeholder="Enter Date"
+                    displayFormat="MM/dd/yyyy"
+                    valueFormat="MM/dd/yyyy"
+                    width="90%"
+                    class="sapUiSmallMargin"/>
+            <!-- </Panel>       -->
+        </content>
+    </Dialog>
+</core:FragmentDefinition>

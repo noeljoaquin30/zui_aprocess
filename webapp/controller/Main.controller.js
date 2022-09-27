@@ -45,6 +45,7 @@ sap.ui.define([
 
                 this.setSmartFilterModel();
                 this._oAssignVendorData = [];
+                this._oCreateData = [];
 
                 var oModel = this.getOwnerComponent().getModel("ZVB_3DERP_ANP_FILTERS_CDS");
                 oModel.read("/ZVB_3DERP_SBU_SH", {
@@ -65,6 +66,100 @@ sap.ui.define([
                         }
                     },
                     error: function (err) { }
+                });
+
+                var oJSONModel = new JSONModel();
+                var oDDTextParam = [], oDDTextResult = {};
+                oModel = this.getOwnerComponent().getModel("ZGW_3DERP_COMMON_SRV");
+
+                oDDTextParam.push({CODE: "SBU"});
+                oDDTextParam.push({CODE: "DOCTYPE"});
+                oDDTextParam.push({CODE: "PRNUMBER"});
+                oDDTextParam.push({CODE: "SHIPTOPLANT"});
+                oDDTextParam.push({CODE: "PURCHPLANT"});
+                oDDTextParam.push({CODE: "PURCHGRP"});
+                oDDTextParam.push({CODE: "VENDOR"});
+                oDDTextParam.push({CODE: "MATERIALGRP"});
+                oDDTextParam.push({CODE: "MATERIALTYPE"});
+                oDDTextParam.push({CODE: "IONUMBER"});
+                oDDTextParam.push({CODE: "SEASON"});
+                oDDTextParam.push({CODE: "ASSIGNVENDOR"});
+                oDDTextParam.push({CODE: "UNDOASSIGNVENDOR"});
+                oDDTextParam.push({CODE: "UNASSIGNED"});
+                oDDTextParam.push({CODE: "PARTIAL"});
+                oDDTextParam.push({CODE: "TOTAL"});
+                oDDTextParam.push({CODE: "CREATEPO"});
+                oDDTextParam.push({CODE: "SAVELAYOUT"});
+                oDDTextParam.push({CODE: "GROUP"});
+                oDDTextParam.push({CODE: "PODATE"});
+                oDDTextParam.push({CODE: "VENDORNAME"});
+                oDDTextParam.push({CODE: "PURCHORG"});
+                oDDTextParam.push({CODE: "COMPANY"});
+                oDDTextParam.push({CODE: "PAYTERMS"});
+                oDDTextParam.push({CODE: "INCOTERMS"});
+                oDDTextParam.push({CODE: "DESTINATION"});
+                oDDTextParam.push({CODE: "CURR"});
+                oDDTextParam.push({CODE: "EXRATE"});
+                oDDTextParam.push({CODE: "SHIPMODE"});
+                oDDTextParam.push({CODE: "CREATEDBY"});
+                oDDTextParam.push({CODE: "CREATEDDATE"});
+                oDDTextParam.push({CODE: "EDIT"});
+                oDDTextParam.push({CODE: "CHANGEDELVDATE"});
+                oDDTextParam.push({CODE: "FABSPECS"});
+                oDDTextParam.push({CODE: "HEADERTEXT"});
+                oDDTextParam.push({CODE: "GENERATEPO"});
+                oDDTextParam.push({CODE: "SAVE"});
+                oDDTextParam.push({CODE: "CANCEL"});               
+                oDDTextParam.push({CODE: "MATERIALNO"});
+                oDDTextParam.push({CODE: "GMCDESCEN"});
+                oDDTextParam.push({CODE: "ADDTLDESC"});
+                oDDTextParam.push({CODE: "DELVDATE"});
+                oDDTextParam.push({CODE: "BASEPOQTY"});
+                oDDTextParam.push({CODE: "ORDERPOQTY"});
+                oDDTextParam.push({CODE: "UOM"});
+                oDDTextParam.push({CODE: "GROSSPRICE"});
+                oDDTextParam.push({CODE: "NETPRICE"});
+                oDDTextParam.push({CODE: "PER"});
+                oDDTextParam.push({CODE: "ORDERPRICEUNIT"});
+                oDDTextParam.push({CODE: "OVERDELTOL"});
+                oDDTextParam.push({CODE: "UNDERDELTOL"});
+                oDDTextParam.push({CODE: "UNLI"});
+                oDDTextParam.push({CODE: "TAXCODE"});
+                oDDTextParam.push({CODE: "CANGRBASEDIVCEL"});
+                oDDTextParam.push({CODE: "PRITEMNO"});
+                oDDTextParam.push({CODE: "SUPPLYTYPE"});
+                oDDTextParam.push({CODE: "ORDERCONVFACTOR"});
+                oDDTextParam.push({CODE: "BASECONVFACTOR"});
+                oDDTextParam.push({CODE: "BASEUOM"});
+                oDDTextParam.push({CODE: "ADD"});
+                oDDTextParam.push({CODE: "INFO_NO_RECORD_TO_PROC"});
+                oDDTextParam.push({CODE: "INFO_NO_SEL_RECORD_TO_PROC"});
+                oDDTextParam.push({CODE: "INFO_SEL1_PR_ONLY"});
+                oDDTextParam.push({CODE: "INFO_NO_VENDOR"});
+                oDDTextParam.push({CODE: "INFO_NO_LAYOUT"});
+                oDDTextParam.push({CODE: "INFO_LAYOUT_SAVE"});
+                oDDTextParam.push({CODE: "INFO_CREATEPO_VALIDATION"});
+                oDDTextParam.push({CODE: "INFO_INPUT_REQD_FIELDS"});
+                oDDTextParam.push({CODE: "CONF_CANCEL_CREATEPO"});
+                oDDTextParam.push({CODE: "CONFIRM_DISREGARD_CHANGE"});
+                oDDTextParam.push({CODE: "YES"});
+
+                oModel.create("/CaptionMsgSet", { CaptionMsgItems: oDDTextParam  }, {
+                    method: "POST",
+                    success: function(oData, oResponse) {        
+                        // console.log(oData)               
+                        oData.CaptionMsgItems.results.forEach(item => {
+                            oDDTextResult[item.CODE] = item.TEXT;
+                        })
+
+                        oJSONModel.setData(oDDTextResult);
+                        that.getView().setModel(oJSONModel, "ddtext");
+                        // console.log(that.getView().getModel("ddtext"))
+                        that.getOwnerComponent().getModel("CAPTION_MSGS_MODEL").setData({text: oDDTextResult})
+                    },
+                    error: function(err) {
+                        sap.m.MessageBox.error(err);
+                    }
                 });
             },
 
@@ -116,9 +211,10 @@ sap.ui.define([
                             }
                         }
                         else {
-                            me.closeLoadingDialog();
-                            sap.m.MessageBox.information("No table layout retrieve.");
-                            console.log(me.byId("mainTab"))
+                            me.closeLoadingDialog();                           
+                            var msg = me.getView().getModel("ddtext").getData()["INFO_NO_LAYOUT"];
+                            sap.m.MessageBox.information(msg);
+                            // console.log(me.byId("mainTab"))
                             if (me.byId("mainTab").getColumns().length > 0) {
                                 me.byId("mainTab").removeAllColumns();
                                 me._counts.total = 0;
@@ -222,7 +318,7 @@ sap.ui.define([
                         id: sColumnId,
                         label: sColumnLabel,
                         template: me.columnTemplate(sColumnId, sColumnType),
-                        width: sColumnWidth + 'rem',
+                        width: sColumnWidth + 'px',
                         sortProperty: sColumnId,
                         filterProperty: sColumnId,
                         autoResizable: true,
@@ -384,7 +480,7 @@ sap.ui.define([
 
                 if (aFilters.length > 0) {
                     aFilters[0].aFilters.forEach(item => {
-                        console.log(item)
+                        // console.log(item)
                         if (item.sPath === 'VENDOR') {
                             if (!isNaN(item.oValue1)) {
                                 while (item.oValue1.length < 10) item.oValue1 = "0" + item.oValue1;
@@ -400,7 +496,10 @@ sap.ui.define([
                     filters: aFilters,
                     success: function (oData, oResponse) {
                         var vUnassigned = 0, vPartial = 0;
-                        console.log(oData)
+                        // console.log(oData)
+                        //for testing
+                        // oData.results.sort((a,b) => (a.VENDOR > b.VENDOR ? -1 : 1))
+
                         oData.results.forEach(item => {
                             if (item.VENDOR === '') vUnassigned++;
                             if (item.QTY !== item.ORDERQTY) vPartial++;
@@ -536,10 +635,10 @@ sap.ui.define([
             
                                         oSelectedIndices.forEach(selItemIdx => {
                                             var returnData = jQuery.extend(true, [], oResult.N_GetInfoRecReturn.results);
-            
+                                            
                                             if (aData.at(selItemIdx).VENDOR !== '') returnData = returnData.filter(fItem => fItem.Vendor === aData.at(selItemIdx).VENDOR);
                                             if (aData.at(selItemIdx).MATERIALNO !== '') returnData = returnData.filter(fItem => fItem.Material === aData.at(selItemIdx).MATERIALNO);
-                                            if (aData.at(selItemIdx).PURCHPLANT !== '') returnData = returnData.filter(fItem => fItem.Plant === aData.at(selItemIdx).PURCHPLANT);
+                                            // if (aData.at(selItemIdx).PURCHPLANT !== '') returnData = returnData.filter(fItem => fItem.Plant === aData.at(selItemIdx).PURCHPLANT);
                                             if (aData.at(selItemIdx).PURCHGRP !== '') returnData = returnData.filter(fItem => fItem.PurGroup === aData.at(selItemIdx).PURCHGRP);
                                             if (aData.at(selItemIdx).PURCHORG !== '') returnData = returnData.filter(fItem => fItem.PurchOrg === aData.at(selItemIdx).PURCHORG);
             
@@ -556,9 +655,9 @@ sap.ui.define([
                                                         Matno: aData.at(selItemIdx).MATERIALNO,
                                                         Uom: aData.at(selItemIdx).UNIT,
                                                         Quantity: aData.at(selItemIdx).QTY,
-                                                        DelivDate: sapDateFormat.format(new Date(aData.at(selItemIdx).DELVDATE)),
+                                                        DelivDate: sapDateFormat.format(new Date(aData.at(selItemIdx).DELVDATE)) + "T00:00:00",
                                                         Batch: aData.at(selItemIdx).IONUMBER,
-                                                        Plant: returnData[0].Plant,
+                                                        Plant: aData.at(selItemIdx).PURCHPLANT,
                                                         Purgrp: returnData[0].PurGroup,
                                                         Reqsnr: aData.at(selItemIdx).REQUISITIONER,
                                                         DesVendor: returnData[0].Vendor,
@@ -594,7 +693,7 @@ sap.ui.define([
                                             }
                                             else {
                                                 me._oAssignVendorData.filter(fItem => fItem.PRNUMBER === aData.at(selItemIdx).PRNUMBER && fItem.PRITEMNO === aData.at(selItemIdx).PRITEMNO)
-                                                    .forEach(item => item.REMARKS = 'No matching info record found.');
+                                                    .forEach(item => item.REMARKS = 'No matching info record retrieve.');
                                             }
                                         })
                                         // console.log(me._oAssignVendorData)
@@ -666,7 +765,7 @@ sap.ui.define([
                                                     }
                                                     else {
                                                         me.closeLoadingDialog();
-                                                        me.showAssignVendorResult();
+                                                        me.showAssignVendorResult("assign");
                                                     }
                                                 },
                                                 error: function() {
@@ -698,7 +797,7 @@ sap.ui.define([
                                         }
                                         else {
                                             me.closeLoadingDialog();
-                                            me.showAssignVendorResult();
+                                            me.showAssignVendorResult("aasign");
                                         }
                                     },
                                     error: function() {
@@ -710,10 +809,10 @@ sap.ui.define([
                                 me.closeLoadingDialog();
 
                                 if (vMatTypExist) {
-                                    sap.m.MessageBox.information("Material type of selected record(s) exists in zerp_check.");
+                                    sap.m.MessageBox.information(me.getView().getModel("ddtext").getData()["INFO_INVALID_SEL_MATTYP"]);
                                 }
                                 else {
-                                    sap.m.MessageBox.information("No record(s) to process.");
+                                    sap.m.MessageBox.information(me.getView().getModel("ddtext").getData()["INFO_NO_RECORD_TO_PROC"]);
                                 }
                             }
                         },
@@ -725,22 +824,23 @@ sap.ui.define([
                 else {
                     // aDataToEdit = aData;
                     me.closeLoadingDialog();
-                    sap.m.MessageBox.information("No selected record(s) to process.");
+                    sap.m.MessageBox.information(me.getView().getModel("ddtext").getData()["INFO_NO_RECORD_TO_PROC"]);
                 }
             },
 
             onAssignVendorManualSave: function(oEvent) {
                 // console.log(this._AssignVendorDialog)
+                var me = this;
                 var oModel = this.getOwnerComponent().getModel("ZGW_3DERP_RFC_SRV");
                 var oSource = oEvent.getSource();
-                console.log(oSource.oParent)
+                // console.log(oSource.oParent)
                 var oTable = oSource.oParent.getContent()[0];
-                console.log(oTable)
+                // console.log(oTable)
                 var oSelectedIndices = oTable.getSelectedIndices();
                 var aData = oTable.getModel().getData().items;
                 var oParamData = [];
                 var oParam = {};
-                console.log(oTable.getSelectedIndices())
+                // console.log(oTable.getSelectedIndices())
 
                 if (oSelectedIndices.length > 0) {
                     oSelectedIndices.forEach((selItemIdx, index) => {
@@ -752,7 +852,7 @@ sap.ui.define([
                     // console.log(oParamData)
                     // console.log(oParamData.filter((value, index, self) => self.findIndex(item => item.PR === value.PR) === index))
                     if (oParamData.length !== oParamData.filter((value, index, self) => self.findIndex(item => item.PR === value.PR) === index).length) {
-                        sap.m.MessageBox.information("Please select only 1 record per PR Number / PR Item No.");
+                        sap.m.MessageBox.information(me.getView().getModel("ddtext").getData()["INFO_SEL1_PR_ONLY"]);
                     }
                     else {
                         oParamData = [];
@@ -765,7 +865,7 @@ sap.ui.define([
                                 Matno: aData.at(selItemIdx).MATERIALNO,
                                 Uom: aData.at(selItemIdx).UNIT,
                                 Quantity: aData.at(selItemIdx).QTY,
-                                DelivDate: sapDateFormat.format(new Date(aData.at(selItemIdx).DELVDATE)),
+                                DelivDate: sapDateFormat.format(new Date(aData.at(selItemIdx).DELVDATE)) + "T00:00:00",
                                 Batch: aData.at(selItemIdx).IONUMBER,
                                 Plant: aData.at(selItemIdx).Plant,
                                 Purgrp: aData.at(selItemIdx).PurGroup,
@@ -788,7 +888,7 @@ sap.ui.define([
                         oModel.create("/ChangePRSet", oParam, {
                             method: "POST",
                             success: function(oResultCPR, oResponse) {
-                                console.log(oResultCPR);
+                                // console.log(oResultCPR);
 
                                 if (oResultCPR.N_ChangePRReturn.results.length > 0) {
                                     this._oAssignVendorData.forEach(item => {
@@ -822,7 +922,7 @@ sap.ui.define([
                                     })
                                 }
 
-                                this.showAssignVendorResult();
+                                me.showAssignVendorResult("assign");
                                 // MessageBox.information(res.RetMsgSet.results[0].Message);
                             },
                             error: function() {
@@ -832,7 +932,7 @@ sap.ui.define([
                     }
                 }
                 else {
-                    sap.m.MessageBox.information("No selected record(s) to process.");
+                    sap.m.MessageBox.information(me.getView().getModel("ddtext").getData()["INFO_NO_SEL_RECORD_TO_PROC"]);
                 }
 
                 // this._AssignVendorDialog.close();
@@ -847,7 +947,7 @@ sap.ui.define([
                 this._AssignVendorResultDialog.close();
             },
 
-            showAssignVendorResult() {
+            showAssignVendorResult(arg) {
                 console.log(this._oAssignVendorData)
                 // display pop-up for user selection
                 if (!this._AssignVendorResultDialog) {
@@ -867,7 +967,9 @@ sap.ui.define([
                     this._AssignVendorResultDialog.getModel().setProperty("/rowCount", this._oAssignVendorData.length);
                 }
 
-                this._AssignVendorResultDialog.setTitle("Unassign Vendor Result")
+                if (arg === "assign") this._AssignVendorResultDialog.setTitle("Assign Vendor Result");
+                if (arg === "unassign") this._AssignVendorResultDialog.setTitle("Unassign Vendor Result");
+
                 this._AssignVendorResultDialog.open();
             },
 
@@ -898,7 +1000,7 @@ sap.ui.define([
                                 Matno: aData.at(selItemIdx).MATERIALNO,
                                 Uom: aData.at(selItemIdx).UNIT,
                                 Quantity: aData.at(selItemIdx).QTY,
-                                DelivDate: sapDateFormat.format(new Date(aData.at(selItemIdx).DELVDATE)),
+                                DelivDate: sapDateFormat.format(new Date(aData.at(selItemIdx).DELVDATE)) + "T00:00:00",
                                 Batch: aData.at(selItemIdx).IONUMBER,
                                 Plant: aData.at(selItemIdx).PURCHPLANT,
                                 Purgrp: aData.at(selItemIdx).PURCHGRP,
@@ -955,7 +1057,7 @@ sap.ui.define([
                                     })
                                 }
     
-                                me.showAssignVendorResult();
+                                me.showAssignVendorResult("unassign");
                                 // MessageBox.information(res.RetMsgSet.results[0].Message);
                             },
                             error: function() {
@@ -964,12 +1066,12 @@ sap.ui.define([
                         });
                     }
                     else {
-                        sap.m.MessageBox.information("Selected record(s) has no vendor.");
+                        sap.m.MessageBox.information(me.getView().getModel("ddtext").getData()["INFO_NO_VENDOR"]);
                     }
                 }
                 else {
                     // aDataToEdit = aData;
-                    sap.m.MessageBox.information("No selected record(s) to process.");
+                    sap.m.MessageBox.information(me.getView().getModel("ddtext").getData()["INFO_NO_SEL_RECORD_TO_PROC"]);
                 }
             },
 
@@ -1060,13 +1162,351 @@ sap.ui.define([
                 oModel.create("/TableLayoutSet", oParam, {
                     method: "POST",
                     success: function(data, oResponse) {
-                        sap.m.MessageBox.information("Layout saved.");
+                        sap.m.MessageBox.information(me.getView().getModel("ddtext").getData()["INFO_LAYOUT_SAVE"]);
                         //Common.showMessage(me._i18n.getText('t6'));
                     },
                     error: function(err) {
                         sap.m.MessageBox.error(err);
                     }
                 });                
+            },
+
+            onCreatePO: function(oEvent) {
+                var me = this;
+                var oTable = this.byId("mainTab");
+                var oSelectedIndices = oTable.getSelectedIndices();
+                var oTmpSelectedIndices = [];
+                var aData = oTable.getModel().getData().rows;
+                var oParamData = [];
+                var oParam = {};
+                var oModel = this.getOwnerComponent().getModel("ZGW_3DERP_RFC_SRV");
+                var vSBU = this.getView().getModel("ui").getData().sbu;
+                var vMatTypExist = false;
+                var sVendor = "", sPurchOrg = "", sPurchGrp = "", sPurchPlant = "";
+                var bProceed = true;
+
+                this._oCreateData = [];
+
+                if (oSelectedIndices.length > 0) {
+                    oSelectedIndices.forEach(item => {
+                        oTmpSelectedIndices.push(oTable.getBinding("rows").aIndices[item])
+                    })
+
+                    oSelectedIndices = oTmpSelectedIndices;
+
+                    oSelectedIndices.forEach(item => {
+                        sVendor = aData.at(item).VENDOR;
+                        sPurchOrg = aData.at(item).PURCHORG;
+                        sPurchGrp = aData.at(item).PURCHGRP;
+                        sPurchPlant = aData.at(item).PURCHPLANT;
+
+                        if (sVendor === "" || sPurchOrg === "" || sPurchGrp === "" || sPurchPlant === "") {
+                            bProceed = false;
+                        }
+                    })
+
+                    if (bProceed) {
+                        this._oModel.read("/ZERPCheckSet", {
+                            urlParameters: {
+                                "$filter": "Sbu eq '" + vSBU + "'"
+                            },
+                            success: function (oDataCheck, oResponse) {                                
+                                oSelectedIndices.forEach((item, index) => {
+                                    if (oDataCheck.results.length > 0) {
+                                        if (oDataCheck.results.filter(fItem => fItem.Field2 === aData.at(item).MATERIALTYPE).length === 0) {
+                                            oParamData.push({
+                                                Vendor: aData.at(item).VENDOR,
+                                                Material: aData.at(item).MATERIALNO,
+                                                PurchOrg: aData.at(item).PURCHORG,
+                                                PurGroup: aData.at(item).PURCHGRP,
+                                                Plant: aData.at(item).PURCHPLANT
+                                            })
+
+                                            me._oCreateData.push({
+                                                PRNUMBER: aData.at(item).PRNUMBER,
+                                                PRITEMNO: aData.at(item).PRITEMNO,
+                                                MATERIALNO: aData.at(item).MATERIALNO,
+                                                IONUMBER: aData.at(item).IONUMBER,
+                                                QTY: aData.at(item).QTY,
+                                                UNIT: aData.at(item).UNIT,
+                                                VENDOR: aData.at(item).VENDOR,
+                                                VENDORNAME: aData.at(item).VENDORNAME,
+                                                PURCHORG: aData.at(item).PURCHORG,
+                                                PURCHPLANT: aData.at(item).PURCHPLANT,
+                                                PURCHGRP: aData.at(item).PURCHGRP,
+                                                COMPANY: aData.at(item).COMPANY,
+                                                DOCTYPE: aData.at(item).DOCTYPE,
+                                                MATERIALGRP: aData.at(item).MATERIALGRP,
+                                                MATERIALTYPE: aData.at(item).MATERIALTYPE,
+                                                CUSTGRP: aData.at(item).CUSTGRP,
+                                                SHIPTOPLANT: aData.at(item).SHIPTOPLANT,
+                                                GMCDESCEN: aData.at(item).GMCDESCEN,
+                                                ADDTLDESC: aData.at(item).ADDTLDESC,
+                                                DELVDATE: aData.at(item).DELVDATE,
+                                                BASEPOQTY: aData.at(item).QTY,
+                                                ORDERPOQTY: (+aData.at(item).QTY) - (+aData.at(item).ORDERQTY),
+                                                SUPPLYTYPE: aData.at(item).SUPPLYTYPE,
+                                                BASEQTY: aData.at(item).QTY,
+                                                BASEUOM: aData.at(item).UNIT,
+                                                PLANMONTH: aData.at(item).PLANMONTH,
+                                                ITEM: '00000',
+                                                REMARKS: ''
+                                            })
+                                        }
+                                        else vMatTypExist = true;
+                                    }
+                                    else {
+                                        oParamData.push({
+                                            Vendor: aData.at(item).VENDOR,
+                                            Material: aData.at(item).MATERIALNO,
+                                            PurchOrg: aData.at(item).PURCHORG,
+                                            PurGroup: aData.at(item).PURCHGRP,
+                                            Plant: aData.at(item).PURCHPLANT
+                                        })
+
+                                        me._oCreateData.push({
+                                            PRNUMBER: aData.at(item).PRNUMBER,
+                                            PRITEMNO: aData.at(item).PRITEMNO,
+                                            MATERIALNO: aData.at(item).MATERIALNO,
+                                            IONUMBER: aData.at(item).IONUMBER,
+                                            QTY: aData.at(item).QTY,
+                                            UNIT: aData.at(item).UNIT,
+                                            VENDOR: aData.at(item).VENDOR,
+                                            VENDORNAME: aData.at(item).VENDORNAME,
+                                            PURCHORG: aData.at(item).PURCHORG,
+                                            PURCHPLANT: aData.at(item).PURCHPLANT,
+                                            PURCHGRP: aData.at(item).PURCHGRP,
+                                            COMPANY: aData.at(item).COMPANY,
+                                            DOCTYPE: aData.at(item).DOCTYPE,
+                                            MATERIALGRP: aData.at(item).MATERIALGRP,
+                                            MATERIALTYPE: aData.at(item).MATERIALTYPE,
+                                            CUSTGRP: aData.at(item).CUSTGRP,
+                                            SHIPTOPLANT: aData.at(item).SHIPTOPLANT,
+                                            GMCDESCEN: aData.at(item).GMCDESCEN,
+                                            ADDTLDESC: aData.at(item).ADDTLDESC,
+                                            DELVDATE: aData.at(item).DELVDATE,
+                                            BASEPOQTY: aData.at(item).QTY,
+                                            ORDERPOQTY: (+aData.at(item).QTY) - (+aData.at(item).ORDERQTY),
+                                            SUPPLYTYPE: aData.at(item).SUPPLYTYPE,
+                                            BASEQTY: aData.at(item).QTY,
+                                            BASEUOM: aData.at(item).UNIT,
+                                            PLANMONTH: aData.at(item).PLANMONTH,
+                                            ITEM: '00000',
+                                            REMARKS: ''
+                                        })
+                                    }
+                                })
+                                // console.log(me._oCreateData)
+                                if (oParamData.length > 0) {
+                                    me.showLoadingDialog('Processing...');
+                                    
+                                    oParamData = oParamData.filter((value, index, self) => self.findIndex(item => item.Vendor === value.Vendor && item.Material === value.Material && item.PurchOrg === value.PurchOrg && item.PurGroup === value.PurGroup) === index) ;
+            
+                                    oParam['N_GetInfoRecMatParam'] = oParamData;
+                                    oParam['N_GetInfoRecReturn'] = [];
+                                    // console.log(oParam)
+                
+                                    oModel.create("/GetInfoRecordSet", oParam, {
+                                        method: "POST",
+                                        success: function(oResult, oResponse) {
+                                            oParamData.forEach(item => {
+                                                var returnData = jQuery.extend(true, [], oResult.N_GetInfoRecReturn.results);
+                                                returnData.filter(fItem => fItem.Vendor === item.Vendor && fItem.PurchOrg === item.PurchOrg && fItem.PurGroup === item.PurGroup && fItem.Material === item.Material);
+
+                                                me._oCreateData.filter(fItem => fItem.VENDOR === item.Vendor && fItem.PURCHORG === item.PurchOrg && fItem.PURCHGRP === item.PurGroup && fItem.MATERIALNO === item.Material)
+                                                .forEach(item => {
+                                                    if (returnData.length === 0) {
+                                                        item.REMARKS = 'No matching info record retrieve.'
+                                                    }
+                                                    else {
+                                                        item.REMARKS = returnData[0].RetType === 'E' ? returnData[0].RetMessage : '';
+                                                        item.UOM = returnData[0].PoUnit;
+                                                        item.GROSSPRICE = returnData[0].NetPrice;
+                                                        item.NETPRICE = returnData[0].NetPrice;
+                                                        item.PER = returnData[0].PriceUnit;
+                                                        item.ORDERPRICEUNIT = returnData[0].OrderprUn;
+                                                        item.OVERDELTOL = returnData[0].Overdeltol;
+                                                        item.UNDERDELTOL = returnData[0].UnderTol;
+                                                        item.UNLI = returnData[0].Unlimited;
+                                                        item.TAXCODE = returnData[0].TaxCode;
+                                                        item.GRBASEDIV = returnData[0].Grbasediv;
+                                                        item.ORDERCONVFACTOR = returnData[0].ConvNum1;
+                                                        item.BASECONVFACTOR = returnData[0].ConvDen1;
+                                                        item.INFOREC = returnData[0].InfoRec;
+
+                                                        item.ORDERPOQTY = (item.ORDERPOQTY / ((+returnData[0].ConvNum1) * (+returnData[0].ConvDen1) * (+returnData[0].PriceUnit))).toFixed(3);
+                                                    }
+                                                });
+                                            })
+
+                                            // console.log(oResult.N_GetInfoRecReturn)
+                                            oParamData = [];
+
+                                            if (me._oCreateData.filter(fItem => fItem.REMARKS === '').length > 0) {
+                                            //Check PO doc type for PR items with valid info records
+                                            me._oModel.read("/PODocTypSet", {
+                                                success: function (oDataPODocTyp, oResponse) {
+                                                    // console.log(oData)
+                                                    
+                                                    me._oCreateData.filter(fItem => fItem.REMARKS === '').forEach(item => {
+                                                        var returnData = jQuery.extend(true, [], oDataPODocTyp.results);
+
+                                                        returnData = returnData.filter(fItem => fItem.SBU === vSBU);
+
+                                                        if (item.COMPANY !== '') returnData = returnData.filter(fItem => fItem.COMPANYCD === item.COMPANY);
+                                                        if (item.DOCTYPE !== '') returnData = returnData.filter(fItem => fItem.PRDOCTYP === item.DOCTYPE);
+                                                        if (item.MATERIALGRP !== '') returnData = returnData.filter(fItem => fItem.MATGRPCD === item.MATERIALGRP);
+                                                        if (item.MATERIALTYPE !== '') returnData = returnData.filter(fItem => fItem.MATTYP === item.MATERIALTYPE);
+                                                        if (item.CUSTGRP !== '') returnData = returnData.filter(fItem => fItem.CUSTGRP === item.CUSTGRP);
+                                                        if (item.SHIPTOPLANT !== '') returnData = returnData.filter(fItem => fItem.PLANTCD === item.SHIPTOPLANT);
+
+                                                        if (returnData.length === 0) {
+                                                            item.REMARKS = 'No PO doc type retrieve.';
+                                                        }
+                                                        else {
+                                                            oParamData.push({
+                                                                DOCTYPE: item.DOCTYPE,
+                                                                VENDOR: item.VENDOR,
+                                                                PURCHORG: item.PURCHORG,
+                                                                PURCHGRP: item.PURCHGRP,
+                                                                COMPANY: item.COMPANY,
+                                                                PURCHPLANT: item.PURCHPLANT,
+                                                                SHIPTOPLANT: item.SHIPTOPLANT,
+                                                                VENDORNAME: item.VENDORNAME                                                                
+                                                            })
+                                                        }
+
+                                                        // // //FOR TESTING 
+                                                        // oParamData.push({
+                                                        //     DOCTYPE: item.DOCTYPE,
+                                                        //     VENDOR: item.VENDOR,
+                                                        //     PURCHORG: item.PURCHORG,
+                                                        //     PURCHGRP: item.PURCHGRP,
+                                                        //     COMPANY: item.COMPANY,
+                                                        //     PURCHPLANT: item.PURCHPLANT,
+                                                        //     SHIPTOPLANT: item.SHIPTOPLANT,
+                                                        //     VENDORNAME: item.VENDORNAME                                                                
+                                                        // })
+                                                    })
+
+                                                    //FOR TESTING, CHANGE TO LEN > 0
+                                                    if (me._oCreateData.filter(fItem => fItem.REMARKS === '').length > 0) {
+                                                        me.closeLoadingDialog();
+                                                        
+                                                        var oCreatePOHdr = oParamData.filter((value, index, self) => self.findIndex(item => item.DOCTYPE === value.DOCTYPE && item.VENDOR === value.VENDOR && item.PURCHORG === value.PURCHORG && item.PURCHGRP === value.PURCHGRP && item.COMPANY === value.COMPANY && item.PURCHPLANT === value.PURCHPLANT && item.SHIPTOPLANT === value.SHIPTOPLANT && item.VENDORNAME === value.VENDORNAME) === index) ;
+                                                        var oCreatePODtls = me._oCreateData.filter(fItem => fItem.REMARKS === '');
+    
+                                                        //Add GROUP key
+                                                        oCreatePOHdr.forEach((item, index) => {
+                                                            item.GROUP = (index + 1) + "";
+    
+                                                            oCreatePODtls.filter(fItem => fItem.DOCTYPE === item.DOCTYPE && fItem.VENDOR === item.VENDOR && fItem.PURCHORG === item.PURCHORG && fItem.PURCHGRP === item.PURCHGRP && fItem.COMPANY === item.COMPANY && fItem.PURCHPLANT === item.PURCHPLANT && fItem.SHIPTOPLANT === item.SHIPTOPLANT)
+                                                                .forEach((rItem, rIndex) => { 
+                                                                    rItem.GROUP = (index + 1) + "";
+
+                                                                    var sItem = (10 * ( index + 1 )) + "";
+                                                                    while (sItem.length < 5) sItem = "0" + sItem;
+
+                                                                    rItem.ITEM = sItem;
+                                                                });
+                                                        });
+    
+                                                        // oCreatePOData.push({
+                                                        //     header: me._oCreateData,
+                                                        //     detail: me._oCreateData
+                                                        // })
+
+                                                        // console.log(oCreatePOHdr);
+                                                        // console.log(oCreatePODtls);
+
+                                                        me.getOwnerComponent().getModel("UI_MODEL").setData({sbu: me.getView().getModel("ui").getData().sbu})
+                                                        me.getOwnerComponent().getModel("CREATEPO_MODEL").setData({
+                                                            header: oCreatePOHdr,
+                                                            detail: oCreatePODtls
+                                                        })
+
+                                                        // me.getOwnerComponent().getModel("CREATEPO_MODEL").setProperty("/data", {
+                                                        //     header: me._oCreateData, 
+                                                        //     detail: me._oCreateData
+                                                        // });
+                                                        // console.log(me.getOwnerComponent().getModel("CREATEPO_MODEL").getProperty("/header"));
+
+                                                        var oRouter = sap.ui.core.UIComponent.getRouterFor(me);
+                                                        oRouter.navTo("RouteCreatePO");
+                                                    }
+                                                    else {
+                                                        me.closeLoadingDialog();
+                                                        console.log(me._oCreateData);
+                                                        me.showCreatePOResult();
+                                                    }
+                                                },
+                                                error: function (err) { }
+                                            });
+                                            }
+                                            else {
+                                                me.closeLoadingDialog();
+                                                console.log(me._oCreateData);
+                                                me.showCreatePOResult();
+                                            }
+                                        },
+                                        error: function() {
+                                            me.closeLoadingDialog();
+                                        }
+                                    }); 
+                                }
+                                else {
+                                    me.closeLoadingDialog();
+    
+                                    if (vMatTypExist) {
+                                        sap.m.MessageBox.information(me.getView().getModel("ddtext").getData()["INFO_INVALID_SEL_MATTYP"]);
+                                    }
+                                    else {
+                                        sap.m.MessageBox.information(me.getView().getModel("ddtext").getData()["INFO_NO_RECORD_TO_PROC"]);
+                                    }
+                                }
+                            },
+                            error: function (err) {
+                                me.closeLoadingDialog();
+                            }
+                        });
+                    }
+                    else {
+                        sap.m.MessageBox.information(me.getView().getModel("ddtext").getData()["INFO_CREATE_PO_VALIDATION"])
+                    }
+                }
+                else {
+                    // aDataToEdit = aData;
+                    me.closeLoadingDialog();
+                    sap.m.MessageBox.information(me.getView().getModel("ddtext").getData()["INFO_NO_SEL_RECORD_TO_PROC"]);
+                }
+            },
+
+            showCreatePOResult() {
+                console.log(this._oCreateData)
+                // display pop-up for user selection
+                if (!this._CreatePOResultDialog) {
+                    this._CreatePOResultDialog = sap.ui.xmlfragment("zuiaprocess.view.fragments.dialog.CreatePOResultDialog", this);
+
+                    this._CreatePOResultDialog.setModel(
+                        new JSONModel({
+                            items: this._oCreateData,
+                            rowCount: this._oCreateData.length
+                        })
+                    )
+
+                    this.getView().addDependent(this._CreatePOResultDialog);
+                }
+                else {
+                    this._CreatePOResultDialog.getModel().setProperty("/items", this._oCreateData);
+                    this._CreatePOResultDialog.getModel().setProperty("/rowCount", this._oCreateData.length);
+                }
+
+                this._CreatePOResultDialog.setTitle("Create PO Result")
+                this._CreatePOResultDialog.open();
+            },
+
+            onCreatePOResultClose: function(oEvent) {
+                this._CreatePOResultDialog.close();
             },
 
         });

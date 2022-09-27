@@ -1,0 +1,359 @@
+<mvc:View controllerName="zuiaprocess.controller.CreatePO"
+    xmlns:mvc="sap.ui.core.mvc" 
+    xmlns:core="sap.ui.core"
+    xmlns:uiL="sap.ui.layout"
+    xmlns:uiT="sap.ui.table"
+    xmlns="sap.m"
+    xmlns:f="sap.f"
+    xmlns:semantic="sap.m.semantic"
+    displayBlock="true">
+    <Page showHeader="true" title="{ddtext>/CREATEPO}" showNavButton="true" navButtonPress="onNavBack">
+        <!-- <content> -->
+            <VBox fitContainer="true">
+                <!-- <MessageStrip id="AssignMaterialMessageStrip" text="" showIcon="true" showCloseButton="true" class="sapUiMediumMarginBottom" type="Error" visible="false"/> -->
+                <uiT:Table id="headerTab"
+                    rows="{header>/}"
+                    class="sapUiTinyMargin"
+                    visibleRowCountMode="Auto"
+                    showColumnVisibilityMenu="true"
+                    enableColumnFreeze="true"
+                    selectionMode="Single"
+                    cellClick="onCellClick"
+                    sort="onSorted">
+                    <uiT:columns>
+                        <uiT:Column width="100px">
+                            <Text text="{ddtext>/GROUP}" />
+                            <uiT:template>
+                                <Text text="{header>GROUP}" />
+                            </uiT:template>
+                        </uiT:Column>
+                        <uiT:Column width="100px">
+                            <Text text="{ddtext>/DOCTYPE}" />
+                            <uiT:template>
+                                <Text text="{header>DOCTYPE}" />
+                            </uiT:template>
+                        </uiT:Column>
+                        <uiT:Column width="100px">
+                            <Text text="{ddtext>/PODATE}" />
+                            <uiT:template>
+                                <Text text="{header>PODATE}" />
+                            </uiT:template>
+                        </uiT:Column>
+                        <uiT:Column width="100px">
+                            <Text text="{ddtext>/VENDOR}" />
+                            <uiT:template>
+                                <Text text="{header>VENDOR}" />
+                            </uiT:template>
+                        </uiT:Column>
+                        <uiT:Column width="300px">
+                            <Text text="{ddtext>/VENDORNAME}" />
+                            <uiT:template>
+                                <Text text="{header>VENDORNAME}" />
+                            </uiT:template>
+                        </uiT:Column>
+                        <uiT:Column width="100px">
+                            <Text text="{ddtext>/PURCHORG}" />
+                            <uiT:template>
+                                <Text text="{header>PURCHORG}" />
+                            </uiT:template>
+                        </uiT:Column>
+                        <uiT:Column width="100px">
+                            <Text text="{ddtext>/PURCHGRP}" />
+                            <uiT:template>
+                                <Text text="{header>PURCHGRP}" />
+                            </uiT:template>
+                        </uiT:Column>
+                        <uiT:Column width="100px">
+                            <Text text="{ddtext>/COMPANY}" />
+                            <uiT:template>
+                                <Text text="{header>COMPANY}" />
+                            </uiT:template>
+                        </uiT:Column>
+                        <uiT:Column width="100px">
+                            <Text text="{ddtext>/PURCHPLANT}" />
+                            <uiT:template>
+                                <Text text="{header>PURCHPLANT}" />
+                            </uiT:template>
+                        </uiT:Column>
+                        <uiT:Column width="100px">
+                            <Text text="{ddtext>/SHIPTOPLANT}" />
+                            <uiT:template>
+                                <Text text="{header>SHIPTOPLANT}" />
+                            </uiT:template>
+                        </uiT:Column>
+                        <uiT:Column width="100px">
+                            <Text text="{ddtext>/PAYTERMS}" />
+                            <uiT:template>
+                                <Text text="{header>PAYTERMS}" />
+                            </uiT:template>                            
+                        </uiT:Column>
+                        <uiT:Column width="100px">
+                            <Text text="{ddtext>/INCOTERMS}" />
+                            <uiT:template>
+                                <Text text="{header>INCOTERMS}" />
+                            </uiT:template>
+                        </uiT:Column>
+                        <uiT:Column width="200px">
+                            <Text text="{ddtext>/DESTINATION}" />
+                            <uiT:template>
+                                <Text text="{header>DESTINATION}" />
+                            </uiT:template>
+                        </uiT:Column>
+                        <uiT:Column width="100px">
+                            <Text text="{ddtext>/CURR}" />
+                            <uiT:template>
+                                <Text text="{header>CURR}" />
+                            </uiT:template>
+                        </uiT:Column>
+                        <uiT:Column width="100px">
+                            <Text text="{ddtext>/EXRATE}" />
+                            <uiT:template>
+                                <Text text="{header>EXRATE}" />
+                            </uiT:template>
+                        </uiT:Column>
+                        <uiT:Column width="100px">
+                            <Text text="{ddtext>/SHIPMODE}" />
+                            <uiT:template>
+                                <Text text="{header>SHIPMODE}" />
+                            </uiT:template>
+                        </uiT:Column>
+                        <uiT:Column width="100px">
+                            <Text text="{ddtext>/CREATEDBY}" />
+                            <uiT:template>
+                                <Text text="{header>CREATEDBY}" />
+                            </uiT:template>
+                        </uiT:Column>
+                        <uiT:Column width="100px">
+                            <Text text="{ddtext>/CREATEDDATE}" />
+                            <uiT:template>
+                                <Text text="{header>CREATEDDATE}" />
+                            </uiT:template>
+                        </uiT:Column>
+                    </uiT:columns>
+                    <uiT:extension>
+                        <Toolbar>
+                            <ToolbarSpacer/>
+                            <Button id="btnEditHdr" 
+                                icon="sap-icon://edit"
+                                press="onEditHdr"
+                                tooltip="{ddtext>/EDIT}"
+                                visible="true"/>
+                            <Button id="btnUpdDate" 
+                                icon="sap-icon://calendar"
+                                press="onUpdDate"
+                                tooltip="{ddtext>/CHANGEDELVDATE}"
+                                visible="true"/>
+                            <Button id="btnFabSpecs" 
+                                icon="sap-icon://list"
+                                press="onFabSpecs"
+                                tooltip="{ddtext>/FABSPECS}"
+                                visible="true"/>
+                            <Button id="btnHdrTxt" 
+                                icon="sap-icon://header"
+                                press="onHdrText"
+                                tooltip="{ddtext>/HEADERTEXT}"
+                                visible="true"/>
+                            <Button id="btnGenPO" 
+                                icon="sap-icon://add-document"
+                                press="onGeneratePO"
+                                tooltip="{ddtext>/GENERATEPO}"
+                                visible="true"/>
+                            <Button id="btnSaveHdr" 
+                                icon="sap-icon://save"
+                                press="onSaveHdr"
+                                tooltip="{ddtext>/SAVE}"
+                                visible="false"/>
+                            <Button id="btnCancelHdr" 
+                                icon="sap-icon://sys-cancel"
+                                press="onCancelHdr"
+                                tooltip="{ddtext>/CANCEL}"
+                                visible="false"/>
+                        </Toolbar>
+                    </uiT:extension>
+                    <uiT:layoutData>
+                        <FlexItemData growFactor="1" baseSize="0%"/>
+                    </uiT:layoutData>                  
+                </uiT:Table> 
+
+                <uiT:Table id="detailTab"
+                    rows="{detail>/}"
+                    class="sapUiTinyMargin"
+                    visibleRowCountMode="Auto"
+                    showColumnVisibilityMenu="true"
+                    enableColumnFreeze="true"
+                    selectionMode="Single"
+                    cellClick="onCellClick"
+                    sort="onSorted">
+                    <uiT:columns>
+                        <uiT:Column width="125px">
+                            <Text text="{ddtext>/MATERIALNO}" />
+                            <uiT:template>
+                                <Text text="{detail>MATERIALNO}" />
+                            </uiT:template>
+                        </uiT:Column>
+                        <uiT:Column width="300px">
+                            <Text text="{ddtext>/GMCDESCEN}" />
+                            <uiT:template>
+                                <Text text="{detail>GMCDESCEN}" />
+                            </uiT:template>
+                        </uiT:Column>
+                        <uiT:Column width="300px">
+                            <Text text="{ddtext>/ADDTLDESC}" />
+                            <uiT:template>
+                                <Text text="{detail>ADDTLDESC}" />
+                            </uiT:template>
+                        </uiT:Column>
+                        <uiT:Column width="100px">
+                            <Text text="{ddtext>/IONUMBER}" />
+                            <uiT:template>
+                                <Text text="{detail>IONUMBER}" />
+                            </uiT:template>
+                        </uiT:Column>
+                        <uiT:Column width="140px">
+                            <Text text="{ddtext>/DELVDATE}" />
+                            <uiT:template>
+                                <Text text="{detail>DELVDATE}" />
+                            </uiT:template>
+                        </uiT:Column>
+                        <uiT:Column width="125px" hAlign="End">
+                            <Text text="{ddtext>/BASEPOQTY}" />
+                            <uiT:template>
+                                <Text text="{detail>BASEPOQTY}" />
+                            </uiT:template>
+                        </uiT:Column>
+                        <uiT:Column width="100px" hAlign="End">
+                            <Text text="{ddtext>/ORDERPOQTY}" />
+                            <uiT:template>
+                                <Text text="{detail>ORDERPOQTY}" />
+                            </uiT:template>
+                        </uiT:Column>
+                        <uiT:Column width="100px">
+                            <Text text="{ddtext>/UOM}" />
+                            <uiT:template>
+                                <Text text="{detail>UOM}" />
+                            </uiT:template>
+                        </uiT:Column>
+                        <uiT:Column width="100px" hAlign="End">
+                            <Text text="{ddtext>/GROSSPRICE}" />
+                            <uiT:template>
+                                <Text text="{detail>GROSSPRICE}" />
+                            </uiT:template>
+                        </uiT:Column>
+                        <uiT:Column width="100px" hAlign="End">
+                            <Text text="{ddtext>/NETPRICE}" />
+                            <uiT:template>
+                                <Text text="{detail>NETPRICE}" />
+                            </uiT:template>
+                        </uiT:Column>
+                        <uiT:Column width="100px" hAlign="End">
+                            <Text text="{ddtext>/PER}" />
+                            <uiT:template>
+                                <Text text="{detail>PER}" />
+                            </uiT:template>
+                        </uiT:Column>
+                        <uiT:Column width="100px">
+                            <Text text="{ddtext>/ORDERPRICEUNIT}" />
+                            <uiT:template>
+                                <Text text="{detail>ORDERPRICEUNIT}" />
+                            </uiT:template>
+                        </uiT:Column>
+                        <uiT:Column width="100px" hAlign="End">
+                            <Text text="{ddtext>/OVERDELTOL}" />
+                            <uiT:template>
+                                <Text text="{detail>OVERDELTOL}" />
+                            </uiT:template>
+                        </uiT:Column>
+                        <uiT:Column width="100px" hAlign="End">
+                            <Text text="{ddtext>/UNDERDELTOL}" />
+                            <uiT:template>
+                                <Text text="{detail>UNDERDELTOL}" />
+                            </uiT:template>
+                        </uiT:Column>
+                        <uiT:Column width="100px" hAlign="Center">
+                            <Text text="{ddtext>/UNLI}" />
+                            <uiT:template>
+                                <CheckBox selected="{detail>UNLI}" editable="false" />
+                            </uiT:template>
+                        </uiT:Column>
+                        <uiT:Column width="100px">
+                            <Text text="{ddtext>/TAXCODE}" />
+                            <uiT:template>
+                                <Text text="{detail>TAXCODE}" />
+                            </uiT:template>
+                        </uiT:Column>
+                        <uiT:Column width="100px" hAlign="Center">
+                            <Text text="{ddtext>/GRBASEDIV}" />
+                            <uiT:template>
+                                <CheckBox selected="{detail>GRBASEDIV}" editable="false" />
+                            </uiT:template>
+                        </uiT:Column>
+                        <uiT:Column width="100px" hAlign="Center">
+                            <Text text="{ddtext>/PRNUMBER}" />
+                            <uiT:template>
+                                <Text text="{detail>PRNUMBER}" />
+                            </uiT:template>
+                        </uiT:Column>
+                        <uiT:Column width="100px" hAlign="Center">
+                            <Text text="{ddtext>/PRITEMNO}" />
+                            <uiT:template>
+                                <Text text="{detail>PRITEMNO}" />
+                            </uiT:template>
+                        </uiT:Column>
+                        <uiT:Column width="100px" hAlign="Center">
+                            <Text text="{ddtext>/SUPPLYTYPE}" />
+                            <uiT:template>
+                                <Text text="{detail>SUPPLYTYPE}" />
+                            </uiT:template>
+                        </uiT:Column>                                                
+                        <uiT:Column width="100px" hAlign="End">
+                            <Text text="{ddtext>/ORDERCONVFACTOR}" />
+                            <uiT:template>
+                                <Text text="{detail>ORDERCONVFACTOR}" />
+                            </uiT:template>
+                        </uiT:Column>
+                        <uiT:Column width="100px" hAlign="End">
+                            <Text text="{ddtext>/BASECONVFACTOR}" />
+                            <uiT:template>
+                                <Text text="{detail>BASECONVFACTOR}" />
+                            </uiT:template>
+                        </uiT:Column>
+                        <uiT:Column width="100px">
+                            <Text text="{ddtext>/BASEUOM}" />
+                            <uiT:template>
+                                <Text text="{detail>BASEUOM}" />
+                            </uiT:template>
+                        </uiT:Column>                                                
+                    </uiT:columns>
+                    <uiT:extension>
+                        <Toolbar>
+                            <ToolbarSpacer/>
+                            <Button id="btnEditDtl" 
+                                icon="sap-icon://edit"
+                                press="onEditDtl"
+                                tooltip="{ddtext>/EDIT}"
+                                visible="true"/>
+                            <!-- <Button id="btnRefreshDtl" 
+                                icon="sap-icon://refresh"
+                                press="onRefreshDtl"
+                                tooltip="{i18n>Refresh}"
+                                visible="true"/> -->
+                            <Button id="btnSaveDtl" 
+                                icon="sap-icon://save"
+                                press="onSaveDtl"
+                                tooltip="{ddtext>/SAVE}"
+                                visible="false"/>
+                            <Button id="btnCancelDtl" 
+                                icon="sap-icon://sys-cancel"
+                                press="onCancelDtl"
+                                tooltip="{ddtext>/CANCEL}"
+                                visible="false"/>                                                                
+                        </Toolbar>  
+                    </uiT:extension>
+                    <uiT:layoutData>
+                        <FlexItemData growFactor="1" baseSize="0%"/>
+                    </uiT:layoutData>                  
+                </uiT:Table> 
+            </VBox>
+        <!-- </content> -->
+    </Page>
+</mvc:View>

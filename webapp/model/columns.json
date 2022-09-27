@@ -1,0 +1,22 @@
+{
+    "header": [
+        {"name": "PAYTERMS", "label": "Payment Terms", "type": "STRING", "required": true, "length": "4",
+            "valueHelp": {"show": true, "items": {"path": "payterms", "value": "ZTERM", "text": "ZTERM"},
+            "suggestionItems": {"path": "payterms>/", "text": "{payterms>ZTERM}", "additionalText": "{payterms>ZTERM}", "maxSuggestionWidth": "150px"}}},
+        {"name": "INCOTERMS", "label": "Inco Terms", "type": "STRING", "required": true, "length": "3",
+            "valueHelp": {"show": true, "items": {"path": "payterms", "value": "INCO1", "text": "INCO1"},
+            "suggestionItems": {"path": "payterms>/", "text": "{payterms>INCO1}", "additionalText": "{payterms>INCO1}", "maxSuggestionWidth": "150px"}}},
+        {"name": "DESTINATION", "label": "Destination", "type": "STRING", "required": true, "length": "28",
+            "valueHelp": {"show": true, "items": {"path": "payterms", "value": "INCO2", "text": "INCO2"},
+            "suggestionItems": {"path": "payterms>/", "text": "{payterms>INCO2}", "additionalText": "{payterms>INCO2}", "maxSuggestionWidth": "150px"}}},
+        {"name": "SHIPMODE", "label": "Ship Mode", "type": "STRING", "required": true, "length": "2",
+            "valueHelp": {"show": true, "items": {"path": "shipmode", "value": "SHIPMODE", "text": "DESC"},
+            "suggestionItems": {"path": "shipmode>/", "text": "{shipmode>SHIPMODE}", "additionalText": "{shipmode>DESC}", "maxSuggestionWidth": "160px"}}}
+    ],
+    "detail": [
+        {"name": "DELVDATE", "label": "Delv Date", "type": "DATE", "required": true, "length": "10",
+            "valueHelp": {"show": false, "source": "", "value": "", "desc": ""}},
+        {"name": "BASEPOQTY", "label": "PO QTY (BASE)", "type": "NUMBER", "required": true, "length": "13", "precision":"13", "scale": "3",
+            "valueHelp": {"show": false, "source": "", "value": "", "desc": ""}}
+    ]    
+}

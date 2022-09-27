@@ -1,0 +1,82 @@
+<core:FragmentDefinition
+		xmlns="sap.m"
+        xmlns:form="sap.ui.layout.form"
+		xmlns:core="sap.ui.core"
+        xmlns:uiT="sap.ui.table"
+        id="fragment-headertext" 
+        fragmentName="headertext">
+    <Dialog contentWidth="50%"
+        contentHeight="300px"
+        title="Header Text"
+        beforeOpen="beforeOpenHdrTxt"
+        resizable="true"
+        draggable="true">
+        <content>
+            <IconTabBar id="ITB1"
+                expanded="{device>/isNoPhone}" 
+                expandable="false" 
+                class="sapUiNoContentPadding" 
+                select="onSelectHdrTxtTab"
+                headerBackgroundDesign="Transparent" 
+                stretchContentHeight="true" 
+                applyContentPadding="false">
+                <items>
+                    <IconTabFilter text="Remarks" key="remarks">
+                        <uiT:Table id="remarksTab"
+                            rows="{/rem_items}"
+                            class="sapUiTinyMargin"
+                            visibleRowCountMode="Auto"
+                            showColumnVisibilityMenu="true"
+                            enableColumnFreeze="true"
+                            selectionMode="MultiToggle">
+                            <uiT:columns>
+                                <uiT:Column width="100px">
+                                    <Text text="Item" />
+                                    <uiT:template>
+                                        <Text text="{ITEM}" />
+                                    </uiT:template>
+                                </uiT:Column>
+                                <uiT:Column width="600px">
+                                    <Text text="Remarks" />
+                                    <uiT:template>
+                                        <Input value="{REMARKS}" maxLength="132" change="onRemarksChange" liveChange="onRemarksChange" />
+                                    </uiT:template>
+                                </uiT:Column>
+                            </uiT:columns>
+                        </uiT:Table> 
+                    </IconTabFilter>
+                    <IconTabFilter text="Packing Instructions" key="packins">
+                        <uiT:Table id="packinsTab"
+                            rows="{/packins_items}"
+                            class="sapUiTinyMargin"
+                            visibleRowCountMode="Auto"
+                            showColumnVisibilityMenu="true"
+                            enableColumnFreeze="true"
+                            selectionMode="MultiToggle">
+                            <uiT:columns>
+                                <uiT:Column width="100px">
+                                    <Text text="Item" />
+                                    <uiT:template>
+                                        <Text text="{ITEM}" />
+                                    </uiT:template>
+                                </uiT:Column>
+                                <uiT:Column width="600px">
+                                    <Text text="Packing Instruction" />
+                                    <uiT:template>
+                                        <Input value="{PACKINS}" maxLength="132" change="onPackInsChange" liveChange="onPackInsChange" />
+                                    </uiT:template>
+                                </uiT:Column>
+                            </uiT:columns>
+                        </uiT:Table> 
+                    </IconTabFilter>
+                </items>
+            </IconTabBar>  
+        </content>
+        <buttons>
+            <Button icon="sap-icon://add" text="{ddtext>/ADD}" tooltip="{ddtext>/ADD}" press="onAddHdrTxt" />
+            <Button icon="sap-icon://save" text="{ddtext>/SAVE}" tooltip="{ddtext>/SAVE}" press="onSaveHdrTxt" />
+            <Button icon="sap-icon://delete" text="{ddtext>/DELETE}" tooltip="{ddtext>/DELETE}" press="onDeleteHdrTxt" />
+            <Button icon="sap-icon://decline" text="{ddtext>/CLOSE}" tooltip="{ddtext>/CLOSE}" press="onCloseHdrTxt" />        
+        </buttons>
+    </Dialog>
+</core:FragmentDefinition>
