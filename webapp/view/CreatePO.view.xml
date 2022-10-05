@@ -7,10 +7,20 @@
     xmlns:f="sap.f"
     xmlns:semantic="sap.m.semantic"
     displayBlock="true">
-    <Page showHeader="true" title="{ddtext>/CREATEPO}" showNavButton="true" navButtonPress="onNavBack">
+    <Page showHeader="false" title="{ddtext>/CREATEPO}" showNavButton="true" navButtonPress="onNavBack">
         <!-- <content> -->
             <VBox fitContainer="true">
                 <!-- <MessageStrip id="AssignMaterialMessageStrip" text="" showIcon="true" showCloseButton="true" class="sapUiMediumMarginBottom" type="Error" visible="false"/> -->
+                <!-- <Toolbar class="navBG">
+                    <Button id="btnNavBack" 
+                        class="sapUiTinyMarginBeginEnd"
+                        icon="sap-icon://nav-back"
+                        type="Transparent"
+                        press="onNavBack"
+                        tooltip="{ddtext>/BACK}"
+                        visible="true"/>
+                    <Title level="H3" text="{ddtext>/CREATEPO}" />                        
+                </Toolbar>               -->
                 <uiT:Table id="headerTab"
                     rows="{header>/}"
                     class="sapUiTinyMargin"
@@ -22,116 +32,111 @@
                     sort="onSorted">
                     <uiT:columns>
                         <uiT:Column width="100px">
-                            <Text text="{ddtext>/GROUP}" />
-                            <uiT:template>
-                                <Text text="{header>GROUP}" />
-                            </uiT:template>
-                        </uiT:Column>
-                        <uiT:Column width="100px">
                             <Text text="{ddtext>/DOCTYPE}" />
                             <uiT:template>
-                                <Text text="{header>DOCTYPE}" />
+                                <Text text="{header>DOCTYPE}" wrapping="false" tooltip="{detail>DOCTYPE}" />
                             </uiT:template>
                         </uiT:Column>
                         <uiT:Column width="100px">
                             <Text text="{ddtext>/PODATE}" />
                             <uiT:template>
-                                <Text text="{header>PODATE}" />
+                                <Text text="{header>PODATE}" wrapping="false" tooltip="{detail>PODATE}" />
                             </uiT:template>
                         </uiT:Column>
                         <uiT:Column width="100px">
                             <Text text="{ddtext>/VENDOR}" />
                             <uiT:template>
-                                <Text text="{header>VENDOR}" />
+                                <Text text="{header>VENDOR}" wrapping="false" tooltip="{detail>VENDOR}" />
                             </uiT:template>
                         </uiT:Column>
                         <uiT:Column width="300px">
                             <Text text="{ddtext>/VENDORNAME}" />
                             <uiT:template>
-                                <Text text="{header>VENDORNAME}" />
+                                <Text text="{header>VENDORNAME}" wrapping="false" tooltip="{detail>VENDORNAME}" />
                             </uiT:template>
                         </uiT:Column>
                         <uiT:Column width="100px">
                             <Text text="{ddtext>/PURCHORG}" />
                             <uiT:template>
-                                <Text text="{header>PURCHORG}" />
+                                <Text text="{header>PURCHORG}" wrapping="false" tooltip="{detail>PURCHORG}" />
                             </uiT:template>
                         </uiT:Column>
                         <uiT:Column width="100px">
                             <Text text="{ddtext>/PURCHGRP}" />
                             <uiT:template>
-                                <Text text="{header>PURCHGRP}" />
+                                <Text text="{header>PURCHGRP}" wrapping="false" tooltip="{detail>PURCHGRP}" />
                             </uiT:template>
                         </uiT:Column>
                         <uiT:Column width="100px">
                             <Text text="{ddtext>/COMPANY}" />
                             <uiT:template>
-                                <Text text="{header>COMPANY}" />
+                                <Text text="{header>COMPANY}" wrapping="false" tooltip="{detail>COMPANY}" />
                             </uiT:template>
                         </uiT:Column>
                         <uiT:Column width="100px">
                             <Text text="{ddtext>/PURCHPLANT}" />
                             <uiT:template>
-                                <Text text="{header>PURCHPLANT}" />
+                                <Text text="{header>PURCHPLANT}" wrapping="false" tooltip="{detail>PURCHPLANT}" />
                             </uiT:template>
                         </uiT:Column>
                         <uiT:Column width="100px">
                             <Text text="{ddtext>/SHIPTOPLANT}" />
                             <uiT:template>
-                                <Text text="{header>SHIPTOPLANT}" />
+                                <Text text="{header>SHIPTOPLANT}" wrapping="false" tooltip="{detail>SHIPTOPLANT}" />
                             </uiT:template>
                         </uiT:Column>
                         <uiT:Column width="100px">
                             <Text text="{ddtext>/PAYTERMS}" />
                             <uiT:template>
-                                <Text text="{header>PAYTERMS}" />
+                                <Text text="{header>PAYTERMS}" wrapping="false" tooltip="{detail>PAYTERMS}" />
                             </uiT:template>                            
                         </uiT:Column>
                         <uiT:Column width="100px">
                             <Text text="{ddtext>/INCOTERMS}" />
                             <uiT:template>
-                                <Text text="{header>INCOTERMS}" />
+                                <Text text="{header>INCOTERMS}" wrapping="false" tooltip="{detail>INCOTERMS}" />
                             </uiT:template>
                         </uiT:Column>
                         <uiT:Column width="200px">
                             <Text text="{ddtext>/DESTINATION}" />
                             <uiT:template>
-                                <Text text="{header>DESTINATION}" />
+                                <Text text="{header>DESTINATION}" wrapping="false" tooltip="{detail>DESTINATION}" />
                             </uiT:template>
                         </uiT:Column>
                         <uiT:Column width="100px">
                             <Text text="{ddtext>/CURR}" />
                             <uiT:template>
-                                <Text text="{header>CURR}" />
+                                <Text text="{header>CURR}" wrapping="false" tooltip="{detail>CURR}" />
                             </uiT:template>
                         </uiT:Column>
                         <uiT:Column width="100px">
                             <Text text="{ddtext>/EXRATE}" />
                             <uiT:template>
-                                <Text text="{header>EXRATE}" />
+                                <Text text="{header>EXRATE}" wrapping="false" />
                             </uiT:template>
                         </uiT:Column>
                         <uiT:Column width="100px">
                             <Text text="{ddtext>/SHIPMODE}" />
                             <uiT:template>
-                                <Text text="{header>SHIPMODE}" />
+                                <Text text="{header>SHIPMODE}" wrapping="false" tooltip="{detail>SHIPMODE}" />
                             </uiT:template>
                         </uiT:Column>
                         <uiT:Column width="100px">
                             <Text text="{ddtext>/CREATEDBY}" />
                             <uiT:template>
-                                <Text text="{header>CREATEDBY}" />
+                                <Text text="{header>CREATEDBY}" wrapping="false" tooltip="{detail>CREATEDBY}" />
                             </uiT:template>
                         </uiT:Column>
                         <uiT:Column width="100px">
                             <Text text="{ddtext>/CREATEDDATE}" />
                             <uiT:template>
-                                <Text text="{header>CREATEDDATE}" />
+                                <Text text="{header>CREATEDDATE}" wrapping="false" tooltip="{detail>CREATEDDATE}" />
                             </uiT:template>
                         </uiT:Column>
                     </uiT:columns>
                     <uiT:extension>
                         <Toolbar>
+                            <Title level="H3" text="{ddtext>/CREATEPO}" />
                             <ToolbarSpacer/>
                             <Button id="btnEditHdr" 
                                 icon="sap-icon://edit"
@@ -171,7 +176,7 @@
                         </Toolbar>
                     </uiT:extension>
                     <uiT:layoutData>
-                        <FlexItemData growFactor="1" baseSize="0%"/>
+                        <FlexItemData growFactor="0.7" baseSize="0%"/>
                     </uiT:layoutData>                  
                 </uiT:Table> 
 
@@ -188,85 +193,85 @@
                         <uiT:Column width="125px">
                             <Text text="{ddtext>/MATERIALNO}" />
                             <uiT:template>
-                                <Text text="{detail>MATERIALNO}" />
+                                <Text text="{detail>MATERIALNO}" wrapping="false" tooltip="{detail>MATERIALNO}" />
                             </uiT:template>
                         </uiT:Column>
                         <uiT:Column width="300px">
                             <Text text="{ddtext>/GMCDESCEN}" />
                             <uiT:template>
-                                <Text text="{detail>GMCDESCEN}" />
+                                <Text text="{detail>GMCDESCEN}" wrapping="false" tooltip="{detail>GMCDESCEN}" />
                             </uiT:template>
                         </uiT:Column>
                         <uiT:Column width="300px">
                             <Text text="{ddtext>/ADDTLDESC}" />
                             <uiT:template>
-                                <Text text="{detail>ADDTLDESC}" />
+                                <Text text="{detail>ADDTLDESC}" wrapping="false" tooltip="{detail>ADDTLDESC}" />
                             </uiT:template>
                         </uiT:Column>
                         <uiT:Column width="100px">
                             <Text text="{ddtext>/IONUMBER}" />
                             <uiT:template>
-                                <Text text="{detail>IONUMBER}" />
+                                <Text text="{detail>IONUMBER}" wrapping="false" tooltip="{detail>IONUMBER}" />
                             </uiT:template>
                         </uiT:Column>
                         <uiT:Column width="140px">
                             <Text text="{ddtext>/DELVDATE}" />
                             <uiT:template>
-                                <Text text="{detail>DELVDATE}" />
+                                <Text text="{detail>DELVDATE}" wrapping="false" tooltip="{detail>DELVDATE}" />
                             </uiT:template>
                         </uiT:Column>
                         <uiT:Column width="125px" hAlign="End">
                             <Text text="{ddtext>/BASEPOQTY}" />
                             <uiT:template>
-                                <Text text="{detail>BASEPOQTY}" />
+                                <Text text="{detail>BASEPOQTY}" wrapping="false" />
                             </uiT:template>
                         </uiT:Column>
                         <uiT:Column width="100px" hAlign="End">
                             <Text text="{ddtext>/ORDERPOQTY}" />
                             <uiT:template>
-                                <Text text="{detail>ORDERPOQTY}" />
+                                <Text text="{detail>ORDERPOQTY}" wrapping="false" />
                             </uiT:template>
                         </uiT:Column>
                         <uiT:Column width="100px">
                             <Text text="{ddtext>/UOM}" />
                             <uiT:template>
-                                <Text text="{detail>UOM}" />
+                                <Text text="{detail>UOM}" wrapping="false" tooltip="{detail>UOM}" />
                             </uiT:template>
                         </uiT:Column>
                         <uiT:Column width="100px" hAlign="End">
                             <Text text="{ddtext>/GROSSPRICE}" />
                             <uiT:template>
-                                <Text text="{detail>GROSSPRICE}" />
+                                <Text text="{detail>GROSSPRICE}" wrapping="false" />
                             </uiT:template>
                         </uiT:Column>
                         <uiT:Column width="100px" hAlign="End">
                             <Text text="{ddtext>/NETPRICE}" />
                             <uiT:template>
-                                <Text text="{detail>NETPRICE}" />
+                                <Text text="{detail>NETPRICE}" wrapping="false" />
                             </uiT:template>
                         </uiT:Column>
                         <uiT:Column width="100px" hAlign="End">
                             <Text text="{ddtext>/PER}" />
                             <uiT:template>
-                                <Text text="{detail>PER}" />
+                                <Text text="{detail>PER}" wrapping="false" />
                             </uiT:template>
                         </uiT:Column>
                         <uiT:Column width="100px">
                             <Text text="{ddtext>/ORDERPRICEUNIT}" />
                             <uiT:template>
-                                <Text text="{detail>ORDERPRICEUNIT}" />
+                                <Text text="{detail>ORDERPRICEUNIT}" wrapping="false" />
                             </uiT:template>
                         </uiT:Column>
                         <uiT:Column width="100px" hAlign="End">
                             <Text text="{ddtext>/OVERDELTOL}" />
                             <uiT:template>
-                                <Text text="{detail>OVERDELTOL}" />
+                                <Text text="{detail>OVERDELTOL}" wrapping="false" />
                             </uiT:template>
                         </uiT:Column>
                         <uiT:Column width="100px" hAlign="End">
                             <Text text="{ddtext>/UNDERDELTOL}" />
                             <uiT:template>
-                                <Text text="{detail>UNDERDELTOL}" />
+                                <Text text="{detail>UNDERDELTOL}" wrapping="false" />
                             </uiT:template>
                         </uiT:Column>
                         <uiT:Column width="100px" hAlign="Center">
@@ -278,7 +283,7 @@
                         <uiT:Column width="100px">
                             <Text text="{ddtext>/TAXCODE}" />
                             <uiT:template>
-                                <Text text="{detail>TAXCODE}" />
+                                <Text text="{detail>TAXCODE}" wrapping="false" tooltip="{detail>TAXCODE}" />
                             </uiT:template>
                         </uiT:Column>
                         <uiT:Column width="100px" hAlign="Center">
@@ -290,37 +295,37 @@
                         <uiT:Column width="100px" hAlign="Center">
                             <Text text="{ddtext>/PRNUMBER}" />
                             <uiT:template>
-                                <Text text="{detail>PRNUMBER}" />
+                                <Text text="{detail>PRNUMBER}" wrapping="false" tooltip="{detail>PRNUMBER}" />
                             </uiT:template>
                         </uiT:Column>
                         <uiT:Column width="100px" hAlign="Center">
                             <Text text="{ddtext>/PRITEMNO}" />
                             <uiT:template>
-                                <Text text="{detail>PRITEMNO}" />
+                                <Text text="{detail>PRITEMNO}" wrapping="false" tooltip="{detail>PRITEMNO}" />
                             </uiT:template>
                         </uiT:Column>
                         <uiT:Column width="100px" hAlign="Center">
                             <Text text="{ddtext>/SUPPLYTYPE}" />
                             <uiT:template>
-                                <Text text="{detail>SUPPLYTYPE}" />
+                                <Text text="{detail>SUPPLYTYPE}" wrapping="false" tooltip="{detail>SUPPLYTYPE}" />
                             </uiT:template>
                         </uiT:Column>                                                
                         <uiT:Column width="100px" hAlign="End">
                             <Text text="{ddtext>/ORDERCONVFACTOR}" />
                             <uiT:template>
-                                <Text text="{detail>ORDERCONVFACTOR}" />
+                                <Text text="{detail>ORDERCONVFACTOR}" wrapping="false" />
                             </uiT:template>
                         </uiT:Column>
                         <uiT:Column width="100px" hAlign="End">
                             <Text text="{ddtext>/BASECONVFACTOR}" />
                             <uiT:template>
-                                <Text text="{detail>BASECONVFACTOR}" />
+                                <Text text="{detail>BASECONVFACTOR}" wrapping="false"/>
                             </uiT:template>
                         </uiT:Column>
                         <uiT:Column width="100px">
                             <Text text="{ddtext>/BASEUOM}" />
                             <uiT:template>
-                                <Text text="{detail>BASEUOM}" />
+                                <Text text="{detail>BASEUOM}" wrapping="false" tooltip="{detail>BASEUOM}" />
                             </uiT:template>
                         </uiT:Column>                                                
                     </uiT:columns>
@@ -350,7 +355,7 @@
                         </Toolbar>  
                     </uiT:extension>
                     <uiT:layoutData>
-                        <FlexItemData growFactor="1" baseSize="0%"/>
+                        <FlexItemData growFactor="1.2" baseSize="0%"/>
                     </uiT:layoutData>                  
                 </uiT:Table> 
             </VBox>

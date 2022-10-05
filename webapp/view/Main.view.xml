@@ -83,7 +83,7 @@
                 </smartfilterbar:SmartFilterBar>
 
                 <!-- Statistics -->
-                <uiL:HorizontalLayout class="sapUiTinyMarginTop sapUiTinyMarginBegin sapUiTinyMarginEnd">
+                <!-- <uiL:HorizontalLayout class="sapUiTinyMarginTop sapUiTinyMarginBegin sapUiTinyMarginEnd">
                     <GenericTag text="{ddtext>/TOTAL}" design="StatusIconHidden" status="Information" class="sapUiTinyMarginEnd">
                         <ObjectNumber emphasized="true" number="{counts>/total}" state="Information" id="forecastNumber"/>
                     </GenericTag>
@@ -93,7 +93,7 @@
                     <GenericTag text="{ddtext>/PARTIAL}" design="StatusIconHidden" status="Warning" class="mbTag">
                         <ObjectNumber emphasized="true" number="{counts>/partial}" state="Warning" id="shippedNumber" />
                     </GenericTag>
-                </uiL:HorizontalLayout>
+                </uiL:HorizontalLayout> -->
 
                 <uiT:Table id="mainTab"
                     class="sapUiTinyMarginBottom sapUiTinyMarginBegin sapUiTinyMarginEnd"
@@ -105,26 +105,16 @@
                     <uiT:extension>
                         <Toolbar class="sapUiTinyMarginBottom">
                             <!-- <Text text="{counts>/total} PRs" /> -->
-                            <!-- <GenericTag text="{i18n>TOTAL}" design="StatusIconHidden" status="Information" class="mbTag">
+                            <GenericTag text="{ddtext>/TOTAL}" design="StatusIconHidden" status="Information" class="sapUiTinyMarginEnd">
                                 <ObjectNumber emphasized="true" number="{counts>/total}" state="Information" id="forecastNumber"/>
                             </GenericTag>
-                            <GenericTag text="{i18n>UNASSIGNED}" design="StatusIconHidden" status="None" class="mbTag">
+                            <GenericTag text="{ddtext>/UNASSIGNED}" design="StatusIconHidden" status="None" class="sapUiTinyMarginEnd">
                                 <ObjectNumber emphasized="true" number="{counts>/unassigned}" state="None" id="orderNumber"/>
                             </GenericTag>
-                            <GenericTag text="{i18n>PARTIAL}" design="StatusIconHidden" status="Warning" class="mbTag">
+                            <GenericTag text="{ddtext>/PARTIAL}" design="StatusIconHidden" status="Warning" class="mbTag">
                                 <ObjectNumber emphasized="true" number="{counts>/partial}" state="Warning" id="shippedNumber" />
-                            </GenericTag> -->
-                            <!-- <Label text="SBU: " />
-                            <ComboBox id="cboxSBU"
-                                width="100px"
-                                change="onSBUChange"
-                                selectedKey="{ui>/sbu}"
-                                items="{
-                                    path: '/SBURscSet'
-                                }"
-                                class="marginTopNone">
-                                <core:Item key="{SBU}" text="{SBU}" />
-                            </ComboBox> -->
+                            </GenericTag>
+
                             <ToolbarSpacer/>
                             <SearchField
                                 id="searchFieldMain"
@@ -151,7 +141,7 @@
                             <Button id="btnTabLayout"
                                 icon="sap-icon://grid" 
                                 tooltip="{ddtext>/SAVELAYOUT}" 
-                                press="onSaveTableLayout"/>                                
+                                press="onSaveTableLayout"/>                               
                         </Toolbar>
                     </uiT:extension>
                     <uiT:layoutData>

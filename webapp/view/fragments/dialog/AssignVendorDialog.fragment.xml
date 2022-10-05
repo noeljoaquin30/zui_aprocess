@@ -61,7 +61,7 @@
                 <uit:Column width="15rem">
                     <Label text="PLANT" />
                     <uit:template>
-                        <Text text="{Plant}" wrapping="false" />
+                        <Text text="{PURCHPLANT}" wrapping="false" />
                     </uit:template>
                 </uit:Column>
                 <uit:Column width="15rem">

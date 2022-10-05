@@ -20,6 +20,9 @@ sap.ui.define([
                 that = this;
                 this._oModel = this.getOwnerComponent().getModel();
 
+                this._fBackButton = sap.ui.getCore().byId("backBtn").mEventRegistry.press[0].fFunction;
+                // this._proc = "anp";
+                
                 // console.log(Common);
                 // Common.showMessage('test');
                 // Common.openLoadingDialog(that);
@@ -142,12 +145,24 @@ sap.ui.define([
                 oDDTextParam.push({CODE: "INFO_INPUT_REQD_FIELDS"});
                 oDDTextParam.push({CODE: "CONF_CANCEL_CREATEPO"});
                 oDDTextParam.push({CODE: "CONFIRM_DISREGARD_CHANGE"});
+                oDDTextParam.push({CODE: "INFO_INVALID_SEL_MATTYP"});  
+                oDDTextParam.push({CODE: "INFO_FABSPECS_SAVED"});  
+                oDDTextParam.push({CODE: "INFO_INPUT_REMARKS"});  
+                oDDTextParam.push({CODE: "INFO_REMARKS_SAVED"});  
+                oDDTextParam.push({CODE: "INFO_INPUT_PACKINS"});  
+                oDDTextParam.push({CODE: "INFO_PACKINS_SAVED"});  
+                oDDTextParam.push({CODE: "INFO_CHECK_INVALID_ENTRIES"});  
+                oDDTextParam.push({CODE: "INFO_SEL_RECORD_TO_DELETE"});  
+                oDDTextParam.push({CODE: "INFO_DATA_DELETED"});  
+                oDDTextParam.push({CODE: "INFO_CREATEPO_CHECK_REQD"});  
+                oDDTextParam.push({CODE: "CONF_DELETE_RECORDS"});  
                 oDDTextParam.push({CODE: "YES"});
+                oDDTextParam.push({CODE: "BACK"});  
 
                 oModel.create("/CaptionMsgSet", { CaptionMsgItems: oDDTextParam  }, {
                     method: "POST",
                     success: function(oData, oResponse) {        
-                        // console.log(oData)               
+                        // console.log(oData)
                         oData.CaptionMsgItems.results.forEach(item => {
                             oDDTextResult[item.CODE] = item.TEXT;
                         })
@@ -161,6 +176,36 @@ sap.ui.define([
                         sap.m.MessageBox.error(err);
                     }
                 });
+
+                this.getOwnerComponent().getModel("UI_MODEL").setData({
+                    sbu: "",
+                    flag: false
+                })
+
+                var oView = this.getView();
+                oView.addEventDelegate({
+                    onAfterShow: function(oEvent){
+                        // console.log("after show");
+                        // console.log(that.getOwnerComponent().getModel("UI_MODEL").getData().flag)
+                        //Your model refresh logic
+                        sap.ui.getCore().byId("backBtn").mEventRegistry.press[0].fFunction = that._fBackButton; 
+
+                        if (that.getOwnerComponent().getModel("UI_MODEL").getData().flag) {
+                            that.refresh();
+                        }
+                    }
+                }, oView);
+
+                // const route = this.getOwnerComponent().getRouter().getRoute("RouteMain");
+                // route.attachPatternMatched(this.onPatternMatched, this);                
+            },
+
+            // _routePatternMatched: function (oEvent) {
+            //     console.log("route");
+            // },
+
+            onExit: function() {
+                sap.ui.getCore().byId("backBtn").mEventRegistry.press[0].fFunction = this._fBackButton;
             },
 
             onSBUChange: function(oEvent) {
@@ -309,11 +354,12 @@ sap.ui.define([
                     var sColumnVisible = context.getObject().Visible;
                     var sColumnSorted = context.getObject().Sorted;
                     var sColumnSortOrder = context.getObject().SortOrder;
+                    var sColumnDataType = context.getObject().DataType;
                     // var sColumnToolTip = context.getObject().Tooltip;
                     //alert(sColumnId.);
-
-                    if (sColumnWidth === 0) sColumnWidth = 7;
-
+                    // console.log(context.getObject().DataType)
+                    if (sColumnWidth === 0) sColumnWidth = 100;
+                    // console.log(context)
                     return new sap.ui.table.Column({
                         id: sColumnId,
                         label: sColumnLabel,
@@ -323,44 +369,21 @@ sap.ui.define([
                         filterProperty: sColumnId,
                         autoResizable: true,
                         visible: sColumnVisible,
-                        sorted: sColumnSorted,
+                        sorted: sColumnSorted,                        
+                        hAlign: sColumnDataType === "NUMBER" ? "End" : sColumnDataType === "BOOLEAN" ? "Center" : "Begin",
                         sortOrder: ((sColumnSorted === true) ? sColumnSortOrder : "Ascending" )
                     });
                 });
             },
-
+            // hAlign: "End",
             columnTemplate: function (sColumnId, sColumnType) {
                 var oColumnTemplate;
 
-                oColumnTemplate = new sap.m.Text({ text: "{" + sColumnId + "}" }); //default text
-
-                // //different component based on field
-                // if (sColumnId === "STATUSCD") { //display infolabel for Status Code
-                //     oColumnTemplate = new sap.tnt.InfoLabel({
-                //         text: "{" + sColumnId + "}",
-                //         colorScheme: "{= ${" + sColumnId + "} === 'CMP' ? 8 : ${" + sColumnId + "} === 'CRT' ? 3 : 1}"
-                //     })
-                // } else if (sColumnType === "SEL") { //Manage button
-                //     oColumnTemplate = new sap.m.Button({
-                //         text: "",
-                //         icon: "sap-icon://detail-view",
-                //         type: "Ghost",
-                //         press: this.goToDetail,
-                //         tooltip: "Manage this style"
-                //     });
-                //     oColumnTemplate.data("StyleNo", "{}"); //custom data to hold style number
-                // } else if (sColumnType === "COPY") { //Copy button
-                //     oColumnTemplate = new sap.m.Button({
-                //         text: "",
-                //         icon: "sap-icon://copy",
-                //         type: "Ghost",
-                //         press: this.onCopyStyle,
-                //         tooltip: "Copy this style"
-                //     });
-                //     oColumnTemplate.data("StyleNo", "{}"); //custom data to hold style number
-                // } else {
-                //     oColumnTemplate = new sap.m.Text({ text: "{" + sColumnId + "}" }); //default text
-                // }
+                oColumnTemplate = new sap.m.Text({ 
+                    text: "{" + sColumnId + "}", 
+                    wrapping: false,
+                    tooltip: "{" + sColumnId + "}"
+                }); //default text
 
                 return oColumnTemplate;
             },
@@ -471,6 +494,10 @@ sap.ui.define([
                 }                
             },
 
+            refresh() {
+                this.getTableData(); 
+            },
+
             getTableData() {
                 // return;
                 var me = this;
@@ -528,7 +555,7 @@ sap.ui.define([
                         me.byId("btnTabLayout").setEnabled(true);
                     },
                     error: function (err) { 
-                        console.log(err)
+                        // console.log(err)
                         me.closeLoadingDialog();
                     }
                 });
@@ -628,20 +655,20 @@ sap.ui.define([
                                 oModel.create("/GetInfoRecordSet", oParam, {
                                     method: "POST",
                                     success: function(oResult, oResponse) {
-                                        console.log(oResult.N_GetInfoRecReturn)
+                                        // console.log(oResult.N_GetInfoRecReturn)
                                         var oManualAssignVendorData = [];
                                         oParamData = [];
                                         oParam = {};
             
                                         oSelectedIndices.forEach(selItemIdx => {
                                             var returnData = jQuery.extend(true, [], oResult.N_GetInfoRecReturn.results);
-                                            
+                                            console.log(oResult.N_GetInfoRecReturn.results)
                                             if (aData.at(selItemIdx).VENDOR !== '') returnData = returnData.filter(fItem => fItem.Vendor === aData.at(selItemIdx).VENDOR);
                                             if (aData.at(selItemIdx).MATERIALNO !== '') returnData = returnData.filter(fItem => fItem.Material === aData.at(selItemIdx).MATERIALNO);
                                             // if (aData.at(selItemIdx).PURCHPLANT !== '') returnData = returnData.filter(fItem => fItem.Plant === aData.at(selItemIdx).PURCHPLANT);
                                             if (aData.at(selItemIdx).PURCHGRP !== '') returnData = returnData.filter(fItem => fItem.PurGroup === aData.at(selItemIdx).PURCHGRP);
                                             if (aData.at(selItemIdx).PURCHORG !== '') returnData = returnData.filter(fItem => fItem.PurchOrg === aData.at(selItemIdx).PURCHORG);
-            
+                                            console.log(returnData)
                                             if (returnData.length > 0) {
                                                 if (returnData[0].RetType === 'E') {
                                                     me._oAssignVendorData.filter(fItem => fItem.PRNUMBER === aData.at(selItemIdx).PRNUMBER && fItem.PRITEMNO === aData.at(selItemIdx).PRITEMNO)
@@ -686,6 +713,7 @@ sap.ui.define([
                                                         item.SHIPTOPLANT = aData.at(selItemIdx).SHIPTOPLANT;
                                                         item.SEASON = aData.at(selItemIdx).SEASON;
                                                         item.SHORTTEXT = aData.at(selItemIdx).SHORTTEXT;
+                                                        item.PURCHPLANT = aData.at(selItemIdx).PURCHPLANT;
             
                                                         oManualAssignVendorData.push(item);
                                                     });
@@ -701,34 +729,38 @@ sap.ui.define([
                                         if (oParamData.length > 0) {
                                             oParam['N_ChangePRParam'] = oParamData;
                                             oParam['N_ChangePRReturn'] = [];
-                                            console.log(oParam)
+                                            // console.log(oParam)
                                             oModel.create("/ChangePRSet", oParam, {
                                                 method: "POST",
                                                 success: function(oResultCPR, oResponse) {
-                                                    console.log(oResultCPR);
+                                                    // console.log(oResultCPR);
             
                                                     if (oResultCPR.N_ChangePRReturn.results.length > 0) {
                                                         me._oAssignVendorData.forEach(item => {
                                                             // var oRetMsg = oResultCPR.N_ChangePRReturn.results.filter(fItem => fItem.PreqNo === item.PRNUMBER && fItem.PreqItem === item.PRITEMNO);
                                                             var oRetMsg = oResultCPR.N_ChangePRReturn.results.filter(fItem => fItem.PreqNo === item.PRNUMBER);
-            
+                                                            console.log(oParamData)
                                                             if (oRetMsg.length > 0) {
                                                                 if (oRetMsg[0].Type === 'S') {
-                                                                    var pVendor = oParamData.filter(fItem => fItem.PreqNo === item.PRNUMBER && fItem.PreqItem === item.PRITEMNO)[0].DesVendor;
-                                                                    var pPurchOrg = oParamData.filter(fItem => fItem.PreqNo === item.PRNUMBER && fItem.PreqItem === item.PRITEMNO)[0].PurchOrg;
-                                                                    
-                                                                    if (item.VENDOR !== '' && item.VENDOR !== pVendor) {
-                                                                        item.REMARKS = 'Vendor updated.';
-                                                                    }
-                                                                    else if (item.VENDOR === '' && item.VENDOR !== pVendor) {
-                                                                        item.REMARKS = 'Vendor assigned.';
-                                                                    }
-                                                                    else if (item.PURCHORG !== '' && item.PURCHORG !== pPurchOrg) {
-                                                                        item.REMARKS = 'Purchasing Org updated.';
-                                                                    }
-                                                                    else {
-                                                                        item.REMARKS = oRetMsg[0].Message;
-                                                                    }
+                                                                    console.log(item.PRNUMBER, item.PRITEMNO);
+                                                                    var pVendor = "", pPurchOrg = "";
+                                                                    oParamData.filter(fItem => fItem.PreqNo === item.PRNUMBER && fItem.PreqItem === item.PRITEMNO)
+                                                                        .forEach(row => {
+                                                                            if (item.VENDOR !== '' && item.VENDOR !== row.DesVendor) {
+                                                                                item.REMARKS = 'Vendor updated.';
+                                                                            }
+                                                                            else if (item.VENDOR === '' && item.VENDOR !== row.DesVendor) {
+                                                                                item.REMARKS = 'Vendor assigned.';
+                                                                            }
+                                                                            else if (item.PURCHORG !== '' && item.PURCHORG !== row.PurchOrg) {
+                                                                                item.REMARKS = 'Purchasing Org updated.';
+                                                                            }
+                                                                            else {
+                                                                                item.REMARKS = oRetMsg[0].Message;
+                                                                            }
+                                                                        })
+                                                                    // var pVendor = oParamData.filter(fItem => fItem.PreqNo === item.PRNUMBER && fItem.PreqItem === item.PRITEMNO)[0].DesVendor;
+                                                                    // var pPurchOrg = oParamData.filter(fItem => fItem.PreqNo === item.PRNUMBER && fItem.PreqItem === item.PRITEMNO)[0].PurchOrg;
                                                                 }
                                                                 else {
                                                                     item.REMARKS = oRetMsg[0].Message;
@@ -807,7 +839,7 @@ sap.ui.define([
                             }
                             else {
                                 me.closeLoadingDialog();
-
+                                
                                 if (vMatTypExist) {
                                     sap.m.MessageBox.information(me.getView().getModel("ddtext").getData()["INFO_INVALID_SEL_MATTYP"]);
                                 }
@@ -842,6 +874,8 @@ sap.ui.define([
                 var oParam = {};
                 // console.log(oTable.getSelectedIndices())
 
+                // this._oAssignVendorData = [];
+
                 if (oSelectedIndices.length > 0) {
                     oSelectedIndices.forEach((selItemIdx, index) => {
                         oParamData.push({
@@ -867,7 +901,7 @@ sap.ui.define([
                                 Quantity: aData.at(selItemIdx).QTY,
                                 DelivDate: sapDateFormat.format(new Date(aData.at(selItemIdx).DELVDATE)) + "T00:00:00",
                                 Batch: aData.at(selItemIdx).IONUMBER,
-                                Plant: aData.at(selItemIdx).Plant,
+                                Plant: aData.at(selItemIdx).PURCHPLANT,
                                 Purgrp: aData.at(selItemIdx).PurGroup,
                                 Reqsnr: aData.at(selItemIdx).REQUISITIONER,
                                 DesVendor: aData.at(selItemIdx).Vendor,
@@ -884,36 +918,41 @@ sap.ui.define([
 
                         oParam['N_ChangePRParam'] = oParamData;
                         oParam['N_ChangePRReturn'] = [];
-                        console.log(oParam)
+                        // console.log(oParam)
                         oModel.create("/ChangePRSet", oParam, {
                             method: "POST",
                             success: function(oResultCPR, oResponse) {
                                 // console.log(oResultCPR);
 
                                 if (oResultCPR.N_ChangePRReturn.results.length > 0) {
-                                    this._oAssignVendorData.forEach(item => {
+                                    me._oAssignVendorData.forEach(item => {
                                         var oRetMsg = oResultCPR.N_ChangePRReturn.results.filter(fItem => fItem.PreqNo === item.PRNUMBER && fItem.PreqItem === item.PRITEMNO);
+
+                                        if (oRetMsg.length === 0)
+                                            oRetMsg = oResultCPR.N_ChangePRReturn.results.filter(fItem => fItem.PreqNo === item.PRNUMBER);
 
                                         if (oRetMsg.length > 0) {
                                             if (oRetMsg[0].Type === 'S') {
-                                                var pVendor = oParamData.filter(fItem => fItem.PreqNo === item.PRNUMBER && fItem.PreqItem === item.PRITEMNO)[0].DesVendor;
-                                                var pPurchOrg = oParamData.filter(fItem => fItem.PreqNo === item.PRNUMBER && fItem.PreqItem === item.PRITEMNO)[0].PurchOrg;
-                                                
-                                                if (item.VENDOR !== '' && item.VENDOR !== pVendor) {
-                                                    item.REMARKS = 'Vendor updated.';
-                                                }
-                                                else if (item.VENDOR === '' && item.VENDOR !== pVendor) {
-                                                    item.REMARKS = 'Vendor assigned.';
-                                                }
-                                                else if (item.PURCHORG !== '' && item.PURCHORG !== pPurchOrg) {
-                                                    item.REMARKS = 'Purchasing Org updated.';
-                                                }
-                                                else {
-                                                    item.REMARKS = Message;
-                                                }
+                                                oParamData.filter(fItem => fItem.PreqNo === item.PRNUMBER && fItem.PreqItem === item.PRITEMNO)
+                                                    .forEach(row => {
+                                                        if (item.VENDOR !== '' && item.VENDOR !== row.DesVendor) {
+                                                            item.REMARKS = 'Vendor updated.';
+                                                        }
+                                                        else if (item.VENDOR === '' && item.VENDOR !== row.DesVendor) {
+                                                            item.REMARKS = 'Vendor assigned.';
+                                                        }
+                                                        else if (item.PURCHORG !== '' && item.PURCHORG !== row.PurchOrg) {
+                                                            item.REMARKS = 'Purchasing Org updated.';
+                                                        }
+                                                        else {
+                                                            item.REMARKS = oRetMsg[0].Message;
+                                                        }
+                                                    })
+                                                // var pVendor = oParamData.filter(fItem => fItem.PreqNo === item.PRNUMBER && fItem.PreqItem === item.PRITEMNO)[0].DesVendor;
+                                                // var pPurchOrg = oParamData.filter(fItem => fItem.PreqNo === item.PRNUMBER && fItem.PreqItem === item.PRITEMNO)[0].PurchOrg;
                                             }
                                             else {
-                                                item.REMARKS = Message;
+                                                item.REMARKS = oRetMsg[0].Message;
                                             }
                                         }
                                         else {
@@ -945,10 +984,14 @@ sap.ui.define([
             onAssignVendorClose: function(oEvent) {
                 this.refreshTableData();
                 this._AssignVendorResultDialog.close();
+                this._AssignVendorDialog.close();
+
+                var oTable = sap.ui.getCore().byId("assignVendorTab");
+                oTable.clearSelection();
             },
 
             showAssignVendorResult(arg) {
-                console.log(this._oAssignVendorData)
+                // console.log(this._oAssignVendorData)
                 // display pop-up for user selection
                 if (!this._AssignVendorResultDialog) {
                     this._AssignVendorResultDialog = sap.ui.xmlfragment("zuiaprocess.view.fragments.dialog.AssignVendorResultDialog", this);
@@ -968,7 +1011,7 @@ sap.ui.define([
                 }
 
                 if (arg === "assign") this._AssignVendorResultDialog.setTitle("Assign Vendor Result");
-                if (arg === "unassign") this._AssignVendorResultDialog.setTitle("Unassign Vendor Result");
+                if (arg === "unassign") this._AssignVendorResultDialog.setTitle("Undo Assignment Result");
 
                 this._AssignVendorResultDialog.open();
             },
@@ -1037,11 +1080,11 @@ sap.ui.define([
 
                         oParam['N_ChangePRParam'] = oParamData;
                         oParam['N_ChangePRReturn'] = [];
-                        console.log(oParam)
+                        // console.log(oParam)
                         oModel.create("/ChangePRSet", oParam, {
                             method: "POST",
                             success: function(oResultCPR, oResponse) {
-                                console.log(oResultCPR);
+                                // console.log(oResultCPR);
                                 me.closeLoadingDialog();
     
                                 if (oResultCPR.N_ChangePRReturn.results.length > 0) {
@@ -1120,7 +1163,7 @@ sap.ui.define([
                         // me.setChangeStatus(false);
                     },
                     error: function (err) { 
-                        console.log(err)
+                        // console.log(err)
                     }
                 });
 
@@ -1168,7 +1211,7 @@ sap.ui.define([
                     error: function(err) {
                         sap.m.MessageBox.error(err);
                     }
-                });                
+                });
             },
 
             onCreatePO: function(oEvent) {
@@ -1203,15 +1246,49 @@ sap.ui.define([
                         if (sVendor === "" || sPurchOrg === "" || sPurchGrp === "" || sPurchPlant === "") {
                             bProceed = false;
                         }
+                        else {
+                            me._oCreateData.push({
+                                PRNUMBER: aData.at(item).PRNUMBER,
+                                PRITEMNO: aData.at(item).PRITEMNO,
+                                MATERIALNO: aData.at(item).MATERIALNO,
+                                IONUMBER: aData.at(item).IONUMBER,
+                                QTY: aData.at(item).QTY,
+                                UNIT: aData.at(item).UNIT,
+                                VENDOR: aData.at(item).VENDOR,
+                                VENDORNAME: aData.at(item).VENDORNAME,
+                                PURCHORG: aData.at(item).PURCHORG,
+                                PURCHPLANT: aData.at(item).PURCHPLANT,
+                                PURCHGRP: aData.at(item).PURCHGRP,
+                                COMPANY: aData.at(item).COMPANY,
+                                DOCTYPE: aData.at(item).DOCTYPE,
+                                MATERIALGRP: aData.at(item).MATERIALGRP,
+                                MATERIALTYPE: aData.at(item).MATERIALTYPE,
+                                CUSTGRP: aData.at(item).CUSTGRP,
+                                SHIPTOPLANT: aData.at(item).SHIPTOPLANT,
+                                GMCDESCEN: aData.at(item).GMCDESCEN,
+                                ADDTLDESC: aData.at(item).ADDTLDESC,
+                                DELVDATE: aData.at(item).DELVDATE,
+                                BASEPOQTY: aData.at(item).QTY,
+                                ORDERPOQTY: (+aData.at(item).QTY) - (+aData.at(item).ORDERQTY),
+                                SUPPLYTYPE: aData.at(item).SUPPLYTYPE,
+                                BASEQTY: aData.at(item).QTY,
+                                BASEUOM: aData.at(item).UNIT,
+                                PLANMONTH: aData.at(item).PLANMONTH,
+                                ITEM: '00000',
+                                REMARKS: ''
+                            })                            
+                        }
                     })
 
                     if (bProceed) {
+                        me.showLoadingDialog('Processing...');
+                        
                         this._oModel.read("/ZERPCheckSet", {
                             urlParameters: {
                                 "$filter": "Sbu eq '" + vSBU + "'"
                             },
                             success: function (oDataCheck, oResponse) {                                
-                                oSelectedIndices.forEach((item, index) => {
+                                oSelectedIndices.forEach(item => {
                                     if (oDataCheck.results.length > 0) {
                                         if (oDataCheck.results.filter(fItem => fItem.Field2 === aData.at(item).MATERIALTYPE).length === 0) {
                                             oParamData.push({
@@ -1221,39 +1298,7 @@ sap.ui.define([
                                                 PurGroup: aData.at(item).PURCHGRP,
                                                 Plant: aData.at(item).PURCHPLANT
                                             })
-
-                                            me._oCreateData.push({
-                                                PRNUMBER: aData.at(item).PRNUMBER,
-                                                PRITEMNO: aData.at(item).PRITEMNO,
-                                                MATERIALNO: aData.at(item).MATERIALNO,
-                                                IONUMBER: aData.at(item).IONUMBER,
-                                                QTY: aData.at(item).QTY,
-                                                UNIT: aData.at(item).UNIT,
-                                                VENDOR: aData.at(item).VENDOR,
-                                                VENDORNAME: aData.at(item).VENDORNAME,
-                                                PURCHORG: aData.at(item).PURCHORG,
-                                                PURCHPLANT: aData.at(item).PURCHPLANT,
-                                                PURCHGRP: aData.at(item).PURCHGRP,
-                                                COMPANY: aData.at(item).COMPANY,
-                                                DOCTYPE: aData.at(item).DOCTYPE,
-                                                MATERIALGRP: aData.at(item).MATERIALGRP,
-                                                MATERIALTYPE: aData.at(item).MATERIALTYPE,
-                                                CUSTGRP: aData.at(item).CUSTGRP,
-                                                SHIPTOPLANT: aData.at(item).SHIPTOPLANT,
-                                                GMCDESCEN: aData.at(item).GMCDESCEN,
-                                                ADDTLDESC: aData.at(item).ADDTLDESC,
-                                                DELVDATE: aData.at(item).DELVDATE,
-                                                BASEPOQTY: aData.at(item).QTY,
-                                                ORDERPOQTY: (+aData.at(item).QTY) - (+aData.at(item).ORDERQTY),
-                                                SUPPLYTYPE: aData.at(item).SUPPLYTYPE,
-                                                BASEQTY: aData.at(item).QTY,
-                                                BASEUOM: aData.at(item).UNIT,
-                                                PLANMONTH: aData.at(item).PLANMONTH,
-                                                ITEM: '00000',
-                                                REMARKS: ''
-                                            })
                                         }
-                                        else vMatTypExist = true;
                                     }
                                     else {
                                         oParamData.push({
@@ -1263,189 +1308,148 @@ sap.ui.define([
                                             PurGroup: aData.at(item).PURCHGRP,
                                             Plant: aData.at(item).PURCHPLANT
                                         })
-
-                                        me._oCreateData.push({
-                                            PRNUMBER: aData.at(item).PRNUMBER,
-                                            PRITEMNO: aData.at(item).PRITEMNO,
-                                            MATERIALNO: aData.at(item).MATERIALNO,
-                                            IONUMBER: aData.at(item).IONUMBER,
-                                            QTY: aData.at(item).QTY,
-                                            UNIT: aData.at(item).UNIT,
-                                            VENDOR: aData.at(item).VENDOR,
-                                            VENDORNAME: aData.at(item).VENDORNAME,
-                                            PURCHORG: aData.at(item).PURCHORG,
-                                            PURCHPLANT: aData.at(item).PURCHPLANT,
-                                            PURCHGRP: aData.at(item).PURCHGRP,
-                                            COMPANY: aData.at(item).COMPANY,
-                                            DOCTYPE: aData.at(item).DOCTYPE,
-                                            MATERIALGRP: aData.at(item).MATERIALGRP,
-                                            MATERIALTYPE: aData.at(item).MATERIALTYPE,
-                                            CUSTGRP: aData.at(item).CUSTGRP,
-                                            SHIPTOPLANT: aData.at(item).SHIPTOPLANT,
-                                            GMCDESCEN: aData.at(item).GMCDESCEN,
-                                            ADDTLDESC: aData.at(item).ADDTLDESC,
-                                            DELVDATE: aData.at(item).DELVDATE,
-                                            BASEPOQTY: aData.at(item).QTY,
-                                            ORDERPOQTY: (+aData.at(item).QTY) - (+aData.at(item).ORDERQTY),
-                                            SUPPLYTYPE: aData.at(item).SUPPLYTYPE,
-                                            BASEQTY: aData.at(item).QTY,
-                                            BASEUOM: aData.at(item).UNIT,
-                                            PLANMONTH: aData.at(item).PLANMONTH,
-                                            ITEM: '00000',
-                                            REMARKS: ''
-                                        })
                                     }
                                 })
+
                                 // console.log(me._oCreateData)
                                 if (oParamData.length > 0) {
-                                    me.showLoadingDialog('Processing...');
-                                    
-                                    oParamData = oParamData.filter((value, index, self) => self.findIndex(item => item.Vendor === value.Vendor && item.Material === value.Material && item.PurchOrg === value.PurchOrg && item.PurGroup === value.PurGroup) === index) ;
+                                    //get valid info record
+                                    oParamData = oParamData.filter((value, index, self) => self.findIndex(item => item.Vendor === value.Vendor && item.Material === value.Material && item.PurchOrg === value.PurchOrg && item.PurGroup === value.PurGroup && item.Plant === value.Plant) === index) ;
             
                                     oParam['N_GetInfoRecMatParam'] = oParamData;
                                     oParam['N_GetInfoRecReturn'] = [];
-                                    // console.log(oParam)
+                                    console.log("GetInfoRecordSet");
+                                    console.log(oParam);
                 
                                     oModel.create("/GetInfoRecordSet", oParam, {
                                         method: "POST",
                                         success: function(oResult, oResponse) {
+                                            console.log(oResult)
                                             oParamData.forEach(item => {
                                                 var returnData = jQuery.extend(true, [], oResult.N_GetInfoRecReturn.results);
-                                                returnData.filter(fItem => fItem.Vendor === item.Vendor && fItem.PurchOrg === item.PurchOrg && fItem.PurGroup === item.PurGroup && fItem.Material === item.Material);
+                                                // console.log("GetInfoRecord: ", oResult.N_GetInfoRecReturn.results)
+                                                // console.log(oParamData)
+                                                returnData = returnData.filter(fItem => fItem.Vendor === item.Vendor && fItem.PurchOrg === item.PurchOrg && fItem.PurGroup === item.PurGroup && fItem.Material === item.Material);
+                                                // console.log(returnData)
+                                                me._oCreateData.filter(fItem => fItem.VENDOR === item.Vendor && fItem.PURCHORG === item.PurchOrg && fItem.PURCHGRP === item.PurGroup && fItem.MATERIALNO === item.Material && fItem.PURCHPLANT === item.Plant)
+                                                    .forEach(itemIR => {
+                                                        if (returnData.length === 0) {
+                                                            itemIR.REMARKS = 'No matching info record retrieve.'
+                                                        }
+                                                        else {
+                                                            itemIR.REMARKS = returnData[0].RetType === 'E' ? returnData[0].RetMessage : '';
+                                                            itemIR.UOM = returnData[0].PoUnit;
+                                                            itemIR.GROSSPRICE = returnData[0].NetPrice;
+                                                            itemIR.NETPRICE = returnData[0].NetPrice;
+                                                            itemIR.PER = returnData[0].PriceUnit;
+                                                            itemIR.ORDERPRICEUNIT = returnData[0].OrderprUn;
+                                                            itemIR.OVERDELTOL = returnData[0].Overdeltol;
+                                                            itemIR.UNDERDELTOL = returnData[0].UnderTol;
+                                                            itemIR.UNLI = returnData[0].Unlimited;
+                                                            itemIR.TAXCODE = returnData[0].TaxCode;
+                                                            itemIR.GRBASEDIV = returnData[0].Grbasediv;
+                                                            itemIR.ORDERCONVFACTOR = returnData[0].ConvNum1;
+                                                            itemIR.BASECONVFACTOR = returnData[0].ConvDen1;
+                                                            itemIR.INFOREC = returnData[0].InfoRec;
 
-                                                me._oCreateData.filter(fItem => fItem.VENDOR === item.Vendor && fItem.PURCHORG === item.PurchOrg && fItem.PURCHGRP === item.PurGroup && fItem.MATERIALNO === item.Material)
-                                                .forEach(item => {
-                                                    if (returnData.length === 0) {
-                                                        item.REMARKS = 'No matching info record retrieve.'
-                                                    }
-                                                    else {
-                                                        item.REMARKS = returnData[0].RetType === 'E' ? returnData[0].RetMessage : '';
-                                                        item.UOM = returnData[0].PoUnit;
-                                                        item.GROSSPRICE = returnData[0].NetPrice;
-                                                        item.NETPRICE = returnData[0].NetPrice;
-                                                        item.PER = returnData[0].PriceUnit;
-                                                        item.ORDERPRICEUNIT = returnData[0].OrderprUn;
-                                                        item.OVERDELTOL = returnData[0].Overdeltol;
-                                                        item.UNDERDELTOL = returnData[0].UnderTol;
-                                                        item.UNLI = returnData[0].Unlimited;
-                                                        item.TAXCODE = returnData[0].TaxCode;
-                                                        item.GRBASEDIV = returnData[0].Grbasediv;
-                                                        item.ORDERCONVFACTOR = returnData[0].ConvNum1;
-                                                        item.BASECONVFACTOR = returnData[0].ConvDen1;
-                                                        item.INFOREC = returnData[0].InfoRec;
-
-                                                        item.ORDERPOQTY = (item.ORDERPOQTY / ((+returnData[0].ConvNum1) * (+returnData[0].ConvDen1) * (+returnData[0].PriceUnit))).toFixed(3);
-                                                    }
-                                                });
+                                                            itemIR.ORDERPOQTY = (itemIR.ORDERPOQTY / ((+returnData[0].ConvNum1) * (+returnData[0].ConvDen1) * (+returnData[0].PriceUnit))).toFixed(3);
+                                                        }
+                                                    });
                                             })
 
                                             // console.log(oResult.N_GetInfoRecReturn)
                                             oParamData = [];
 
                                             if (me._oCreateData.filter(fItem => fItem.REMARKS === '').length > 0) {
-                                            //Check PO doc type for PR items with valid info records
-                                            me._oModel.read("/PODocTypSet", {
-                                                success: function (oDataPODocTyp, oResponse) {
-                                                    // console.log(oData)
-                                                    
-                                                    me._oCreateData.filter(fItem => fItem.REMARKS === '').forEach(item => {
-                                                        var returnData = jQuery.extend(true, [], oDataPODocTyp.results);
+                                                //Check PO doc type for PR items with valid info records
+                                                me._oModel.read("/PODocTypSet", {
+                                                    success: function (oDataPODocTyp, oResponse) {
+                                                        // console.log(oDataPODocTyp)
+                                                        me._oCreateData.filter(fItem => fItem.REMARKS === '').forEach(item => {
+                                                            var returnData = jQuery.extend(true, [], oDataPODocTyp.results);
 
-                                                        returnData = returnData.filter(fItem => fItem.SBU === vSBU);
+                                                            returnData = returnData.filter(fItem => fItem.SBU === vSBU);
 
-                                                        if (item.COMPANY !== '') returnData = returnData.filter(fItem => fItem.COMPANYCD === item.COMPANY);
-                                                        if (item.DOCTYPE !== '') returnData = returnData.filter(fItem => fItem.PRDOCTYP === item.DOCTYPE);
-                                                        if (item.MATERIALGRP !== '') returnData = returnData.filter(fItem => fItem.MATGRPCD === item.MATERIALGRP);
-                                                        if (item.MATERIALTYPE !== '') returnData = returnData.filter(fItem => fItem.MATTYP === item.MATERIALTYPE);
-                                                        if (item.CUSTGRP !== '') returnData = returnData.filter(fItem => fItem.CUSTGRP === item.CUSTGRP);
-                                                        if (item.SHIPTOPLANT !== '') returnData = returnData.filter(fItem => fItem.PLANTCD === item.SHIPTOPLANT);
+                                                            if (item.COMPANY !== '') returnData = returnData.filter(fItem => fItem.COMPANYCD === item.COMPANY);
+                                                            if (item.DOCTYPE !== '') returnData = returnData.filter(fItem => fItem.PRDOCTYP === item.DOCTYPE);
+                                                            if (item.MATERIALGRP !== '') returnData = returnData.filter(fItem => fItem.MATGRPCD === item.MATERIALGRP);
+                                                            // if (item.MATERIALTYPE !== '') returnData = returnData.filter(fItem => fItem.MATTYP === item.MATERIALTYPE);
+                                                            // if (item.CUSTGRP !== '') returnData = returnData.filter(fItem => fItem.CUSTGRP === item.CUSTGRP);
+                                                            if (item.SHIPTOPLANT !== '') returnData = returnData.filter(fItem => fItem.PLANTCD === item.SHIPTOPLANT);
 
-                                                        if (returnData.length === 0) {
-                                                            item.REMARKS = 'No PO doc type retrieve.';
-                                                        }
-                                                        else {
-                                                            oParamData.push({
-                                                                DOCTYPE: item.DOCTYPE,
-                                                                VENDOR: item.VENDOR,
-                                                                PURCHORG: item.PURCHORG,
-                                                                PURCHGRP: item.PURCHGRP,
-                                                                COMPANY: item.COMPANY,
-                                                                PURCHPLANT: item.PURCHPLANT,
-                                                                SHIPTOPLANT: item.SHIPTOPLANT,
-                                                                VENDORNAME: item.VENDORNAME                                                                
-                                                            })
-                                                        }
+                                                            if (returnData.length === 0) {
+                                                                item.REMARKS = 'No PO doc type retrieve.';
+                                                            }
+                                                            else {
+                                                                item.DOCTYPE = returnData[0].PODOCTYP;
 
-                                                        // // //FOR TESTING 
-                                                        // oParamData.push({
-                                                        //     DOCTYPE: item.DOCTYPE,
-                                                        //     VENDOR: item.VENDOR,
-                                                        //     PURCHORG: item.PURCHORG,
-                                                        //     PURCHGRP: item.PURCHGRP,
-                                                        //     COMPANY: item.COMPANY,
-                                                        //     PURCHPLANT: item.PURCHPLANT,
-                                                        //     SHIPTOPLANT: item.SHIPTOPLANT,
-                                                        //     VENDORNAME: item.VENDORNAME                                                                
-                                                        // })
-                                                    })
+                                                                oParamData.push({
+                                                                    DOCTYPE: returnData[0].PODOCTYP,
+                                                                    VENDOR: item.VENDOR,
+                                                                    PURCHORG: item.PURCHORG,
+                                                                    PURCHGRP: item.PURCHGRP,
+                                                                    COMPANY: item.COMPANY,
+                                                                    PURCHPLANT: item.PURCHPLANT,
+                                                                    SHIPTOPLANT: item.SHIPTOPLANT,
+                                                                    VENDORNAME: item.VENDORNAME                                                                
+                                                                })
+                                                            }
 
-                                                    //FOR TESTING, CHANGE TO LEN > 0
-                                                    if (me._oCreateData.filter(fItem => fItem.REMARKS === '').length > 0) {
-                                                        me.closeLoadingDialog();
-                                                        
-                                                        var oCreatePOHdr = oParamData.filter((value, index, self) => self.findIndex(item => item.DOCTYPE === value.DOCTYPE && item.VENDOR === value.VENDOR && item.PURCHORG === value.PURCHORG && item.PURCHGRP === value.PURCHGRP && item.COMPANY === value.COMPANY && item.PURCHPLANT === value.PURCHPLANT && item.SHIPTOPLANT === value.SHIPTOPLANT && item.VENDORNAME === value.VENDORNAME) === index) ;
-                                                        var oCreatePODtls = me._oCreateData.filter(fItem => fItem.REMARKS === '');
-    
-                                                        //Add GROUP key
-                                                        oCreatePOHdr.forEach((item, index) => {
-                                                            item.GROUP = (index + 1) + "";
-    
-                                                            oCreatePODtls.filter(fItem => fItem.DOCTYPE === item.DOCTYPE && fItem.VENDOR === item.VENDOR && fItem.PURCHORG === item.PURCHORG && fItem.PURCHGRP === item.PURCHGRP && fItem.COMPANY === item.COMPANY && fItem.PURCHPLANT === item.PURCHPLANT && fItem.SHIPTOPLANT === item.SHIPTOPLANT)
-                                                                .forEach((rItem, rIndex) => { 
-                                                                    rItem.GROUP = (index + 1) + "";
-
-                                                                    var sItem = (10 * ( index + 1 )) + "";
-                                                                    while (sItem.length < 5) sItem = "0" + sItem;
-
-                                                                    rItem.ITEM = sItem;
-                                                                });
-                                                        });
-    
-                                                        // oCreatePOData.push({
-                                                        //     header: me._oCreateData,
-                                                        //     detail: me._oCreateData
-                                                        // })
-
-                                                        // console.log(oCreatePOHdr);
-                                                        // console.log(oCreatePODtls);
-
-                                                        me.getOwnerComponent().getModel("UI_MODEL").setData({sbu: me.getView().getModel("ui").getData().sbu})
-                                                        me.getOwnerComponent().getModel("CREATEPO_MODEL").setData({
-                                                            header: oCreatePOHdr,
-                                                            detail: oCreatePODtls
+                                                            // // //FOR TESTING 
+                                                            // oParamData.push({
+                                                            //     DOCTYPE: item.DOCTYPE,
+                                                            //     VENDOR: item.VENDOR,
+                                                            //     PURCHORG: item.PURCHORG,
+                                                            //     PURCHGRP: item.PURCHGRP,
+                                                            //     COMPANY: item.COMPANY,
+                                                            //     PURCHPLANT: item.PURCHPLANT,
+                                                            //     SHIPTOPLANT: item.SHIPTOPLANT,
+                                                            //     VENDORNAME: item.VENDORNAME                                                                
+                                                            // })
                                                         })
 
-                                                        // me.getOwnerComponent().getModel("CREATEPO_MODEL").setProperty("/data", {
-                                                        //     header: me._oCreateData, 
-                                                        //     detail: me._oCreateData
-                                                        // });
-                                                        // console.log(me.getOwnerComponent().getModel("CREATEPO_MODEL").getProperty("/header"));
+                                                        //FOR TESTING, CHANGE TO LEN = 0
+                                                        if (me._oCreateData.filter(fItem => fItem.REMARKS === '').length > 0) {
+                                                            me.closeLoadingDialog();
+                                                            
+                                                            var oCreatePOHdr = oParamData.filter((value, index, self) => self.findIndex(item => item.DOCTYPE === value.DOCTYPE && item.VENDOR === value.VENDOR && item.PURCHORG === value.PURCHORG && item.PURCHGRP === value.PURCHGRP && item.COMPANY === value.COMPANY && item.PURCHPLANT === value.PURCHPLANT && item.SHIPTOPLANT === value.SHIPTOPLANT && item.VENDORNAME === value.VENDORNAME) === index) ;
+                                                            var oCreatePODtls = me._oCreateData.filter(fItem => fItem.REMARKS === '');
+        
+                                                            //Add GROUP key
+                                                            oCreatePOHdr.forEach((item, index) => {
+                                                                item.GROUP = (index + 1) + "";
+        
+                                                                oCreatePODtls.filter(fItem => fItem.DOCTYPE === item.DOCTYPE && fItem.VENDOR === item.VENDOR && fItem.PURCHORG === item.PURCHORG && fItem.PURCHGRP === item.PURCHGRP && fItem.COMPANY === item.COMPANY && fItem.PURCHPLANT === item.PURCHPLANT && fItem.SHIPTOPLANT === item.SHIPTOPLANT)
+                                                                    .forEach((rItem, rIndex) => { 
+                                                                        rItem.GROUP = (index + 1) + "";
 
-                                                        var oRouter = sap.ui.core.UIComponent.getRouterFor(me);
-                                                        oRouter.navTo("RouteCreatePO");
-                                                    }
-                                                    else {
-                                                        me.closeLoadingDialog();
-                                                        console.log(me._oCreateData);
-                                                        me.showCreatePOResult();
-                                                    }
-                                                },
-                                                error: function (err) { }
-                                            });
+                                                                        var sItem = (10 * ( index + 1 )) + "";
+                                                                        while (sItem.length < 5) sItem = "0" + sItem;
+
+                                                                        rItem.ITEM = sItem;
+                                                                    });
+                                                            });
+                                                            // console.log(oCreatePODtls)
+                                                            me.getOwnerComponent().getModel("UI_MODEL").setData({sbu: me.getView().getModel("ui").getData().sbu})
+                                                            me.getOwnerComponent().getModel("CREATEPO_MODEL").setData({
+                                                                header: oCreatePOHdr,
+                                                                detail: oCreatePODtls
+                                                            })
+
+                                                            var oRouter = sap.ui.core.UIComponent.getRouterFor(me);
+                                                            oRouter.navTo("RouteCreatePO");
+                                                        }
+                                                        else {
+                                                            me.closeLoadingDialog();
+                                                            // console.log(me._oCreateData);
+                                                            me.showCreatePOResult();
+                                                        }
+                                                    },
+                                                    error: function (err) { }
+                                                });
                                             }
                                             else {
                                                 me.closeLoadingDialog();
-                                                console.log(me._oCreateData);
                                                 me.showCreatePOResult();
                                             }
                                         },
@@ -1454,35 +1458,116 @@ sap.ui.define([
                                         }
                                     }); 
                                 }
-                                else {
+                                else if (me._oCreateData.length > 0) {
+                                    //check po doc type
+                                    me._oModel.read("/PODocTypSet", {
+                                        success: function (oDataPODocTyp, oResponse) {
+                                            // console.log(oData)
+                                            me._oCreateData.filter(fItem => fItem.REMARKS === '').forEach(item => {
+                                                var returnData = jQuery.extend(true, [], oDataPODocTyp.results);
+
+                                                returnData = returnData.filter(fItem => fItem.SBU === vSBU);
+
+                                                if (item.COMPANY !== '') returnData = returnData.filter(fItem => fItem.COMPANYCD === item.COMPANY);
+                                                if (item.DOCTYPE !== '') returnData = returnData.filter(fItem => fItem.PRDOCTYP === item.DOCTYPE);
+                                                if (item.MATERIALGRP !== '') returnData = returnData.filter(fItem => fItem.MATGRPCD === item.MATERIALGRP);
+                                                // if (item.MATERIALTYPE !== '') returnData = returnData.filter(fItem => fItem.MATTYP === item.MATERIALTYPE);
+                                                // if (item.CUSTGRP !== '') returnData = returnData.filter(fItem => fItem.CUSTGRP === item.CUSTGRP);
+                                                if (item.SHIPTOPLANT !== '') returnData = returnData.filter(fItem => fItem.PLANTCD === item.SHIPTOPLANT);
+
+                                                if (returnData.length === 0) {
+                                                    item.REMARKS = 'No PO doc type retrieve.';
+                                                }
+                                                else {
+                                                    item.DOCTYPE = returnData[0].PODOCTYP;
+
+                                                    oParamData.push({
+                                                        DOCTYPE: returnData[0].PODOCTYP,
+                                                        VENDOR: item.VENDOR,
+                                                        PURCHORG: item.PURCHORG,
+                                                        PURCHGRP: item.PURCHGRP,
+                                                        COMPANY: item.COMPANY,
+                                                        PURCHPLANT: item.PURCHPLANT,
+                                                        SHIPTOPLANT: item.SHIPTOPLANT,
+                                                        VENDORNAME: item.VENDORNAME                                                                
+                                                    })
+                                                }
+
+                                                // // //FOR TESTING 
+                                                // oParamData.push({
+                                                //     DOCTYPE: item.DOCTYPE,
+                                                //     VENDOR: item.VENDOR,
+                                                //     PURCHORG: item.PURCHORG,
+                                                //     PURCHGRP: item.PURCHGRP,
+                                                //     COMPANY: item.COMPANY,
+                                                //     PURCHPLANT: item.PURCHPLANT,
+                                                //     SHIPTOPLANT: item.SHIPTOPLANT,
+                                                //     VENDORNAME: item.VENDORNAME                                                                
+                                                // })
+                                            })
+
+                                            //FOR TESTING, CHANGE TO LEN = 0
+                                            if (me._oCreateData.filter(fItem => fItem.REMARKS === '').length > 0) {
+                                                me.closeLoadingDialog();
+                                                
+                                                var oCreatePOHdr = oParamData.filter((value, index, self) => self.findIndex(item => item.DOCTYPE === value.DOCTYPE && item.VENDOR === value.VENDOR && item.PURCHORG === value.PURCHORG && item.PURCHGRP === value.PURCHGRP && item.COMPANY === value.COMPANY && item.PURCHPLANT === value.PURCHPLANT && item.SHIPTOPLANT === value.SHIPTOPLANT && item.VENDORNAME === value.VENDORNAME) === index) ;
+                                                var oCreatePODtls = me._oCreateData.filter(fItem => fItem.REMARKS === '');
+
+                                                //Add GROUP key
+                                                oCreatePOHdr.forEach((item, index) => {
+                                                    item.GROUP = (index + 1) + "";
+
+                                                    oCreatePODtls.filter(fItem => fItem.DOCTYPE === item.DOCTYPE && fItem.VENDOR === item.VENDOR && fItem.PURCHORG === item.PURCHORG && fItem.PURCHGRP === item.PURCHGRP && fItem.COMPANY === item.COMPANY && fItem.PURCHPLANT === item.PURCHPLANT && fItem.SHIPTOPLANT === item.SHIPTOPLANT)
+                                                        .forEach((rItem, rIndex) => { 
+                                                            rItem.GROUP = (index + 1) + "";
+
+                                                            var sItem = (10 * ( index + 1 )) + "";
+                                                            while (sItem.length < 5) sItem = "0" + sItem;
+
+                                                            rItem.ITEM = sItem;
+                                                        });
+                                                });
+                                                // console.log(oCreatePODtls)
+                                                me.getOwnerComponent().getModel("UI_MODEL").setData({sbu: me.getView().getModel("ui").getData().sbu})
+                                                me.getOwnerComponent().getModel("CREATEPO_MODEL").setData({
+                                                    header: oCreatePOHdr,
+                                                    detail: oCreatePODtls
+                                                })
+
+                                                var oRouter = sap.ui.core.UIComponent.getRouterFor(me);
+                                                oRouter.navTo("RouteCreatePO");
+                                            }
+                                            else {
+                                                me.closeLoadingDialog();
+                                                // console.log(me._oCreateData);
+                                                me.showCreatePOResult();
+                                            }
+                                        },
+                                        error: function (err) { }
+                                    });
+                                }
+                                else if (me._oCreateData.length === 0) {
                                     me.closeLoadingDialog();
-    
-                                    if (vMatTypExist) {
-                                        sap.m.MessageBox.information(me.getView().getModel("ddtext").getData()["INFO_INVALID_SEL_MATTYP"]);
-                                    }
-                                    else {
-                                        sap.m.MessageBox.information(me.getView().getModel("ddtext").getData()["INFO_NO_RECORD_TO_PROC"]);
-                                    }
+                                    sap.m.MessageBox.information(me.getView().getModel("ddtext").getData()["INFO_NO_RECORD_TO_PROC"]);
                                 }
                             },
                             error: function (err) {
                                 me.closeLoadingDialog();
+                                sap.m.MessageBox.information(err)
                             }
                         });
                     }
                     else {
-                        sap.m.MessageBox.information(me.getView().getModel("ddtext").getData()["INFO_CREATE_PO_VALIDATION"])
+                        sap.m.MessageBox.information(me.getView().getModel("ddtext").getData()["INFO_CREATEPO_VALIDATION"])
                     }
                 }
                 else {
-                    // aDataToEdit = aData;
-                    me.closeLoadingDialog();
                     sap.m.MessageBox.information(me.getView().getModel("ddtext").getData()["INFO_NO_SEL_RECORD_TO_PROC"]);
                 }
             },
 
             showCreatePOResult() {
-                console.log(this._oCreateData)
+                // console.log(this._oCreateData)
                 // display pop-up for user selection
                 if (!this._CreatePOResultDialog) {
                     this._CreatePOResultDialog = sap.ui.xmlfragment("zuiaprocess.view.fragments.dialog.CreatePOResultDialog", this);
@@ -1509,5 +1594,24 @@ sap.ui.define([
                 this._CreatePOResultDialog.close();
             },
 
+            test() {
+                var oCrossAppNavigator = sap.ushell.Container.getService("CrossApplicationNavigation");
+
+                var hash = (oCrossAppNavigator && oCrossAppNavigator.hrefForExternal({
+                    target: {
+                        semanticObject: "ZUI_3DERP",
+                        action: "manage&/RouteStyleDetail/NEW/VER"
+                    }
+                    // params: {
+                    // "supplierID": supplier
+                    // }
+                    })) || ""; // generate the Hash to display a Supplier
+
+                oCrossAppNavigator.toExternal({
+                    target: {
+                        shellHash: hash
+                    }
+                });                
+            }
         });
     });

@@ -14,7 +14,17 @@ function (Controller, JSONModel, Common, MessageBox, History, MessageToast) {
 
         onInit: function() {
             const route = this.getOwnerComponent().getRouter().getRoute("RouteCreatePO");
-            route.attachPatternMatched(this.onPatternMatched, this);                        
+            route.attachPatternMatched(this.onPatternMatched, this);
+            
+            var me = this;
+            // this._proc = "createpo";
+            // this._fBackButton= sap.ui.getCore().byId("backBtn").mEventRegistry.press[0].fFunction;
+
+            sap.ui.getCore().byId("backBtn").mEventRegistry.press[0].fFunction = function(oEvent) {
+                // console.log(oEvent)
+                // console.log(me._proc)
+                me.onNavBack();
+            }
         },
         
         onPatternMatched: function() {
@@ -23,26 +33,14 @@ function (Controller, JSONModel, Common, MessageBox, History, MessageToast) {
                 activeGroup: ""
             }), "ui");
 
+            var me = this;
             this._oModel = this.getOwnerComponent().getModel();
             this._aColumns = [];
             this.getColumnProp();
-            me = this;
+            this._poCreated = false;
             
             // console.log(this.getOwnerComponent().getModel("UI"))
             var vSBU = this.getOwnerComponent().getModel("UI_MODEL").getData().sbu;
-
-            this._oModel.read("/ShipModeSet", {
-                urlParameters: {
-                    "$filter": "SBU eq '" + vSBU + "'"
-                },
-                success: function (oData, oResponse) {
-                    // console.log(oData)
-                    var oJSONModel = new JSONModel();
-                    oJSONModel.setData(oData.results);
-                    me.getView().setModel(oJSONModel, "shipmode");
-                },
-                error: function (err) { }
-            });
 
             if (this.getView().getModel("payterms") !== undefined) this.getView().getModel("payterms").destroy();
             if (this.getView().getModel("header") !== undefined) this.getView().getModel("header").destroy();
@@ -61,6 +59,9 @@ function (Controller, JSONModel, Common, MessageBox, History, MessageToast) {
             var oHeaderData = this.getOwnerComponent().getModel("CREATEPO_MODEL").getData().header;
             var oDataRem = {}, oDataPackIns = {}, oDataFabSpecs = {};
             var aDataRemItems = [], aDataPackInsItems = [], aDataFabSpecsItems = [];
+            var oJSONModelPT = new JSONModel();
+            var iCounter = 0;
+            var mData = {};
 
             oHeaderData.forEach(item => {
                 item.PODATE = dateFormat.format(new Date());
@@ -70,7 +71,65 @@ function (Controller, JSONModel, Common, MessageBox, History, MessageToast) {
                 item.CURR = "";
                 item.EXRATE = "";
                 item.SHIPMODE = "";
-                               
+
+                var sVendor = item.VENDOR;
+
+                if (!isNaN(sVendor)) {
+                    while (sVendor.length < 10) sVendor = "0" + sVendor;
+                }
+
+                me._oModel.read("/ShipModeSet", {
+                    urlParameters: {
+                        "$filter": "SBU eq '" + vSBU + "'"
+                    },
+                    success: function (oDataSM, oResponse) {
+                        // console.log(oDataSM)
+                        var oJSONModel = new JSONModel();
+                        oJSONModel.setData(oDataSM.results);
+                        me.getView().setModel(oJSONModel, "shipmode");
+
+                        if (oDataSM.results.length === 1) {
+                            item.SHIPMODE = oDataSM.results[0].SHIPMODE;
+                        }
+
+                        setTimeout(() => {
+                            me._oModel.read("/PayTermsSet", {
+                                urlParameters: {
+                                    "$filter": "LIFNR eq '" + sVendor + "' and EKORG eq '" + item.PURCHORG + "'"
+                                },
+                                success: function (oData, oResponse) {
+                                    iCounter++;                                
+                                    mData[item.GROUP] = oData.results;
+                                    // console.log(oData)
+        
+                                    if (oData.results.length > 0) {
+                                        item.PAYTERMS = oData.results[0].ZTERM;
+                                        item.INCOTERMS = oData.results[0].INCO1;
+                                        item.DESTINATION = oData.results[0].INCO2;
+                                        item.CURR = oData.results[0].WAERS;
+                                    }
+        
+                                    if (iCounter === oHeaderData.length) {
+                                        oJSONModelPT.setData(mData);
+                                        me.getView().setModel(oJSONModelPT, "payterms");
+        
+                                        oJSONModel.setData(oHeaderData);
+                                        me.getView().setModel(oJSONModel, "header");
+                                    } 
+                                },
+                                error: function (err) {
+                                    iCounter++;
+                                }
+                            });                        
+                        }, 100);                         
+                    },
+                    error: function (err) { }
+                });
+
+                // if (me.getView().getModel("shipmode").getData().length === 1) {
+                //     item.SHIPMODE = me.getView().getModel("shipmode").getData()[0].SHIPMODE;
+                // }
+
                 aDataRemItems.push({
                     GROUP: item.GROUP,
                     ITEM: "1",
@@ -114,8 +173,8 @@ function (Controller, JSONModel, Common, MessageBox, History, MessageToast) {
                 aDataRemItems = [], aDataPackInsItems = [], aDataFabSpecsItems = [];                
             })
 
-            oJSONModel.setData(oHeaderData);
-            this.getView().setModel(oJSONModel, "header");
+            // oJSONModel.setData(oHeaderData);
+            // this.getView().setModel(oJSONModel, "header");
 
             var oJSONModelRem = new JSONModel();
             var oJSONModelPackIns = new JSONModel();
@@ -147,10 +206,11 @@ function (Controller, JSONModel, Common, MessageBox, History, MessageToast) {
             this._aDetailsDataBeforeChange = [];
             this._validationErrors = [];
             this._aCreatePOResult = [];
+
+            this.getOwnerComponent().getModel("UI_MODEL").setProperty("/flag", false);
         },
 
         onNavBack: function(oEvent) {
-            // console.log(this.getView().getModel("ddtext").getData()["CONF_CANCEL_CREATEPO"])
             var oData = {
                 Process: "po-cancel",
                 Text: this.getView().getModel("ddtext").getData()["CONF_CANCEL_CREATEPO"]
@@ -237,7 +297,7 @@ function (Controller, JSONModel, Common, MessageBox, History, MessageToast) {
             this.setRowEditMode("detail");
 
             this.byId("btnEditDtl").setVisible(false);
-            this.byId("btnRefreshDtl").setVisible(false);
+            // this.byId("btnRefreshDtl").setVisible(false);
             this.byId("btnSaveDtl").setVisible(true);
             this.byId("btnCancelDtl").setVisible(true);
             this._aDetailsDataBeforeChange = jQuery.extend(true, [], this.getView().getModel("detail").getData());
@@ -442,49 +502,7 @@ function (Controller, JSONModel, Common, MessageBox, History, MessageToast) {
                     })
             })
 
-            // this.getView().getModel(arg).getData().forEach(item => item.Edited = false);
-
-            var oModel = this.getOwnerComponent().getModel();
-            var oJSONModel = new JSONModel();
-            var me = this;
-            var iCounter = 0;
-
-            if (arg === "header") {
-                var mData = {};
-                
-                this.getView().getModel(arg).getData().forEach(item => {
-                    item.Edited = false;
-
-                    var sVendor = item.VENDOR;
-
-                    if (!isNaN(sVendor)) {
-                        while (sVendor.length < 10) sVendor = "0" + sVendor;
-                    }
-                    // console.log(sVendor, item.PURCHORG)
-                    setTimeout(() => {
-                        oModel.read("/PayTermsSet", {
-                            urlParameters: {
-                                "$filter": "LIFNR eq '" + sVendor + "' and EKORG eq '" + item.PURCHORG + "'"
-                            },
-                            success: function (oData, oResponse) {
-                                iCounter++;                                
-                                mData[item.GROUP] = oData.results;
-                                // console.log(oData)
-                                if (iCounter === me.getView().getModel(arg).getData().length) {
-                                    oJSONModel.setData(mData);
-                                    me.getView().setModel(oJSONModel, "payterms");
-                                    console.log(me.getView().getModel("payterms"))
-                                } 
-                            },
-                            error: function (err) {
-                                iCounter++;
-                            }
-                        });                        
-                    }, 100); 
-                });
-            }
-            else this.getView().getModel(arg).getData().forEach(item => item.Edited = false);
-
+            this.getView().getModel(arg).getData().forEach(item => item.Edited = false);
         },
 
         handleSuggestion: function(oEvent) {
@@ -497,7 +515,7 @@ function (Controller, JSONModel, Common, MessageBox, History, MessageToast) {
             var sGroup = oInputCtx.getModel().getProperty(sRowPath + '/GROUP');
 
             if (sInputField === "PAYTERMS" || sInputField === "INCOTERMS" || sInputField === "DESTINATION") {
-                console.log(oInput.getSuggestionItems())
+                // console.log(oInput.getSuggestionItems())
                 if (oInput.getSuggestionItems().length === 0) { 
                     var oData = me.getView().getModel("payterms").getData()[sGroup];
                     var sKey = "";
@@ -962,12 +980,12 @@ function (Controller, JSONModel, Common, MessageBox, History, MessageToast) {
                 // item.EBELP = sap.ui.getCore().byId("EBELP").getValue();
                 // item.EBELN = sap.ui.getCore().byId("EBELN").getValue();
             });
-
+            // console.log(this.getView().getModel("ddtext").getData())
             var msg = this.getView().getModel("ddtext").getData()["INFO_FABSPECS_SAVED"];
             this.showMessage(msg)
             this._FabSpecsDialog.close();
             this._bFabSpecsChanged = false;
-            console.log(this.getView().getModel("fabspecs").getData())
+            // console.log(this.getView().getModel("fabspecs").getData())
         },
 
         onDeleteFabSpecs: function(oEvent) {
@@ -993,7 +1011,7 @@ function (Controller, JSONModel, Common, MessageBox, History, MessageToast) {
         clearFabSpecs() {
             var sActiveGroup = this.getView().getModel("ui").getData().activeGroup;
             var oData = this.getView().getModel("fabspecs").getData()[sActiveGroup];
-            console.log(oData);
+            // console.log(oData);
 
             Object.keys(oData[0]).forEach(key => {
                 oData[0][key] = "";
@@ -1172,7 +1190,7 @@ function (Controller, JSONModel, Common, MessageBox, History, MessageToast) {
 
                     // this.getView().getModel("remarks").getData().forEach(item => item.STATUS = "UPDATED");
                     this.getView().getModel("remarks").getData()[sActiveGroup].forEach(item => item.STATUS = "UPDATED");
-                    console.log(this.getView().getModel("remarks").getData())
+                    // console.log(this.getView().getModel("remarks").getData())
                 }
             }
             else {
@@ -1213,7 +1231,7 @@ function (Controller, JSONModel, Common, MessageBox, History, MessageToast) {
 
                 var oJSONModel = new JSONModel();
                 oJSONModel.setData(oData);
-                console.log(oData)
+                // console.log(oData)
                 if (!this._ConfirmDialog) {
                     this._ConfirmDialog = sap.ui.xmlfragment("zuiaprocess.view.fragments.dialog.ConfirmDialog", this);
 
@@ -1232,7 +1250,7 @@ function (Controller, JSONModel, Common, MessageBox, History, MessageToast) {
             var bProceed = true;
             var iNew = 0;
 
-            console.log(this._HeaderTextDialog.getModel().getData())
+            // console.log(this._HeaderTextDialog.getModel().getData())
             if (activeTab === "remarks") {
                 if (this._HeaderTextDialog.getModel().getData().rem_items !== undefined) {
                     iNew = this._HeaderTextDialog.getModel().getData().rem_items.filter(item => item.STATUS === "NEW").length;
@@ -1479,6 +1497,8 @@ function (Controller, JSONModel, Common, MessageBox, History, MessageToast) {
     
                 this.setRowReadMode("header");
                 this.setRowReadMode("detail");
+
+                // sap.ui.getCore().byId("backBtn").mEventRegistry.press[0].fFunction = this._fBackButton;
             }
 
             this._ConfirmDialog.close();
@@ -1524,7 +1544,7 @@ function (Controller, JSONModel, Common, MessageBox, History, MessageToast) {
                 var iCounter = 0;
 
                 this.getView().getModel("header").getData().forEach(item => {
-                    console.log(vSBU, item.DOCTYPE, item.COMPANY)
+                    // console.log(vSBU, item.DOCTYPE, item.COMPANY)
 
                     setTimeout(() => {
                         this._oModel.read("/GetNoRangeCodeSet", {
@@ -1533,7 +1553,7 @@ function (Controller, JSONModel, Common, MessageBox, History, MessageToast) {
                             },
                             // async: false,
                             success: function (oData, oResponse) {
-                                console.log(oData)
+                                // console.log(oData)
                                 if (oData.results.length === 0) {
                                     iCounter++;
                                     // me.showMessage("No number range code retrieve.");
@@ -1546,6 +1566,7 @@ function (Controller, JSONModel, Common, MessageBox, History, MessageToast) {
                                     })
     
                                     if (iCounter === me.getView().getModel("header").getData().length) {
+                                        me.closeLoadingDialog();
                                         me.showGeneratePOResult();
                                     }
                                 }
@@ -1564,7 +1585,7 @@ function (Controller, JSONModel, Common, MessageBox, History, MessageToast) {
                                         method: "POST",
                                         success: function(oResult, oResponse) {
                                             // console.log(oResult)
-                                            console.log(oResult.EReturnno)
+                                            // console.log(oResult.EReturnno)
             
                                             if (oResult.EReturnno === "") {
                                                 iCounter++;
@@ -1578,6 +1599,7 @@ function (Controller, JSONModel, Common, MessageBox, History, MessageToast) {
                                                 })
     
                                                 if (iCounter === me.getView().getModel("header").getData().length) {
+                                                    me.closeLoadingDialog();
                                                     me.showGeneratePOResult();
                                                 }
                                             }
@@ -1726,12 +1748,8 @@ function (Controller, JSONModel, Common, MessageBox, History, MessageToast) {
                                                         iCounter++;
                                                         me.closeLoadingDialog();
                                                         console.log(oResult);
-                                                        var oRetMsgs  = oResult.N_CreatePOReturn.results;
-                                                        // if (oRetMsgs[0].Type === "E") {
-                                                        //     // sap.m.MessageBox.information(oRetMsgs[0].Type + ": " + oRetMsgs[0].Message)
-                                                        //     // me.showMessage(oRetMsgs[0].Type + ": " + oRetMsgs[0].Message)
-                                                        // }
-    
+                                                        var oRetMsgs = oResult.N_CreatePOReturn.results;
+
                                                         me._aCreatePOResult.push({
                                                             GROUP: item.GROUP,
                                                             VENDOR: item.VENDOR,
@@ -1739,14 +1757,18 @@ function (Controller, JSONModel, Common, MessageBox, History, MessageToast) {
                                                             PURCHGRP: item.PURCHGRP,
                                                             REMARKS: oRetMsgs[0].Type + ": " + oRetMsgs[0].Message
                                                         })
-    
+
+                                                        if (oRetMsgs[0].Type === "S") {
+                                                            me._poCreated = true;
+                                                        }
+
                                                         if (iCounter === me.getView().getModel("header").getData().length) {
                                                             me.showGeneratePOResult();
                                                         }
                                                     },
                                                     error: function(err) {
                                                         iCounter++;
-                                                        console.log(err);
+                                                        // console.log(err);
                                                         me.closeLoadingDialog();
                                                         me._aCreatePOResult.push({
                                                             GROUP: item.GROUP,
@@ -1801,7 +1823,8 @@ function (Controller, JSONModel, Common, MessageBox, History, MessageToast) {
                 })
             }
             else {
-                this.showMessage(this.getView().getModel("ddtext").getData()["INFO_CREATE_PO_CHECK_REQD"], 5000);
+                // console.log(this.getView().getModel("ddtext").getData()["INFO_CREATE_PO_CHECK_REQD"])
+                this.showMessage(this.getView().getModel("ddtext").getData()["INFO_CREATEPO_CHECK_REQD"], 5000);
             }
         },
 
@@ -1821,7 +1844,7 @@ function (Controller, JSONModel, Common, MessageBox, History, MessageToast) {
         },
 
         showGeneratePOResult() {
-            console.log(this._aCreatePOResult)
+            // console.log(this._aCreatePOResult)
             // display pop-up for user selection
             if (!this._GeneratePOResultDialog) {
                 this._GeneratePOResultDialog = sap.ui.xmlfragment("zuiaprocess.view.fragments.dialog.GeneratePOResultDialog", this);
@@ -1840,12 +1863,34 @@ function (Controller, JSONModel, Common, MessageBox, History, MessageToast) {
                 this._GeneratePOResultDialog.getModel().setProperty("/rowCount", this._aCreatePOResult.length);
             }
 
-            this._GeneratePOResultDialog.setTitle("Create PO Result")
+            this._GeneratePOResultDialog.setTitle("Create PO Result");
             this._GeneratePOResultDialog.open();
         },
 
         onCreatePOResultClose: function(oEvent) {
             this._GeneratePOResultDialog.close();
+            // sap.ui.getCore().byId("backBtn").mEventRegistry.press[0].fFunction = this._fBackButton;
+
+            if (this._poCreated) this.getOwnerComponent().getModel("UI_MODEL").setProperty("/flag", true);
+            // var oRouter = sap.ui.core.UIComponent.getRouterFor(me);
+            // oRouter.navTo("RouteMain");
+
+            var oHistory, sPreviousHash;
+            
+            if (sap.ui.core.routing.History !== undefined) {
+                oHistory = sap.ui.core.routing.History.getInstance();
+                sPreviousHash = oHistory.getPreviousHash();
+            }
+
+            if (sPreviousHash !== undefined) {
+                window.history.go(-1);
+            } else { 
+                var oRouter = sap.ui.core.UIComponent.getRouterFor(this);
+                oRouter.navTo("RouteMain", {}, true /*no history*/);
+            }
+
+            this.setRowReadMode("header");
+            this.setRowReadMode("detail");            
         },
 
     })

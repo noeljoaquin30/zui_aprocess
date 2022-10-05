@@ -12,7 +12,7 @@
         {"name": "SHIPMODE", "label": "Ship Mode", "type": "STRING", "required": true, "length": "2",
             "valueHelp": {"show": true, "items": {"path": "shipmode", "value": "SHIPMODE", "text": "DESC"},
             "suggestionItems": {"path": "shipmode>/", "text": "{shipmode>SHIPMODE}", "additionalText": "{shipmode>DESC}", "maxSuggestionWidth": "160px"}}}
-    ],
+        ],
     "detail": [
         {"name": "DELVDATE", "label": "Delv Date", "type": "DATE", "required": true, "length": "10",
             "valueHelp": {"show": false, "source": "", "value": "", "desc": ""}},

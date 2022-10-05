@@ -52,3 +52,7 @@
 .requiredField {
     color: red !important;
 }
+
+.navBG {
+    background-color: #eff4f9 !important;
+}
