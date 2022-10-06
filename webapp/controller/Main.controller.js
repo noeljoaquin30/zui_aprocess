@@ -7,7 +7,7 @@ sap.ui.define([
     /**
      * @param {typeof sap.ui.core.mvc.Controller} Controller
      */
-    function (Controller, JSONModel, Common, MessageBox) {
+    function (Controller, JSONModel, MessageBox, Common) {
         "use strict";
 
         var that;
@@ -1276,7 +1276,7 @@ sap.ui.define([
                                 PLANMONTH: aData.at(item).PLANMONTH,
                                 ITEM: '00000',
                                 REMARKS: ''
-                            })                            
+                            })
                         }
                     })
 
