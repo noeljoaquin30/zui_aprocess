@@ -20,11 +20,11 @@ function (Controller, JSONModel, Common, MessageBox, History, MessageToast) {
             // this._proc = "createpo";
             // this._fBackButton= sap.ui.getCore().byId("backBtn").mEventRegistry.press[0].fFunction;
 
-            sap.ui.getCore().byId("backBtn").mEventRegistry.press[0].fFunction = function(oEvent) {
-                // console.log(oEvent)
-                // console.log(me._proc)
-                me.onNavBack();
-            }
+            // sap.ui.getCore().byId("backBtn").mEventRegistry.press[0].fFunction = function(oEvent) {
+            //     // console.log(oEvent)
+            //     // console.log(me._proc)
+            //     me.onNavBack();
+            // }
         },
         
         onPatternMatched: function() {
@@ -1517,7 +1517,99 @@ function (Controller, JSONModel, Common, MessageBox, History, MessageToast) {
             this._ConfirmDialog.close();
         },
 
-        onGeneratePO: function(oEvent) {
+        onValidateExtendPO: async function(oEvent){
+            this._aCreatePOResult = [];
+            
+            var me = this;
+            var oModel = this.getOwnerComponent().getModel("ZGW_3DERP_RFC_SRV");
+            var vSBU = this.getOwnerComponent().getModel("UI_MODEL").getData().sbu;
+            var bProceed = true;
+
+            var extendPOEntitySet = "/ExtendPO";
+            var extendPOModel = this.getOwnerComponent().getModel();
+            var resultPOExtend = [];
+            var validPOExists = false;
+
+            this.getView().getModel("header").getData().forEach(item => {
+                if (item.PAYTERMS === "" || item.INCOTERMS == "" || item.DESTINATION == "" || item.SHIPMODE == "") {
+                    bProceed = false;
+                }
+            })
+
+            if (bProceed) {
+                this.getView().getModel("detail").getData().forEach(item => {
+                    if (item.DELVDATE === "" || item.BASEPOQTY == "" || item.GROSSPRICE == "") {
+                        bProceed = false;
+                    }
+                })
+            }
+
+            if (bProceed) {
+                me.showLoadingDialog('Processing...');
+                var iCounter = 0;
+
+                var result = new Promise((resolve, reject)=>{
+                    setTimeout(() => {
+                        this.getView().getModel("header").getData().forEach(item => {
+                            if (!isNaN(item.VENDOR)) {
+                                while (item.VENDOR.length < 10) item.VENDOR = "0" + item.VENDOR;
+                            }
+                            var PODate = sapDateFormat.format(new Date(item.PODATE)) + "T00:00:00";
+                            var filter = encodeURIComponent("(VENDOR='"+item.VENDOR+"',PURCHGRP='" + item.PURCHGRP +"',PURCHORG='"+ item.PURCHORG +"',SHIPTOPLANT='"+ item.SHIPTOPLANT +"',PURCHPLANT='"+ item.PURCHPLANT +"',PODT=datetime'"+ PODate +"')")
+                            extendPOModel.read(extendPOEntitySet+filter , {
+                                success: function (oData, oResponse) {
+                                    oData.PODT = dateFormat.format(new Date(oData.PODT));
+                                    resultPOExtend.push(oData);
+                                    validPOExists = true;
+                                    resolve(resultPOExtend);
+                                },
+                                error: function() {
+                                    resolve("Error");
+                                }
+                            });
+                        })
+                    }, 500);
+                });
+                await result;
+                me.closeLoadingDialog();
+                if(validPOExists){
+                    var oJSONModel = new JSONModel();
+                    var extendPOData = {
+                        Title: "Create Purchase Order: Extension Option",
+                        Text: "PO of today's date already exists",
+                        POLabel: "Purchase Order",
+                        VendorLabel: "Vendor",
+                        PurchGrpLabel: "Purchasing Group",
+                        PONO: resultPOExtend.at(0).PONO,
+                        VENDOR: resultPOExtend.at(0).VENDOR,
+                        PURCHGRP: resultPOExtend.at(0).PURCHGRP,
+                    }
+                    
+                    oJSONModel.setData(extendPOData);
+
+                    this.loadExtendPODialog = sap.ui.xmlfragment("zuiaprocess.view.fragments.dialog.ExtendPODialog", this);
+                    this.loadExtendPODialog.setModel(oJSONModel);
+                    this.getView().addDependent(this.loadExtendPODialog);
+                    this.loadExtendPODialog.open();
+                }else{
+                    //code here
+                    //this.onGeneratePO();
+                }
+            }
+            else{
+                this.showMessage(this.getView().getModel("ddtext").getData()["INFO_CREATEPO_CHECK_REQD"], 5000);
+            }
+        },
+
+        onExtendPO: function(){
+
+        },
+
+        onCancelExtendPODialog: function(oEvent){
+            this.loadExtendPODialog.close();
+        },
+
+        onGeneratePO: function() {
             this._aCreatePOResult = [];
             // console.log(this.getView().getModel("remarks").getData())
             var me = this;

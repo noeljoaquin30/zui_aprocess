@@ -20,7 +20,7 @@ sap.ui.define([
                 that = this;
                 this._oModel = this.getOwnerComponent().getModel();
 
-                this._fBackButton = sap.ui.getCore().byId("backBtn").mEventRegistry.press[0].fFunction;
+                // this._fBackButton = sap.ui.getCore().byId("backBtn").mEventRegistry.press[0].fFunction;
                 // this._proc = "anp";
                 
                 // console.log(Common);
@@ -188,7 +188,7 @@ sap.ui.define([
                         // console.log("after show");
                         // console.log(that.getOwnerComponent().getModel("UI_MODEL").getData().flag)
                         //Your model refresh logic
-                        sap.ui.getCore().byId("backBtn").mEventRegistry.press[0].fFunction = that._fBackButton; 
+                        // sap.ui.getCore().byId("backBtn").mEventRegistry.press[0].fFunction = that._fBackButton; 
 
                         if (that.getOwnerComponent().getModel("UI_MODEL").getData().flag) {
                             that.refresh();
@@ -205,7 +205,7 @@ sap.ui.define([
             // },
 
             onExit: function() {
-                sap.ui.getCore().byId("backBtn").mEventRegistry.press[0].fFunction = this._fBackButton;
+                // sap.ui.getCore().byId("backBtn").mEventRegistry.press[0].fFunction = this._fBackButton;
             },
 
             onSBUChange: function(oEvent) {

@@ -160,7 +160,7 @@
                                 visible="true"/>
                             <Button id="btnGenPO" 
                                 icon="sap-icon://add-document"
-                                press="onGeneratePO"
+                                press="onValidateExtendPO"
                                 tooltip="{ddtext>/GENERATEPO}"
                                 visible="true"/>
                             <Button id="btnSaveHdr" 
