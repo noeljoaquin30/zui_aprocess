@@ -21,11 +21,6 @@ sap.ui.define([
                 this._oModel = this.getOwnerComponent().getModel();
 
                 this._fBackButton = sap.ui.getCore().byId("backBtn").mEventRegistry.press[0].fFunction;
-                // this._proc = "anp";
-                
-                // console.log(Common);
-                // Common.showMessage('test');
-                // Common.openLoadingDialog(that);
 
                 this.showLoadingDialog('Loading...');
 
@@ -128,6 +123,7 @@ sap.ui.define([
                 oDDTextParam.push({CODE: "UNDERDELTOL"});
                 oDDTextParam.push({CODE: "UNLI"});
                 oDDTextParam.push({CODE: "TAXCODE"});
+                oDDTextParam.push({CODE: "GRBASEDIV"});
                 oDDTextParam.push({CODE: "CANGRBASEDIVCEL"});
                 oDDTextParam.push({CODE: "PRITEMNO"});
                 oDDTextParam.push({CODE: "SUPPLYTYPE"});
@@ -158,6 +154,10 @@ sap.ui.define([
                 oDDTextParam.push({CODE: "CONF_DELETE_RECORDS"});  
                 oDDTextParam.push({CODE: "YES"});
                 oDDTextParam.push({CODE: "BACK"});  
+                oDDTextParam.push({CODE: "INFO_DELVDATE_UPDATED"});
+                oDDTextParam.push({CODE: "INFO_NEXT_DELVDATE"});
+                oDDTextParam.push({CODE: "CONTINUE"});
+                oDDTextParam.push({CODE: "GENPOCANCEL"});
 
                 oModel.create("/CaptionMsgSet", { CaptionMsgItems: oDDTextParam  }, {
                     method: "POST",
@@ -185,24 +185,14 @@ sap.ui.define([
                 var oView = this.getView();
                 oView.addEventDelegate({
                     onAfterShow: function(oEvent){
-                        // console.log("after show");
-                        // console.log(that.getOwnerComponent().getModel("UI_MODEL").getData().flag)
-                        //Your model refresh logic
                         sap.ui.getCore().byId("backBtn").mEventRegistry.press[0].fFunction = that._fBackButton; 
 
                         if (that.getOwnerComponent().getModel("UI_MODEL").getData().flag) {
                             that.refresh();
                         }
                     }
-                }, oView);
-
-                // const route = this.getOwnerComponent().getRouter().getRoute("RouteMain");
-                // route.attachPatternMatched(this.onPatternMatched, this);                
+                }, oView);             
             },
-
-            // _routePatternMatched: function (oEvent) {
-            //     console.log("route");
-            // },
 
             onExit: function() {
                 sap.ui.getCore().byId("backBtn").mEventRegistry.press[0].fFunction = this._fBackButton;
@@ -1271,11 +1261,13 @@ sap.ui.define([
                                 BASEPOQTY: aData.at(item).QTY,
                                 ORDERPOQTY: (+aData.at(item).QTY) - (+aData.at(item).ORDERQTY),
                                 SUPPLYTYPE: aData.at(item).SUPPLYTYPE,
+                                ORDERQTY: aData.at(item).ORDERQTY,
                                 BASEQTY: aData.at(item).QTY,
                                 BASEUOM: aData.at(item).UNIT,
                                 PLANMONTH: aData.at(item).PLANMONTH,
                                 ITEM: '00000',
-                                REMARKS: ''
+                                REMARKS: '',
+                                INFORECCHECK: false
                             })
                         }
                     })
@@ -1318,21 +1310,19 @@ sap.ui.define([
             
                                     oParam['N_GetInfoRecMatParam'] = oParamData;
                                     oParam['N_GetInfoRecReturn'] = [];
-                                    console.log("GetInfoRecordSet");
-                                    console.log(oParam);
                 
                                     oModel.create("/GetInfoRecordSet", oParam, {
                                         method: "POST",
                                         success: function(oResult, oResponse) {
-                                            console.log(oResult)
                                             oParamData.forEach(item => {
                                                 var returnData = jQuery.extend(true, [], oResult.N_GetInfoRecReturn.results);
-                                                // console.log("GetInfoRecord: ", oResult.N_GetInfoRecReturn.results)
-                                                // console.log(oParamData)
+
                                                 returnData = returnData.filter(fItem => fItem.Vendor === item.Vendor && fItem.PurchOrg === item.PurchOrg && fItem.PurGroup === item.PurGroup && fItem.Material === item.Material);
-                                                // console.log(returnData)
+
                                                 me._oCreateData.filter(fItem => fItem.VENDOR === item.Vendor && fItem.PURCHORG === item.PurchOrg && fItem.PURCHGRP === item.PurGroup && fItem.MATERIALNO === item.Material && fItem.PURCHPLANT === item.Plant)
                                                     .forEach(itemIR => {
+                                                        itemIR.INFORECCHECK = true;
+
                                                         if (returnData.length === 0) {
                                                             itemIR.REMARKS = 'No matching info record retrieve.'
                                                         }
@@ -1391,7 +1381,8 @@ sap.ui.define([
                                                                     COMPANY: item.COMPANY,
                                                                     PURCHPLANT: item.PURCHPLANT,
                                                                     SHIPTOPLANT: item.SHIPTOPLANT,
-                                                                    VENDORNAME: item.VENDORNAME                                                                
+                                                                    VENDORNAME: item.VENDORNAME,
+                                                                    CUSTGRP: item.CUSTGRP
                                                                 })
                                                             }
 
@@ -1410,34 +1401,48 @@ sap.ui.define([
 
                                                         //FOR TESTING, CHANGE TO LEN = 0
                                                         if (me._oCreateData.filter(fItem => fItem.REMARKS === '').length > 0) {
-                                                            me.closeLoadingDialog();
-                                                            
-                                                            var oCreatePOHdr = oParamData.filter((value, index, self) => self.findIndex(item => item.DOCTYPE === value.DOCTYPE && item.VENDOR === value.VENDOR && item.PURCHORG === value.PURCHORG && item.PURCHGRP === value.PURCHGRP && item.COMPANY === value.COMPANY && item.PURCHPLANT === value.PURCHPLANT && item.SHIPTOPLANT === value.SHIPTOPLANT && item.VENDORNAME === value.VENDORNAME) === index) ;
-                                                            var oCreatePODtls = me._oCreateData.filter(fItem => fItem.REMARKS === '');
-        
-                                                            //Add GROUP key
-                                                            oCreatePOHdr.forEach((item, index) => {
-                                                                item.GROUP = (index + 1) + "";
-        
-                                                                oCreatePODtls.filter(fItem => fItem.DOCTYPE === item.DOCTYPE && fItem.VENDOR === item.VENDOR && fItem.PURCHORG === item.PURCHORG && fItem.PURCHGRP === item.PURCHGRP && fItem.COMPANY === item.COMPANY && fItem.PURCHPLANT === item.PURCHPLANT && fItem.SHIPTOPLANT === item.SHIPTOPLANT)
-                                                                    .forEach((rItem, rIndex) => { 
-                                                                        rItem.GROUP = (index + 1) + "";
+                                                            //check record with no need for inforec, get conv factor in ZERP_MRPDATA
+                                                            var iCtr = 0;
+                                                            var aNOIR = me._oCreateData.filter(fItem => fItem.REMARKS === '' && !fItem.INFORECCHECK);
+                                                            if (aNOIR.length == 0) {
+                                                                me.closeLoadingDialog();
+                                                                me.createPO(oParamData);
+                                                            }
+                                                            else {
+                                                                aNOIR.forEach(noir => {
+                                                                    me._oModel.read("/MRPDataSet", {
+                                                                        urlParameters: {
+                                                                            "$filter": "Iono eq '" + noir.IONUMBER + "' and Matno eq '" + noir.MATERIALNO + "'"
+                                                                        },
+                                                                        success: function (oDataNOIR) {
+                                                                            iCtr++;
+                                                                            noir.PER = "1";
 
-                                                                        var sItem = (10 * ( index + 1 )) + "";
-                                                                        while (sItem.length < 5) sItem = "0" + sItem;
+                                                                            if (oDataNOIR.results.length > 0) {
+                                                                                noir.ORDERCONVFACTOR = oDataNOIR.results[0].Umren;
+                                                                                noir.BASECONVFACTOR = oDataNOIR.results[0].Umrez;
+                                                                            }
+                                                                            else {
+                                                                                noir.ORDERCONVFACTOR = "1";
+                                                                                noir.BASECONVFACTOR = "1";
+                                                                            }
 
-                                                                        rItem.ITEM = sItem;
-                                                                    });
-                                                            });
-                                                            // console.log(oCreatePODtls)
-                                                            me.getOwnerComponent().getModel("UI_MODEL").setData({sbu: me.getView().getModel("ui").getData().sbu})
-                                                            me.getOwnerComponent().getModel("CREATEPO_MODEL").setData({
-                                                                header: oCreatePOHdr,
-                                                                detail: oCreatePODtls
-                                                            })
+                                                                            if (aNOIR.length === iCtr) {
+                                                                                me.closeLoadingDialog();
+                                                                                me.createPO(oParamData);
+                                                                            }
+                                                                        },
+                                                                        error: function(err) {
+                                                                            iCtr++;
 
-                                                            var oRouter = sap.ui.core.UIComponent.getRouterFor(me);
-                                                            oRouter.navTo("RouteCreatePO");
+                                                                            if (aNOIR.length === iCtr) {
+                                                                                me.closeLoadingDialog();
+                                                                                me.createPO(oParamData);
+                                                                            }
+                                                                        }
+                                                                    })
+                                                                })
+                                                            }
                                                         }
                                                         else {
                                                             me.closeLoadingDialog();
@@ -1489,7 +1494,8 @@ sap.ui.define([
                                                         COMPANY: item.COMPANY,
                                                         PURCHPLANT: item.PURCHPLANT,
                                                         SHIPTOPLANT: item.SHIPTOPLANT,
-                                                        VENDORNAME: item.VENDORNAME                                                                
+                                                        VENDORNAME: item.VENDORNAME,
+                                                        CUSTGRP: item.CUSTGRP
                                                     })
                                                 }
 
@@ -1508,34 +1514,71 @@ sap.ui.define([
 
                                             //FOR TESTING, CHANGE TO LEN = 0
                                             if (me._oCreateData.filter(fItem => fItem.REMARKS === '').length > 0) {
-                                                me.closeLoadingDialog();
-                                                
-                                                var oCreatePOHdr = oParamData.filter((value, index, self) => self.findIndex(item => item.DOCTYPE === value.DOCTYPE && item.VENDOR === value.VENDOR && item.PURCHORG === value.PURCHORG && item.PURCHGRP === value.PURCHGRP && item.COMPANY === value.COMPANY && item.PURCHPLANT === value.PURCHPLANT && item.SHIPTOPLANT === value.SHIPTOPLANT && item.VENDORNAME === value.VENDORNAME) === index) ;
-                                                var oCreatePODtls = me._oCreateData.filter(fItem => fItem.REMARKS === '');
+                                                var iCtr = 0;
+                                                var aNOIR = me._oCreateData.filter(fItem => fItem.REMARKS === '');
+                                                console.log(aNOIR)
+                                                aNOIR.forEach(noir => {
+                                                    me._oModel.read("/MRPDataSet", {
+                                                        urlParameters: {
+                                                            "$filter": "Iono eq '" + noir.IONUMBER + "' and Matno eq '" + noir.MATERIALNO + "'"
+                                                        },
+                                                        success: function (oDataNOIR) {
+                                                            iCtr++;
+                                                            noir.PER = "1";
+                                                            // console.log(oDataNOIR)
+                                                            if (oDataNOIR.results.length > 0) {
+                                                                noir.ORDERCONVFACTOR = oDataNOIR.results[0].Umren;
+                                                                noir.BASECONVFACTOR = oDataNOIR.results[0].Umrez;
+                                                            }
+                                                            else {
+                                                                noir.ORDERCONVFACTOR = "1";
+                                                                noir.BASECONVFACTOR = "1";
+                                                            }
 
-                                                //Add GROUP key
-                                                oCreatePOHdr.forEach((item, index) => {
-                                                    item.GROUP = (index + 1) + "";
+                                                            if (aNOIR.length === iCtr) {
+                                                                me.closeLoadingDialog();
+                                                                me.createPO(oParamData);
+                                                            }
+                                                        },
+                                                        error: function(err) {
+                                                            iCtr++;
 
-                                                    oCreatePODtls.filter(fItem => fItem.DOCTYPE === item.DOCTYPE && fItem.VENDOR === item.VENDOR && fItem.PURCHORG === item.PURCHORG && fItem.PURCHGRP === item.PURCHGRP && fItem.COMPANY === item.COMPANY && fItem.PURCHPLANT === item.PURCHPLANT && fItem.SHIPTOPLANT === item.SHIPTOPLANT)
-                                                        .forEach((rItem, rIndex) => { 
-                                                            rItem.GROUP = (index + 1) + "";
-
-                                                            var sItem = (10 * ( index + 1 )) + "";
-                                                            while (sItem.length < 5) sItem = "0" + sItem;
-
-                                                            rItem.ITEM = sItem;
-                                                        });
-                                                });
-                                                // console.log(oCreatePODtls)
-                                                me.getOwnerComponent().getModel("UI_MODEL").setData({sbu: me.getView().getModel("ui").getData().sbu})
-                                                me.getOwnerComponent().getModel("CREATEPO_MODEL").setData({
-                                                    header: oCreatePOHdr,
-                                                    detail: oCreatePODtls
+                                                            if (aNOIR.length === iCtr) {
+                                                                me.closeLoadingDialog();
+                                                                me.createPO(oParamData);
+                                                            }
+                                                        }
+                                                    })
                                                 })
 
-                                                var oRouter = sap.ui.core.UIComponent.getRouterFor(me);
-                                                oRouter.navTo("RouteCreatePO");
+                                                // me.closeLoadingDialog();
+                                                
+                                                // var oCreatePOHdr = oParamData.filter((value, index, self) => self.findIndex(item => item.DOCTYPE === value.DOCTYPE && item.VENDOR === value.VENDOR && item.PURCHORG === value.PURCHORG && item.PURCHGRP === value.PURCHGRP && item.COMPANY === value.COMPANY && item.PURCHPLANT === value.PURCHPLANT && item.SHIPTOPLANT === value.SHIPTOPLANT && item.VENDORNAME === value.VENDORNAME) === index) ;
+                                                // var oCreatePODtls = me._oCreateData.filter(fItem => fItem.REMARKS === '');
+
+                                                // //Add GROUP key
+                                                // oCreatePOHdr.forEach((item, index) => {
+                                                //     item.GROUP = (index + 1) + "";
+
+                                                //     oCreatePODtls.filter(fItem => fItem.DOCTYPE === item.DOCTYPE && fItem.VENDOR === item.VENDOR && fItem.PURCHORG === item.PURCHORG && fItem.PURCHGRP === item.PURCHGRP && fItem.COMPANY === item.COMPANY && fItem.PURCHPLANT === item.PURCHPLANT && fItem.SHIPTOPLANT === item.SHIPTOPLANT)
+                                                //         .forEach((rItem, rIndex) => { 
+                                                //             rItem.GROUP = (index + 1) + "";
+
+                                                //             var sItem = (10 * ( index + 1 )) + "";
+                                                //             while (sItem.length < 5) sItem = "0" + sItem;
+
+                                                //             rItem.ITEM = sItem;
+                                                //         });
+                                                // });
+                                                // // console.log(oCreatePODtls)
+                                                // me.getOwnerComponent().getModel("UI_MODEL").setData({sbu: me.getView().getModel("ui").getData().sbu})
+                                                // me.getOwnerComponent().getModel("CREATEPO_MODEL").setData({
+                                                //     header: oCreatePOHdr,
+                                                //     detail: oCreatePODtls
+                                                // })
+
+                                                // var oRouter = sap.ui.core.UIComponent.getRouterFor(me);
+                                                // oRouter.navTo("RouteCreatePO");
                                             }
                                             else {
                                                 me.closeLoadingDialog();
@@ -1564,6 +1607,36 @@ sap.ui.define([
                 else {
                     sap.m.MessageBox.information(me.getView().getModel("ddtext").getData()["INFO_NO_SEL_RECORD_TO_PROC"]);
                 }
+            },
+
+            createPO(arg) {
+                var oParamData = arg;
+                var oCreatePOHdr = oParamData.filter((value, index, self) => self.findIndex(item => item.DOCTYPE === value.DOCTYPE && item.VENDOR === value.VENDOR && item.PURCHORG === value.PURCHORG && item.PURCHGRP === value.PURCHGRP && item.COMPANY === value.COMPANY && item.PURCHPLANT === value.PURCHPLANT && item.SHIPTOPLANT === value.SHIPTOPLANT && item.VENDORNAME === value.VENDORNAME) === index) ;
+                var oCreatePODtls = this._oCreateData.filter(fItem => fItem.REMARKS === '');
+
+                //Add GROUP key
+                oCreatePOHdr.forEach((item, index) => {
+                    item.GROUP = (index + 1) + "";
+
+                    oCreatePODtls.filter(fItem => fItem.DOCTYPE === item.DOCTYPE && fItem.VENDOR === item.VENDOR && fItem.PURCHORG === item.PURCHORG && fItem.PURCHGRP === item.PURCHGRP && fItem.COMPANY === item.COMPANY && fItem.PURCHPLANT === item.PURCHPLANT && fItem.SHIPTOPLANT === item.SHIPTOPLANT)
+                        .forEach((rItem, rIndex) => { 
+                            rItem.GROUP = (index + 1) + "";
+
+                            var sItem = (10 * ( rIndex + 1 )) + "";
+                            while (sItem.length < 5) sItem = "0" + sItem;
+
+                            rItem.ITEM = sItem;
+                        });
+                });
+                // console.log(oCreatePODtls)
+                this.getOwnerComponent().getModel("UI_MODEL").setData({sbu: this.getView().getModel("ui").getData().sbu})
+                this.getOwnerComponent().getModel("CREATEPO_MODEL").setData({
+                    header: oCreatePOHdr,
+                    detail: oCreatePODtls
+                })
+                // console.log(oCreatePOHdr)
+                var oRouter = sap.ui.core.UIComponent.getRouterFor(this);
+                oRouter.navTo("RouteCreatePO");
             },
 
             showCreatePOResult() {
