@@ -3,25 +3,15 @@
     xmlns:core="sap.ui.core"
     xmlns:uiL="sap.ui.layout"
     xmlns:uiT="sap.ui.table"
+    xmlns:form="sap.ui.layout.form"
     xmlns="sap.m"
     xmlns:f="sap.f"
     xmlns:semantic="sap.m.semantic"
     displayBlock="true">
-    <Page showHeader="false" title="{ddtext>/CREATEPO}" showNavButton="true" navButtonPress="onNavBack">
+    <Page showHeader="false" title="{ddtext>/GENERATEPO}" showNavButton="true" navButtonPress="onNavBack">
         <!-- <content> -->
-            <VBox fitContainer="true">
-                <!-- <MessageStrip id="AssignMaterialMessageStrip" text="" showIcon="true" showCloseButton="true" class="sapUiMediumMarginBottom" type="Error" visible="false"/> -->
-                <!-- <Toolbar class="navBG">
-                    <Button id="btnNavBack" 
-                        class="sapUiTinyMarginBeginEnd"
-                        icon="sap-icon://nav-back"
-                        type="Transparent"
-                        press="onNavBack"
-                        tooltip="{ddtext>/BACK}"
-                        visible="true"/>
-                    <Title level="H3" text="{ddtext>/CREATEPO}" />                        
-                </Toolbar>               -->
-                <uiT:Table id="headerTab"
+            <VBox fitContainer="true" class="genpo"> 
+                <!-- <uiT:Table id="headerTab"
                     rows="{header>/}"
                     class="sapUiTinyMargin"
                     visibleRowCountMode="Auto"
@@ -178,7 +168,222 @@
                     <uiT:layoutData>
                         <FlexItemData growFactor="0.7" baseSize="0%"/>
                     </uiT:layoutData>                  
-                </uiT:Table> 
+                </uiT:Table>  -->
+                <Panel height="195px" class="sapUiNoContentPadding hdrFormBgColor">
+                    <Toolbar>
+                        <Title level="H3" text="{ddtext>/GENERATEPO}" class="sapUiTinyMarginBegin createPOTitle" />
+                        <ToolbarSpacer/>
+                        <!-- <Button id="btnEditHdr" 
+                            icon="sap-icon://edit"
+                            press="onEditHdr"
+                            tooltip="{ddtext>/EDIT}"
+                            visible="true"/> -->
+                        <Button id="btnUpdDate" 
+                            icon="sap-icon://calendar"
+                            press="onUpdDate"
+                            tooltip="{ddtext>/CHANGEDELVDATE}"
+                            visible="true"/>
+                        <Button id="btnFabSpecs" 
+                            icon="sap-icon://list"
+                            press="onFabSpecs"
+                            tooltip="{ddtext>/FABSPECS}"
+                            visible="true"/>
+                        <Button id="btnHdrTxt" 
+                            icon="sap-icon://header"
+                            press="onHdrText"
+                            tooltip="{ddtext>/HEADERTEXT}"
+                            visible="true"/>
+                        <Button id="btnGenPO" 
+                            icon="sap-icon://add-document"
+                            press="onGeneratePO"
+                            tooltip="{ddtext>/GENERATEPO}"
+                            visible="true"/>
+                        <Button id="btnCancelPO" 
+                            icon="sap-icon://sys-cancel"
+                            press="onCancelPO"
+                            tooltip="{ddtext>/CANCEL}"
+                            visible="true"/>                           
+                        <!-- <Button id="btnSaveHdr" 
+                            icon="sap-icon://save"
+                            press="onSaveHdr"
+                            tooltip="{ddtext>/SAVE}"
+                            visible="false"/>
+                        <Button id="btnCancelHdr" 
+                            icon="sap-icon://sys-cancel"
+                            press="onCancelHdr"
+                            tooltip="{ddtext>/CANCEL}"
+                            visible="false"/> -->
+                    </Toolbar>
+
+                    <form:Form id="headerForm" editable="true" class="sapUiNoContentPadding">
+                        <form:layout>
+                            <form:ResponsiveGridLayout
+                                labelSpanXL="4"
+                                labelSpanL="4"
+                                labelSpanM="4"
+                                labelSpanS="12"
+                                adjustLabelSpan="false"
+                                emptySpanXL="0"
+                                emptySpanL="0"
+                                emptySpanM="0"
+                                emptySpanS="0"
+                                columnsXL="3"
+                                columnsL="2"
+                                columnsM="1"
+                                singleContainerFullSize="false" />
+                        </form:layout>
+                        <form:formContainers>
+                            <form:FormContainer ariaLabelledBy="Grp1" class="sapUiNoContentPadding">
+                                <form:formElements>
+                                    <form:FormElement label="{ddtext>/DOCTYPE}">
+                                        <form:fields>
+                                            <Text text="{grpheader>/0/DOCTYPE}" />
+                                        </form:fields>
+                                    </form:FormElement>
+                                    <form:FormElement label="{ddtext>/PODATE}">
+                                        <form:fields>
+                                            <Text text="{grpheader>/0/PODATE}" />
+                                        </form:fields>
+                                    </form:FormElement>
+                                    <form:FormElement label="{ddtext>/VENDOR}">
+                                        <form:fields>
+                                            <Text text="{grpheader>/0/VENDOR}" />
+                                        </form:fields>
+                                    </form:FormElement>
+                                    <form:FormElement label="{ddtext>/VENDORNAME}">
+                                        <form:fields>
+                                            <Text text="{grpheader>/0/VENDORNAME}" />
+                                        </form:fields>
+                                    </form:FormElement>
+                                    <form:FormElement label="{ddtext>/COMPANY}">
+                                        <form:fields>
+                                            <Text text="{grpheader>/0/COMPANY}" />
+                                        </form:fields>
+                                    </form:FormElement>
+                                </form:formElements>
+                            </form:FormContainer>
+                            <form:FormContainer ariaLabelledBy="Grp2" class="sapUiNoContentPadding">
+                                <form:formElements>
+                                    <form:FormElement label="{ddtext>/PURCHORG}">
+                                        <form:fields>
+                                            <Text text="{grpheader>/0/PURCHORG}" />
+                                        </form:fields>
+                                    </form:FormElement>
+                                    <form:FormElement label="{ddtext>/PURCHGRP}">
+                                        <form:fields>
+                                            <Text text="{grpheader>/0/PURCHGRP}" />
+                                        </form:fields>
+                                    </form:FormElement>                                
+                                    <form:FormElement label="{ddtext>/PURCHPLANT}">
+                                        <form:fields>
+                                            <Text text="{grpheader>/0/PURCHPLANT}" />
+                                        </form:fields>
+                                    </form:FormElement>
+                                    <form:FormElement label="{ddtext>/SHIPTOPLANT}">
+                                        <form:fields>
+                                            <Text text="{grpheader>/0/SHIPTOPLANT}" />
+                                        </form:fields>
+                                    </form:FormElement>
+                                    <form:FormElement label="{ddtext>/EXRATE}">
+                                        <form:fields>
+                                            <Text text="{grpheader>/0/EXRATE}" />
+                                        </form:fields>
+                                    </form:FormElement>
+                                </form:formElements>                                                                                                                          
+                            </form:FormContainer>
+                            <form:FormContainer ariaLabelledBy="Grp3" class="sapUiNoContentPadding">
+                                <form:formElements>
+                                    <form:FormElement label="{ddtext>/CURR}">
+                                        <form:fields>
+                                            <Text text="{grpheader>/0/CURR}" />
+                                        </form:fields>
+                                    </form:FormElement>
+                                    <form:FormElement>
+                                        <form:label>
+                                            <Label text="{ddtext>/PAYTERMS}" required="true"></Label>
+                                        </form:label>
+                                        <form:fields>
+                                            <!-- <Input value="{grpheader>/0/PAYTERMS}" /> -->
+                                            <Input type="Text" 
+                                                value="{grpheader>/0/PAYTERMS}" 
+                                                showValueHelp="true"
+                                                valueHelpRequest="handleValueHelp" 
+                                                showSuggestion="true" 
+                                                suggestionItems="{path: 'payterm>/', length: 10000, templateShareable: false}" 
+                                                change="onValueHelpInputChange">
+                                                <suggestionItems>
+                                                    <core:Item key="{payterm>ZTERM}" text="{payterm>ZTERM}" />
+                                                </suggestionItems>
+                                            </Input>
+                                        </form:fields>
+                                    </form:FormElement>
+                                    <form:FormElement>
+                                        <form:label>
+                                            <Label text="{ddtext>/INCOTERMS}" required="true"></Label>
+                                        </form:label>
+                                        <form:fields>
+                                            <!-- <Input value="{grpheader>/0/INCOTERMS}" /> -->
+                                            <Input type="Text" 
+                                                value="{grpheader>/0/INCOTERMS}" 
+                                                showValueHelp="true"
+                                                valueHelpRequest="handleValueHelp" 
+                                                showSuggestion="true" 
+                                                suggestionItems="{path: 'incoterm>/', length: 10000, templateShareable: false}" 
+                                                maxSuggestionWidth="150px"
+                                                change="onValueHelpInputChange">
+                                                <suggestionItems>
+                                                    <core:ListItem key="{incoterm>INCO1}" text="{incoterm>INCO1}" additionalText="{incoterm>DESC}" />
+                                                </suggestionItems>
+                                            </Input>                                            
+                                        </form:fields>
+                                    </form:FormElement>
+                                    <form:FormElement>
+                                        <form:label>
+                                            <Label text="{ddtext>/DESTINATION}" required="true"></Label>
+                                        </form:label>
+                                        <form:fields>
+                                            <Input value="{grpheader>/0/DESTINATION}" maxLength="28" />
+                                            <!-- <Input type="Text" 
+                                                value="{grpheader>/0/DESTINATION}" 
+                                                showValueHelp="true"
+                                                valueHelpRequest="handleValueHelp" 
+                                                showSuggestion="true" 
+                                                suggestionItems="{path: 'payterm>/', length: 10000, templateShareable: false}" 
+                                                change="onValueHelpInputChange">
+                                                <suggestionItems>
+                                                    <core:Item key="{payterm>INCO2}" text="{payterm>INCO2}" />
+                                                </suggestionItems>
+                                            </Input>                                               -->
+                                        </form:fields>
+                                    </form:FormElement>
+                                    <form:FormElement>
+                                        <form:label>
+                                            <Label text="{ddtext>/SHIPMODE}" required="true"></Label>
+                                        </form:label>
+                                        <form:fields>
+                                            <!-- <Input value="{grpheader>/0/SHIPMODE}" /> -->
+                                            <Input type="Text" 
+                                                value="{grpheader>/0/SHIPMODE}"
+                                                showValueHelp="true"
+                                                valueHelpRequest="handleValueHelp" 
+                                                showSuggestion="true" 
+                                                suggestionItems="{path: 'shipmode>/', length: 10000, templateShareable: false}" 
+                                                maxSuggestionWidth="160px"
+                                                change="onValueHelpInputChange">
+                                                <suggestionItems>
+                                                    <core:ListItem key="{shipmode>SHIPMODE}" text="{shipmode>SHIPMODE}" additionalText="{shipmode>DESC}" />
+                                                </suggestionItems>
+                                            </Input>                                            
+                                        </form:fields>
+                                    </form:FormElement>
+                                </form:formElements>
+                            </form:FormContainer>
+                        </form:formContainers>
+                    </form:Form>
+                    <layoutData>
+                        <FlexItemData baseSize="0%" />
+                    </layoutData>
+                </Panel>
 
                 <uiT:Table id="detailTab"
                     rows="{detail>/}"
@@ -186,7 +391,8 @@
                     visibleRowCountMode="Auto"
                     showColumnVisibilityMenu="true"
                     enableColumnFreeze="true"
-                    selectionMode="Single"
+                    selectionMode="None"
+                    selectionBehavior="RowOnly"
                     cellClick="onCellClick"
                     sort="onSorted">
                     <uiT:columns>
@@ -241,7 +447,7 @@
                         <uiT:Column width="100px" hAlign="End">
                             <Text text="{ddtext>/GROSSPRICE}" />
                             <uiT:template>
-                                <Text text="{detail>GROSSPRICE}" wrapping="false" />
+                                <Input value="{detail>GROSSPRICE}" enabled="true" textAlign="Right" change="onNumberChange" type="Number" />
                             </uiT:template>
                         </uiT:Column>
                         <uiT:Column width="100px" hAlign="End">
@@ -292,19 +498,19 @@
                                 <CheckBox selected="{detail>GRBASEDIV}" editable="false" />
                             </uiT:template>
                         </uiT:Column>
-                        <uiT:Column width="100px" hAlign="Center">
+                        <uiT:Column width="100px">
                             <Text text="{ddtext>/PRNUMBER}" />
                             <uiT:template>
                                 <Text text="{detail>PRNUMBER}" wrapping="false" tooltip="{detail>PRNUMBER}" />
                             </uiT:template>
                         </uiT:Column>
-                        <uiT:Column width="100px" hAlign="Center">
+                        <uiT:Column width="100px">
                             <Text text="{ddtext>/PRITEMNO}" />
                             <uiT:template>
                                 <Text text="{detail>PRITEMNO}" wrapping="false" tooltip="{detail>PRITEMNO}" />
                             </uiT:template>
                         </uiT:Column>
-                        <uiT:Column width="100px" hAlign="Center">
+                        <uiT:Column width="100px">
                             <Text text="{ddtext>/SUPPLYTYPE}" />
                             <uiT:template>
                                 <Text text="{detail>SUPPLYTYPE}" wrapping="false" tooltip="{detail>SUPPLYTYPE}" />
@@ -329,7 +535,7 @@
                             </uiT:template>
                         </uiT:Column>                                                
                     </uiT:columns>
-                    <uiT:extension>
+                    <!-- <uiT:extension>
                         <Toolbar>
                             <ToolbarSpacer/>
                             <Button id="btnEditDtl" 
@@ -337,11 +543,6 @@
                                 press="onEditDtl"
                                 tooltip="{ddtext>/EDIT}"
                                 visible="true"/>
-                            <!-- <Button id="btnRefreshDtl" 
-                                icon="sap-icon://refresh"
-                                press="onRefreshDtl"
-                                tooltip="{i18n>Refresh}"
-                                visible="true"/> -->
                             <Button id="btnSaveDtl" 
                                 icon="sap-icon://save"
                                 press="onSaveDtl"
@@ -353,9 +554,9 @@
                                 tooltip="{ddtext>/CANCEL}"
                                 visible="false"/>                                                                
                         </Toolbar>  
-                    </uiT:extension>
+                    </uiT:extension> -->
                     <uiT:layoutData>
-                        <FlexItemData growFactor="1.2" baseSize="0%"/>
+                        <FlexItemData growFactor="1" baseSize="0%"/>
                     </uiT:layoutData>                  
                 </uiT:Table> 
             </VBox>

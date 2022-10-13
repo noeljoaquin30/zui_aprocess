@@ -17,7 +17,6 @@
                 expandable="false" 
                 class="sapUiNoContentPadding" 
                 select="onSelectHdrTxtTab"
-                headerBackgroundDesign="Transparent" 
                 stretchContentHeight="true" 
                 applyContentPadding="false">
                 <items>

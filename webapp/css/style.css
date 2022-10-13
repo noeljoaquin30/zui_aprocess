@@ -56,3 +56,44 @@
 .navBG {
     background-color: #eff4f9 !important;
 }
+
+.genpo .sapUiSizeCompact .sapUiFormEdit .sapMText {
+    min-height: 1.5rem !important;
+}
+
+.genpo 
+.sapUiSizeCompact .sapUiFormEdit.sapUiFormM .sapUiRespGridMedia-Std-Phone.sapUiFormResGridCont>.sapUiFormElementLbl:not(.sapUiRespGridSpanS12), 
+.sapUiSizeCompact .sapUiFormEdit.sapUiFormM .sapUiRespGridMedia-Std-Tablet.sapUiFormResGridCont>.sapUiFormElementLbl:not(.sapUiRespGridSpanM12), 
+.sapUiSizeCompact .sapUiFormEdit.sapUiFormM .sapUiRespGridMedia-Std-Desktop.sapUiFormResGridCont>.sapUiFormElementLbl:not(.sapUiRespGridSpanL12), 
+.sapUiSizeCompact .sapUiFormEdit.sapUiFormM .sapUiRespGridMedia-Std-LargeDesktop.sapUiFormResGridCont>.sapUiFormElementLbl:not(.sapUiRespGridSpanXL12) {
+    padding-top: 0.3rem !important;
+}
+
+.genpo .sapMInputBase {
+    margin: 0.1rem !important;
+}
+
+.genpo .sapUiFormEdit .sapMText {
+    padding-top: 0.15rem !important;
+    padding-bottom: 0.15rem !important;
+    min-height: 1.5rem !important;
+}
+
+.genpo .sapUiFormResGrid>div {
+    padding: 0.5rem !important;
+}
+
+.genpo .createPOTitle {
+    background-color: bisque !important;
+    padding: 0.15rem 0.5rem !important;
+    border-radius: 0.5rem !important;
+    font-weight: bold !important;
+}
+
+.reqField {
+    color: red;
+}
+
+.hdrFormBgColor {
+    background-color: aliceblue !important;
+}

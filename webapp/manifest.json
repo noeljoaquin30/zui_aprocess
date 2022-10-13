@@ -177,14 +177,12 @@
                     "viewType": "XML",
                     "transition": "slide",
                     "clearControlAggregation": false,
-                    "viewId": "Main",
                     "viewName": "Main"
                 },
                 "TargetCreatePO": {
                     "viewType": "XML",
                     "transition": "slide",
                     "clearControlAggregation": false,
-                    "viewId": "CreatePO",
                     "viewName": "CreatePO"
                 }
             }
