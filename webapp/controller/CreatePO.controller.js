@@ -6,7 +6,7 @@ sap.ui.define([
     "sap/m/MessageToast"
 ],
 
-function (Controller, JSONModel, Common, MessageBox, History, MessageToast) {
+function (Controller, JSONModel, MessageBox, History, MessageToast) {
     var dateFormat = sap.ui.core.format.DateFormat.getDateInstance({pattern : "MM/dd/yyyy" });
     var sapDateFormat = sap.ui.core.format.DateFormat.getDateInstance({pattern : "yyyy-MM-dd" });
     
@@ -2128,12 +2128,12 @@ function (Controller, JSONModel, Common, MessageBox, History, MessageToast) {
     
                                                             if (oHeaderData.length >= ((+item.GROUP) + 1)) {
                                                                 //next group
-                                                                me.closeLoadingDialog();
+                                                                // me.closeLoadingDialog();
+                                                                me.showMessage(oRetMsgs[0].Type + ": " + oRetMsgs[0].Message, 500);
                                                                 me.onNextGroup(((+item.GROUP) + 1 ) + "");
-                                                                me.showMessage(oRetMsgs[0].Type + ": " + oRetMsgs[0].Message);
                                                             }
                                                             else {
-                                                                console.log("showGeneratePOResult");
+                                                                // console.log("showGeneratePOResult");
                                                                 me.showGeneratePOResult();
                                                             }
                                                         },
@@ -2205,36 +2205,42 @@ function (Controller, JSONModel, Common, MessageBox, History, MessageToast) {
 
         onNextGroup(arg) {
             this._validationErrors = [];
-            var oHeaderData = this.getView().getModel("header").getData();
-            this.getView().getModel("grpheader").setProperty("/", oHeaderData.filter(grp => grp.GROUP === arg));
-            this.getView().getModel("ui").setProperty("/activeGroup", arg);
+            var me = this;
+            this.showLoadingDialog(" Loading next group...");
 
-            // var oJSONModel = new JSONModel();
-            var oDataDetail = this.getOwnerComponent().getModel("CREATEPO_MODEL").getData().detail.filter(fItem => fItem.GROUP === arg);
-            
-            this.getView().getModel("detail").setProperty("/", oDataDetail);
-            this.byId("detailTab").getModel().setProperty("/", oDataDetail);
-            this.byId("detailTab").bindRows({path: "detail>/"});
+            setTimeout(() => {
+                me.closeLoadingDialog();
 
-            var oTable = this.byId("detailTab");
-            var iGPCellIndex = -1;
-
-            oTable.getRows()[0].getCells().forEach((cell, idx) => {
-                if (cell.getBindingInfo("value") !== undefined) {
-                    if (cell.getBindingInfo("value").parts[0].path === "GROSSPRICE") iGPCellIndex = idx;
-                }
-            })
-            
-            this.getView().getModel("detail").getData().filter(fItem => fItem.GROUP === arg).forEach((item, index) => {
-                if (item.INFORECCHECK) { 
-                    oTable.getRows()[index].getCells()[iGPCellIndex].setProperty("enabled", false);
-                }
-                else oTable.getRows()[index].getCells()[iGPCellIndex].setProperty("enabled", true);
+                var oHeaderData = me.getView().getModel("header").getData();
+                me.getView().getModel("grpheader").setProperty("/", oHeaderData.filter(grp => grp.GROUP === arg));
+                me.getView().getModel("ui").setProperty("/activeGroup", arg);
+    
+                // var oJSONModel = new JSONModel();
+                var oDataDetail = me.getOwnerComponent().getModel("CREATEPO_MODEL").getData().detail.filter(fItem => fItem.GROUP === arg);
                 
-            })
+                me.getView().getModel("detail").setProperty("/", oDataDetail);
+                me.byId("detailTab").getModel().setProperty("/", oDataDetail);
+                me.byId("detailTab").bindRows({path: "detail>/"});
+    
+                var oTable = me.byId("detailTab");
+                var iGPCellIndex = -1;
+    
+                oTable.getRows()[0].getCells().forEach((cell, idx) => {
+                    if (cell.getBindingInfo("value") !== undefined) {
+                        if (cell.getBindingInfo("value").parts[0].path === "GROSSPRICE") iGPCellIndex = idx;
+                    }
+                })
+                
+                me.getView().getModel("detail").getData().filter(fItem => fItem.GROUP === arg).forEach((item, index) => {
+                    if (item.INFORECCHECK) { 
+                        oTable.getRows()[index].getCells()[iGPCellIndex].setProperty("enabled", false);
+                    }
+                    else oTable.getRows()[index].getCells()[iGPCellIndex].setProperty("enabled", true);
+                })
+            }, 500);
         },
 
-        onCancelPO: function(oEvent) {            
+        onCancelPO: function(oEvent) {
             var oHeaderData = this.getView().getModel("header").getData();
             var aHeaderData = this.getView().getModel("grpheader").getData();
             var sActiveGroup = this.getView().getModel("ui").getData().activeGroup; 
@@ -2249,8 +2255,8 @@ function (Controller, JSONModel, Common, MessageBox, History, MessageToast) {
             
             if (oHeaderData.length >= ((+sActiveGroup) + 1)) {
                 //next group
+                this.showMessage(this.getView().getModel("ddtext").getData()["GENPOCANCEL"], 500); 
                 this.onNextGroup(((+sActiveGroup) + 1 ) + "");
-                this.showMessage(this.getView().getModel("ddtext").getData()["GENPOCANCEL"])
             }
             else {
                 console.log("showGeneratePOResult");
@@ -2264,8 +2270,8 @@ function (Controller, JSONModel, Common, MessageBox, History, MessageToast) {
                 this.getView().addDependent(this._LoadingDialog);
             }
             // jQuery.sap.syncStyleClass("sapUiSizeCompact", this.getView(), this._LoadingDialog);
-            
-            this._LoadingDialog.setTitle(arg);
+            // console.log(this._LoadingDialog)
+            this._LoadingDialog.setText(arg);
             this._LoadingDialog.open();
         },
 
@@ -2320,5 +2326,13 @@ function (Controller, JSONModel, Common, MessageBox, History, MessageToast) {
             this.setRowReadMode("detail");            
         },
 
+        showMessage: function(oMessage, iDuration) {
+            MessageToast.show(oMessage, {
+                duration: iDuration == undefined ? 2000 : iDuration,
+                animationDuration: 500,
+                at: 'center center',
+                offset: '0 100'
+            });
+        },
     })
 })

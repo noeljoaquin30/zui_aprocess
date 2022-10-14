@@ -191,7 +191,7 @@ sap.ui.define([
                             that.refresh();
                         }
                     }
-                }, oView);             
+                }, oView);
             },
 
             onExit: function() {
@@ -399,16 +399,24 @@ sap.ui.define([
                 // console.log(oModel)
                 var oSmartFilter = this.getView().byId("smartFilterBar");
                 oSmartFilter.setModel(oModel);
-                
-                // console.log(oModel)
+                // console.log(oSmartFilter)
+                //modify smartfilter control width
 
-                // oModel.read("/ZVB_3DERP_VENDOR_SH", {
-                //     success: function (oData, oResponse) {
-                //         console.log(oData)
-                //     },
-                //     error: function (err) { 
-                //     }
-                // });
+                // var ivSmartFilter = setInterval(() => {
+                //     if (oSmartFilter !== undefined) {
+                //         oSmartFilter.getControlByKey("SBU").oParent.setWidth("100px");
+                //         oSmartFilter.getControlByKey("IONUMBER").oParent.setWidth("155px");
+                //         oSmartFilter.getControlByKey("MATERIALGRP").oParent.setWidth("135px");
+                //         oSmartFilter.getControlByKey("MATERIALTYPE").oParent.setWidth("135px");
+                //         oSmartFilter.getControlByKey("SEASON").oParent.setWidth("225px");
+                //         oSmartFilter.getControlByKey("SHIPTOPLANT").oParent.setWidth("135px");
+                //         oSmartFilter.getControlByKey("PURCHPLANT").oParent.setWidth("135px");
+                //         oSmartFilter.getControlByKey("PRNUMBER").oParent.setWidth("180px");
+
+                //         clearInterval(ivSmartFilter);
+                //     }                    
+                // }, 500);
+
             },
 
             addDateFilters: function(aFilters) {
