@@ -192,6 +192,19 @@ sap.ui.define([
                         }
                     }
                 }, oView);
+
+                var oTableEventDelegate = {
+                    onkeyup: function(oEvent){
+                        that.onKeyUp(oEvent);
+                    },
+
+                    onAfterRendering: function(oEvent) {
+                        that.onAfterTableRendering(oEvent);
+                    }
+                };
+
+                this.byId("mainTab").addEventDelegate(oTableEventDelegate);
+                this._tableRendered = "";
             },
 
             onExit: function() {
@@ -279,10 +292,13 @@ sap.ui.define([
                     success: function (oData, oResponse) {
                         var vUnassigned = 0, vPartial = 0;
 
-                        oData.results.forEach(item => {
+                        oData.results.forEach((item, index) => {
                             if (item.VENDOR === '') vUnassigned++;
                             if (item.QTY !== item.ORDERQTY) vPartial++;
                             item.DELVDATE = dateFormat.format(item.DELVDATE);
+                            
+                            if (index === 0) item.ACTIVE = "X";
+                            else item.ACTIVE = "";
                         })
 
                         me._counts.total = oData.results.length;
@@ -329,6 +345,8 @@ sap.ui.define([
 
                 //bind the data to the table
                 oTable.bindRows("/rows");
+
+                this._tableRendered = "mainTab";
             },
 
             setTableColumns() {
@@ -525,10 +543,13 @@ sap.ui.define([
                         //for testing
                         // oData.results.sort((a,b) => (a.VENDOR > b.VENDOR ? -1 : 1))
 
-                        oData.results.forEach(item => {
+                        oData.results.forEach((item, index) => {
                             if (item.VENDOR === '') vUnassigned++;
                             if (item.QTY !== item.ORDERQTY) vPartial++;
                             item.DELVDATE = dateFormat.format(item.DELVDATE);
+
+                            if (index === 0) item.ACTIVE = "X";
+                            else item.ACTIVE = "";
                         })
 
                         me._counts.total = oData.results.length;
@@ -1143,10 +1164,13 @@ sap.ui.define([
                     success: function (oData, oResponse) {
                         var vUnassigned = 0, vPartial = 0;
                         // console.log(oData)
-                        oData.results.forEach(item => {
+                        oData.results.forEach((item, index) => {
                             if (item.VENDOR === '') vUnassigned++;
                             if (item.QTY !== item.ORDERQTY) vPartial++;
                             item.DELVDATE = dateFormat.format(item.DELVDATE);
+
+                            if (index === 0) item.ACTIVE = "X";
+                            else item.ACTIVE = "";
                         })
 
                         me._counts.total = oData.results.length;
@@ -1675,24 +1699,101 @@ sap.ui.define([
                 this._CreatePOResultDialog.close();
             },
 
-            test() {
-                var oCrossAppNavigator = sap.ushell.Container.getService("CrossApplicationNavigation");
+            onCellClick: function(oEvent) {
+                if (oEvent.getParameters().rowBindingContext) {
+                    var oTable = oEvent.getSource(); //this.byId("ioMatListTab");
+                    var sRowPath = oEvent.getParameters().rowBindingContext.sPath;
+    
+                    oTable.getModel().getData().rows.forEach(row => row.ACTIVE = "");
+                    oTable.getModel().setProperty(sRowPath + "/ACTIVE", "X"); 
+                    
+                    oTable.getRows().forEach(row => {
+                        if (row.getBindingContext() && row.getBindingContext().sPath.replace("/rows/", "") === sRowPath.replace("/rows/", "")) {
+                            row.addStyleClass("activeRow");
+                        }
+                        else row.removeStyleClass("activeRow")
+                    })
+                }
+            },
+            
+            onSort: function(oEvent) {
+                this.setActiveRowHighlight();
+            },
 
-                var hash = (oCrossAppNavigator && oCrossAppNavigator.hrefForExternal({
-                    target: {
-                        semanticObject: "ZUI_3DERP",
-                        action: "manage&/RouteStyleDetail/NEW/VER"
-                    }
-                    // params: {
-                    // "supplierID": supplier
-                    // }
-                    })) || ""; // generate the Hash to display a Supplier
+            onFilter: function(oEvent) {
+                this.setActiveRowHighlight();
+            },
 
-                oCrossAppNavigator.toExternal({
-                    target: {
-                        shellHash: hash
+            onFirstVisibleRowChanged: function (oEvent) {
+                var oTable = oEvent.getSource();
+
+                setTimeout(() => {
+                    var oData = oTable.getModel().getData().rows;
+                    var iStartIndex = oTable.getBinding("rows").iLastStartIndex;
+                    var iLength = oTable.getBinding("rows").iLastLength + iStartIndex;
+
+                    if (oTable.getBinding("rows").aIndices.length > 0) {
+                        for (var i = iStartIndex; i < iLength; i++) {
+                            var iDataIndex = oTable.getBinding("rows").aIndices.filter((fItem, fIndex) => fIndex === i);
+    
+                            if (oData[iDataIndex].ACTIVE === "X") oTable.getRows()[iStartIndex === 0 ? i : i - iStartIndex].addStyleClass("activeRow");
+                            else oTable.getRows()[iStartIndex === 0 ? i : i - iStartIndex].removeStyleClass("activeRow");
+                        }
                     }
-                });                
-            }
+                    else {
+                        for (var i = iStartIndex; i < iLength; i++) {
+                            if (oData[i].ACTIVE === "X") oTable.getRows()[iStartIndex === 0 ? i : i - iStartIndex].addStyleClass("activeRow");
+                            else oTable.getRows()[iStartIndex === 0 ? i : i - iStartIndex].removeStyleClass("activeRow");
+                        }
+                    }
+                }, 1);
+            },
+
+            onColumnUpdated: function (oEvent) {
+                this.setActiveRowHighlight();
+            },
+
+            onKeyUp(oEvent) {
+                if ((oEvent.key === "ArrowUp" || oEvent.key === "ArrowDown") && oEvent.srcControl.sParentAggregationName === "rows") {
+                    var oTable = this.byId(oEvent.srcControl.sId).oParent;
+                    
+                    if (this.byId(oEvent.srcControl.sId).getBindingContext()) {
+                        var sRowPath = this.byId(oEvent.srcControl.sId).getBindingContext().sPath;
+                    
+                        oTable.getModel().getData().rows.forEach(row => row.ACTIVE = "");
+                        oTable.getModel().setProperty(sRowPath + "/ACTIVE", "X"); 
+                        
+                        oTable.getRows().forEach(row => {
+                            if (row.getBindingContext() && row.getBindingContext().sPath.replace("/rows/", "") === sRowPath.replace("/rows/", "")) {
+                                row.addStyleClass("activeRow");
+                            }
+                            else row.removeStyleClass("activeRow")
+                        })
+                    }
+                }
+            },
+
+            onAfterTableRendering: function(oEvent) {
+                if (this._tableRendered !== "") {
+                    this.setActiveRowHighlight();
+                    this._tableRendered = "";
+                } 
+            },
+
+            setActiveRowHighlight() {
+                var oTable = this.byId("mainTab");
+                
+                setTimeout(() => {
+                    var iActiveRowIndex = oTable.getModel().getData().rows.findIndex(item => item.ACTIVE === "X");
+
+                    oTable.getRows().forEach(row => {
+                        if (row.getBindingContext() && +row.getBindingContext().sPath.replace("/rows/", "") === iActiveRowIndex) {
+                            row.addStyleClass("activeRow");
+                        }
+                        else row.removeStyleClass("activeRow");
+                    })                    
+                }, 1);
+            },
+
         });
     });

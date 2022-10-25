@@ -54,13 +54,13 @@ function (Controller, JSONModel, MessageBox, History, MessageToast) {
             var oJSONModel = new JSONModel();
             var oHeaderData = this.getOwnerComponent().getModel("CREATEPO_MODEL").getData().header;
             var oDataRem = {}, oDataPackIns = {}, oDataFabSpecs = {};
-            var aDataRemItems = [], aDataPackInsItems = [], aDataFabSpecsItems = [];
+            var aDataRemItems = [], aDataPackInsItems = [], aDataFabSpecsItems = [], aDataDocType = [];
             var oJSONModelPT = new JSONModel();
             var oJSONModelSM = new JSONModel();
-            var iCounter = 0;
+            var iCounter = 0, iCounter2 = 0;
             var mData = {};
 
-            oHeaderData.forEach(item => {
+            oHeaderData.forEach((item, idx) => {
                 item.PODATE = dateFormat.format(new Date());
                 item.PAYTERMS = "";
                 item.INCOTERMS = "";
@@ -74,13 +74,6 @@ function (Controller, JSONModel, MessageBox, History, MessageToast) {
                 if (!isNaN(sVendor)) {
                     while (sVendor.length < 10) sVendor = "0" + sVendor;
                 }
-
-                me._oModel.read("/IncoTermsSet", {
-                    success: function (oData, oResponse) {
-                        me.getView().setModel(new JSONModel(oData.results), "incoterm");
-                    },
-                    error: function (err) { }
-                });
 
                 me._oModel.read("/ShipModeSet", {
                     urlParameters: {
@@ -170,6 +163,23 @@ function (Controller, JSONModel, MessageBox, History, MessageToast) {
                 oDataFabSpecs[item.GROUP] = aDataFabSpecsItems;
 
                 aDataRemItems = [], aDataPackInsItems = [], aDataFabSpecsItems = [];
+
+                if (aDataDocType.filter(fItem => fItem.Podoctyp === item.DOCTYPE).length === 0) {
+                    me._oModel.read("/PODocTypInfoSet('" + item.DOCTYPE + "')", {
+                        success: function (oData, oResponse) {
+                            iCounter2++;
+                            aDataDocType.push(oData);
+
+                            if (iCounter2 === oHeaderData.length) {
+                                me.getView().setModel(new JSONModel(aDataDocType), "doctype");  
+                            }
+                        },
+                        error: function (err) {
+                            iCounter2++;
+                        }
+                    });
+                }
+                else iCounter2++;
             })
 
             var oJSONModelRem = new JSONModel();
@@ -205,6 +215,13 @@ function (Controller, JSONModel, MessageBox, History, MessageToast) {
             this.getOwnerComponent().getModel("UI_MODEL").setProperty("/flag", false);
             this.setFormInputValueHelp();
             this.getDiscRate();
+
+            this._oModel.read("/IncoTermsSet", {
+                success: function (oData, oResponse) {
+                    me.getView().setModel(new JSONModel(oData.results), "incoterm");
+                },
+                error: function (err) { }
+            });
         },
 
         onNavBack: function(oEvent) {
@@ -2040,7 +2057,16 @@ function (Controller, JSONModel, MessageBox, History, MessageToast) {
                                                     var oParamCPOItemData = [];
                                                     var oParamCPOItemSchedData = [];
                                                     var oParamCPOClosePRData = [];
-            
+
+                                                    var oPODocTypeInfo = me.getView().getModel("doctype").getData().filter(fItem => fItem.Podoctyp === item.DOCTYPE);
+                                                    var bGRInd = false, bIRInd = false, bGRBasedIV = false;
+
+                                                    if (oPODocTypeInfo.length > 0) {
+                                                        bGRInd = oPODocTypeInfo[0].Wepos === "X" ? true : false;
+                                                        bIRInd = oPODocTypeInfo[0].Repos === "X" ? true : false;
+                                                        bGRBasedIV = oPODocTypeInfo[0].Webre === "X" ? true : false;
+                                                    }
+
                                                     me.getOwnerComponent().getModel("CREATEPO_MODEL").getData().detail.filter(fItem => fItem.GROUP === item.GROUP)
                                                         .forEach(poitem => {
                                                             oParamCPOItemData.push({
@@ -2058,7 +2084,9 @@ function (Controller, JSONModel, MessageBox, History, MessageToast) {
                                                                 ConvNum1: "0",
                                                                 ConvDen1: "0",
                                                                 DispQuant: poitem.BASEPOQTY,
-                                                                GrBasediv: poitem.GRBASEDIV,
+                                                                GrInd: bGRInd,
+                                                                IrInd: bIRInd,
+                                                                GrBasediv: bGRBasedIV, //poitem.GRBASEDIV,
                                                                 PreqNo: poitem.PRNUMBER,
                                                                 PreqItem: poitem.PRITEMNO
                                                             })
@@ -2333,6 +2361,10 @@ function (Controller, JSONModel, MessageBox, History, MessageToast) {
                 at: 'center center',
                 offset: '0 100'
             });
+        },
+
+        handlesuggestionItemSelected: function(oEvent) {
+            oEvent.getSource().setDescription("test");    
         },
     })
 })
