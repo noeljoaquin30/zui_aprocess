@@ -22,6 +22,17 @@ sap.ui.define([
 
                 this._fBackButton = sap.ui.getCore().byId("backBtn").mEventRegistry.press[0].fFunction;
 
+                var oView = this.getView();
+                oView.addEventDelegate({
+                    onAfterShow: function(oEvent){
+                        sap.ui.getCore().byId("backBtn").mEventRegistry.press[0].fFunction = that._fBackButton; 
+
+                        if (that.getOwnerComponent().getModel("UI_MODEL").getData().flag) {
+                            that.refresh();
+                        }
+                    }
+                }, oView);
+
                 this.showLoadingDialog('Loading...');
 
                 this._counts = {
@@ -181,17 +192,6 @@ sap.ui.define([
                     sbu: "",
                     flag: false
                 })
-
-                var oView = this.getView();
-                oView.addEventDelegate({
-                    onAfterShow: function(oEvent){
-                        sap.ui.getCore().byId("backBtn").mEventRegistry.press[0].fFunction = that._fBackButton; 
-
-                        if (that.getOwnerComponent().getModel("UI_MODEL").getData().flag) {
-                            that.refresh();
-                        }
-                    }
-                }, oView);
 
                 var oTableEventDelegate = {
                     onkeyup: function(oEvent){

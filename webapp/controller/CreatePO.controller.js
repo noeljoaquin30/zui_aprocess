@@ -18,9 +18,9 @@ function (Controller, JSONModel, MessageBox, History, MessageToast) {
             
             var me = this;
 
-            sap.ui.getCore().byId("backBtn").mEventRegistry.press[0].fFunction = function(oEvent) {
-                me.onNavBack();
-            }
+            // sap.ui.getCore().byId("backBtn").mEventRegistry.press[0].fFunction = function(oEvent) {
+            //     me.onNavBack();
+            // }
         },
         
         onPatternMatched: function() {
@@ -35,6 +35,10 @@ function (Controller, JSONModel, MessageBox, History, MessageToast) {
             this.getColumnProp();
             this._poCreated = false;
             
+            sap.ui.getCore().byId("backBtn").mEventRegistry.press[0].fFunction = function(oEvent) {
+                me.onNavBack();
+            }
+
             // console.log(this.getOwnerComponent().getModel("UI"))
             var vSBU = this.getOwnerComponent().getModel("UI_MODEL").getData().sbu;
 
@@ -45,18 +49,18 @@ function (Controller, JSONModel, MessageBox, History, MessageToast) {
             if (this.getView().getModel("packins") !== undefined) this.getView().getModel("packins").destroy();
             if (this.getView().getModel("fabspecs") !== undefined) this.getView().getModel("fabspecs").destroy();
             // console.log(this.getOwnerComponent().getModel("CREATEPO_MODEL").getData().detail)
-            var oJSONModelDtl = new JSONModel();
+            // var oJSONModelDtl = new JSONModel();
             var oDataDetail = this.getOwnerComponent().getModel("CREATEPO_MODEL").getData().detail.filter(fItem => fItem.GROUP === "1");
-            oJSONModelDtl.setData(oDataDetail);
-            this.getView().setModel(oJSONModelDtl, "detail");
+            // oJSONModelDtl.setData(oDataDetail);
+            this.getView().setModel(new JSONModel(oDataDetail), "detail");
             // console.log(oDataDetail)
             
-            var oJSONModel = new JSONModel();
+            // var oJSONModel = new JSONModel();
             var oHeaderData = this.getOwnerComponent().getModel("CREATEPO_MODEL").getData().header;
             var oDataRem = {}, oDataPackIns = {}, oDataFabSpecs = {};
             var aDataRemItems = [], aDataPackInsItems = [], aDataFabSpecsItems = [], aDataDocType = [];
-            var oJSONModelPT = new JSONModel();
-            var oJSONModelSM = new JSONModel();
+            // var oJSONModelPT = new JSONModel();
+            // var oJSONModelSM = new JSONModel();
             var iCounter = 0, iCounter2 = 0;
             var mData = {};
 
@@ -80,8 +84,8 @@ function (Controller, JSONModel, MessageBox, History, MessageToast) {
                         "$filter": "SBU eq '" + vSBU + "'"
                     },
                     success: function (oDataSM, oResponse) {
-                        oJSONModelSM.setData(oDataSM.results);
-                        me.getView().setModel(oJSONModelSM, "shipmode");
+                        // oJSONModelSM.setData(oDataSM.results);
+                        me.getView().setModel(new JSONModel(oDataSM.results), "shipmode");
                         
                         if (oDataSM.results.length === 1) {
                             item.SHIPMODE = oDataSM.results[0].SHIPMODE;
@@ -104,11 +108,11 @@ function (Controller, JSONModel, MessageBox, History, MessageToast) {
                                     }
         
                                     if (iCounter === oHeaderData.length) {
-                                        oJSONModelPT.setData(mData);
-                                        me.getView().setModel(oJSONModelPT, "payterms");
+                                        // oJSONModelPT.setData(mData);
+                                        me.getView().setModel(new JSONModel(mData), "payterms");
         
-                                        oJSONModel.setData(oHeaderData);
-                                        me.getView().setModel(oJSONModel, "header");
+                                        // oJSONModel.setData(oHeaderData);
+                                        me.getView().setModel(new JSONModel(oHeaderData), "header");
                                         me.getView().setModel(new JSONModel(oHeaderData.filter(grp => grp.GROUP === "1")), "grpheader");
                                         // console.log(me.getView().getModel("header").getData())
                                     } 
@@ -182,22 +186,22 @@ function (Controller, JSONModel, MessageBox, History, MessageToast) {
                 else iCounter2++;
             })
 
-            var oJSONModelRem = new JSONModel();
-            var oJSONModelPackIns = new JSONModel();
-            var oJSONModelFabSpecs = new JSONModel();
+            // var oJSONModelRem = new JSONModel();
+            // var oJSONModelPackIns = new JSONModel();
+            // var oJSONModelFabSpecs = new JSONModel();
 
-            oJSONModelRem.setData(oDataRem);
-            this.getView().setModel(oJSONModelRem, "remarks");
+            // oJSONModelRem.setData(oDataRem);
+            this.getView().setModel(new JSONModel(oDataRem), "remarks");
 
-            oJSONModelPackIns.setData(oDataPackIns);
-            this.getView().setModel(oJSONModelPackIns, "packins");            
+            // oJSONModelPackIns.setData(oDataPackIns);
+            this.getView().setModel(new JSONModel(oDataPackIns), "packins");            
 
-            oJSONModelFabSpecs.setData(oDataFabSpecs);
-            this.getView().setModel(oJSONModelFabSpecs, "fabspecs");
+            // oJSONModelFabSpecs.setData(oDataFabSpecs);
+            this.getView().setModel(new JSONModel(oDataFabSpecs), "fabspecs");
             
-            var oJSONModelDDText = new JSONModel();
-            oJSONModelDDText.setData(this.getOwnerComponent().getModel("CAPTION_MSGS_MODEL").getData().text);
-            this.getView().setModel(oJSONModelDDText, "ddtext");
+            // var oJSONModelDDText = new JSONModel();
+            // oJSONModelDDText.setData(this.getOwnerComponent().getModel("CAPTION_MSGS_MODEL").getData().text);
+            this.getView().setModel(new JSONModel(this.getOwnerComponent().getModel("CAPTION_MSGS_MODEL").getData().text), "ddtext");
 
             this._bFabSpecsChanged = false;
             this._bRemarksChanged = false;
@@ -230,16 +234,16 @@ function (Controller, JSONModel, MessageBox, History, MessageToast) {
                 Text: this.getView().getModel("ddtext").getData()["CONF_CANCEL_CREATEPO"]
             }
 
-            var oJSONModel = new JSONModel();
-            oJSONModel.setData(oData);
-
+            // var oJSONModel = new JSONModel();
+            // oJSONModel.setData(oData);
+            // console.log(oData)
             if (!this._ConfirmDialog) {
                 this._ConfirmDialog = sap.ui.xmlfragment("zuiaprocess.view.fragments.dialog.ConfirmDialog", this);
 
-                this._ConfirmDialog.setModel(oJSONModel);
+                this._ConfirmDialog.setModel(new JSONModel(oData));
                 this.getView().addDependent(this._ConfirmDialog);
             }
-            else this._ConfirmDialog.setModel(oJSONModel);
+            else this._ConfirmDialog.setModel(new JSONModel(oData));
                 
             this._ConfirmDialog.open();
         },
@@ -315,16 +319,16 @@ function (Controller, JSONModel, MessageBox, History, MessageToast) {
                     Text: this.getView().getModel("ddtext").getData()["CONFIRM_DISREGARD_CHANGE"]
                 }
 
-                var oJSONModel = new JSONModel();
-                oJSONModel.setData(oData);
+                // var oJSONModel = new JSONModel();
+                // oJSONModel.setData(oData);
 
                 if (!this._ConfirmDialog) {
                     this._ConfirmDialog = sap.ui.xmlfragment("zuiaprocess.view.fragments.dialog.ConfirmDialog", this);
 
-                    this._ConfirmDialog.setModel(oJSONModel);
+                    this._ConfirmDialog.setModel(new JSONModel(oData));
                     this.getView().addDependent(this._ConfirmDialog);
                 }
-                else this._ConfirmDialog.setModel(oJSONModel);
+                else this._ConfirmDialog.setModel(new JSONModel(oData));
                     
                 this._ConfirmDialog.open();
             }
@@ -339,10 +343,10 @@ function (Controller, JSONModel, MessageBox, History, MessageToast) {
                 this.byId("btnSaveHdr").setVisible(false);
                 this.byId("btnCancelHdr").setVisible(false);
                 
-                var oJSONModel = new JSONModel();
-                oJSONModel.setData(this._aHeaderDataBeforeChange);
+                // var oJSONModel = new JSONModel();
+                // oJSONModel.setData(this._aHeaderDataBeforeChange);
     
-                this.byId("headerTab").setModel(oJSONModel, "header");
+                this.byId("headerTab").setModel(new JSONModel(this._aHeaderDataBeforeChange), "header");
                 this.byId("headerTab").bindRows({path: "header>/"});                
             }
         },
@@ -364,16 +368,16 @@ function (Controller, JSONModel, MessageBox, History, MessageToast) {
                     Text: this.getView().getModel("ddtext").getData()["CONFIRM_DISREGARD_CHANGE"]
                 }
 
-                var oJSONModel = new JSONModel();
-                oJSONModel.setData(oData);
+                // var oJSONModel = new JSONModel();
+                // oJSONModel.setData(oData);
 
                 if (!this._ConfirmDialog) {
                     this._ConfirmDialog = sap.ui.xmlfragment("zuiaprocess.view.fragments.dialog.ConfirmDialog", this);
 
-                    this._ConfirmDialog.setModel(oJSONModel);
+                    this._ConfirmDialog.setModel(new JSONModel(oData));
                     this.getView().addDependent(this._ConfirmDialog);
                 }
-                else this._ConfirmDialog.setModel(oJSONModel);
+                else this._ConfirmDialog.setModel(new JSONModel(oData));
                     
                 this._ConfirmDialog.open();
             }
@@ -385,10 +389,10 @@ function (Controller, JSONModel, MessageBox, History, MessageToast) {
                 this.byId("btnSaveDtl").setVisible(false);
                 this.byId("btnCancelDtl").setVisible(false);
 
-                var oJSONModel = new JSONModel();
-                oJSONModel.setData(this._aDetailsDataBeforeChange);
+                // var oJSONModel = new JSONModel();
+                // oJSONModel.setData(this._aDetailsDataBeforeChange);
     
-                this.byId("detailTab").setModel(oJSONModel, "detail");
+                this.byId("detailTab").setModel(new JSONModel(this._aDetailsDataBeforeChange), "detail");
                 this.byId("detailTab").bindRows({path: "detail>/"});
             }
         },
@@ -1020,10 +1024,10 @@ function (Controller, JSONModel, MessageBox, History, MessageToast) {
                         }
                 })
     
-                var oJSONModel = new JSONModel();
-                oJSONModel.setData(this.getView().getModel("detail").getData());
+                // var oJSONModel = new JSONModel();
+                // oJSONModel.setData(this.getView().getModel("detail").getData());
     
-                this.byId("detailTab").setModel(oJSONModel, "detail");
+                this.byId("detailTab").setModel(new JSONModel(this.getView().getModel("detail").getData()), "detail");
                 this.byId("detailTab").bindRows({path: "detail>/"});
             }            
         },
@@ -1057,8 +1061,8 @@ function (Controller, JSONModel, MessageBox, History, MessageToast) {
                     var vRetDate = sapDateFormat.format(new Date(oData["N_GetFtyCalDateReturn"].results[0].Date));
                     var vParamDate = sapDateFormat.format(new Date(oData["N_GetFtyCalDateParam"].results[0].Date));
                     var vPrevDateVal = me._prevDelvDate;
-                    console.log(vRetDate, vParamDate)
-                    console.log(me._prevDelvDate)
+                    // console.log(vRetDate, vParamDate)
+                    // console.log(me._prevDelvDate)
                     if (vRetDate !== vParamDate) {
                         var oData = {
                             Process: "delvdate-update",
@@ -1068,16 +1072,16 @@ function (Controller, JSONModel, MessageBox, History, MessageToast) {
                             Source: oSource
                         }
             
-                        var oJSONModel = new JSONModel();
-                        oJSONModel.setData(oData);
+                        // var oJSONModel = new JSONModel();
+                        // oJSONModel.setData(oData);
             
                         if (!me._ConfirmDialog) {
                             me._ConfirmDialog = sap.ui.xmlfragment("zuiaprocess.view.fragments.dialog.ConfirmDialog", me);
             
-                            me._ConfirmDialog.setModel(oJSONModel);
+                            me._ConfirmDialog.setModel(new JSONModel(oData));
                             me.getView().addDependent(me._ConfirmDialog);
                         }
-                        else me._ConfirmDialog.setModel(oJSONModel);
+                        else me._ConfirmDialog.setModel(new JSONModel(oData));
                             
                         me._ConfirmDialog.open();                        
                     }
@@ -1166,7 +1170,7 @@ function (Controller, JSONModel, MessageBox, History, MessageToast) {
             }]
 
             oParam["N_GetFtyCalDateReturn"] = [];
-            console.log(oParam)
+            // console.log(oParam)
             oModel.create("/GetFtyCalDateSet", oParam, {
                 method: "POST",
                 success: function(oData, oResponse) {
@@ -1180,16 +1184,16 @@ function (Controller, JSONModel, MessageBox, History, MessageToast) {
                             DelvDate: oData["N_GetFtyCalDateReturn"].results[0].Date
                         }
             
-                        var oJSONModel = new JSONModel();
-                        oJSONModel.setData(oData);
+                        // var oJSONModel = new JSONModel();
+                        // oJSONModel.setData(oData);
             
                         if (!me._ConfirmDialog) {
                             me._ConfirmDialog = sap.ui.xmlfragment("zuiaprocess.view.fragments.dialog.ConfirmDialog", me);
             
-                            me._ConfirmDialog.setModel(oJSONModel);
+                            me._ConfirmDialog.setModel(new JSONModel(oData));
                             me.getView().addDependent(me._ConfirmDialog);
                         }
-                        else me._ConfirmDialog.setModel(oJSONModel);
+                        else me._ConfirmDialog.setModel(new JSONModel(oData));
                             
                         me._ConfirmDialog.open();                        
                     }
@@ -1211,10 +1215,10 @@ function (Controller, JSONModel, MessageBox, History, MessageToast) {
                     if (idx.toString() === sRowPath.replace("/","")) item.DELVDATE = arg2;
             })
 
-            var oJSONModel = new JSONModel();
-            oJSONModel.setData(this.getView().getModel("detail").getData());
+            // var oJSONModel = new JSONModel();
+            // oJSONModel.setData(this.getView().getModel("detail").getData());
 
-            this.byId("detailTab").setModel(oJSONModel, "detail");
+            this.byId("detailTab").setModel(new JSONModel(this.getView().getModel("detail").getData()), "detail");
             this.byId("detailTab").bindRows({path: "detail>/"});
         },
 
@@ -1225,10 +1229,10 @@ function (Controller, JSONModel, MessageBox, History, MessageToast) {
                 item.DELVDATE = arg;
             })
 
-            var oJSONModel = new JSONModel();
-            oJSONModel.setData(this.getView().getModel("detail").getData());
+            // var oJSONModel = new JSONModel();
+            // oJSONModel.setData(this.getView().getModel("detail").getData());
 
-            this.byId("detailTab").setModel(oJSONModel, "detail");
+            this.byId("detailTab").setModel(new JSONModel(this.getView().getModel("detail").getData()), "detail");
             this.byId("detailTab").bindRows({path: "detail>/"});
             this._ChangeDateDialog.close();
             this.showMessage(this.getView().getModel("ddtext").getData()["INFO_DELVDATE_UPDATED"]);
@@ -1239,7 +1243,6 @@ function (Controller, JSONModel, MessageBox, History, MessageToast) {
         },
         
         onCellClick: function(oEvent) {
-            console.log(oEvent.getParameters().rowBindingContext)
             var vGroup = "";
             
             if (oEvent.getParameters().rowBindingContext !== undefined) {
@@ -1248,12 +1251,13 @@ function (Controller, JSONModel, MessageBox, History, MessageToast) {
 
             this.getView().getModel("ui").setProperty("/activeGroup", vGroup);
 
-            var oJSONModel = new JSONModel();
             var oDataDetail = this.getOwnerComponent().getModel("CREATEPO_MODEL").getData().detail.filter(fItem => fItem.GROUP === vGroup);
-            oJSONModel.setData(oDataDetail);
-            this.getView().setModel(oJSONModel, "detail");
+            // var oJSONModel = new JSONModel();
+            // oJSONModel.setData(oDataDetail);
+
+            this.getView().setModel(new JSONModel(oDataDetail), "detail");
             
-            this.byId("detailTab").setModel(oJSONModel, "detail");
+            this.byId("detailTab").setModel(new JSONModel(oDataDetail), "detail");
             this.byId("detailTab").bindRows({path: "detail>/"});
         },
 
@@ -1327,16 +1331,16 @@ function (Controller, JSONModel, MessageBox, History, MessageToast) {
                 Text: "Confirm delete fab specs?"
             }
 
-            var oJSONModel = new JSONModel();
-            oJSONModel.setData(oData);
+            // var oJSONModel = new JSONModel();
+            // oJSONModel.setData(oData);
 
             if (!this._ConfirmDialog) {
                 this._ConfirmDialog = sap.ui.xmlfragment("zuiaprocess.view.fragments.dialog.ConfirmDialog", this);
 
-                this._ConfirmDialog.setModel(oJSONModel);
+                this._ConfirmDialog.setModel(new JSONModel(oData));
                 this.getView().addDependent(this._ConfirmDialog);
             }
-            else this._ConfirmDialog.setModel(oJSONModel);
+            else this._ConfirmDialog.setModel(new JSONModel(oData));
                 
             this._ConfirmDialog.open(); 
         },
@@ -1366,16 +1370,16 @@ function (Controller, JSONModel, MessageBox, History, MessageToast) {
                     Text: this.getView().getModel("ddtext").getData()["CONFIRM_DISREGARD_CHANGE"]
                 }
 
-                var oJSONModel = new JSONModel();
-                oJSONModel.setData(oData);
+                // var oJSONModel = new JSONModel();
+                // oJSONModel.setData(oData);
 
                 if (!this._ConfirmDialog) {
                     this._ConfirmDialog = sap.ui.xmlfragment("zuiaprocess.view.fragments.dialog.ConfirmDialog", this);
 
-                    this._ConfirmDialog.setModel(oJSONModel);
+                    this._ConfirmDialog.setModel(new JSONModel(oData));
                     this.getView().addDependent(this._ConfirmDialog);
                 }
-                else this._ConfirmDialog.setModel(oJSONModel);
+                else this._ConfirmDialog.setModel(new JSONModel(oData));
                     
                 this._ConfirmDialog.open();
             }
@@ -1562,16 +1566,16 @@ function (Controller, JSONModel, MessageBox, History, MessageToast) {
                     Text: this.getView().getModel("ddtext").getData()["CONF_DELETE_RECORDS"]
                 }
 
-                var oJSONModel = new JSONModel();
-                oJSONModel.setData(oData);
-                // console.log(oData)
+                // var oJSONModel = new JSONModel();
+                // oJSONModel.setData(oData);
+                
                 if (!this._ConfirmDialog) {
                     this._ConfirmDialog = sap.ui.xmlfragment("zuiaprocess.view.fragments.dialog.ConfirmDialog", this);
 
-                    this._ConfirmDialog.setModel(oJSONModel);
+                    this._ConfirmDialog.setModel(new JSONModel(oData));
                     this.getView().addDependent(this._ConfirmDialog);
                 }
-                else this._ConfirmDialog.setModel(oJSONModel);
+                else this._ConfirmDialog.setModel(new JSONModel(oData));
                     
                 this._ConfirmDialog.open(); 
             }
@@ -1614,16 +1618,16 @@ function (Controller, JSONModel, MessageBox, History, MessageToast) {
             }
 
             if (!bProceed) {
-                var oJSONModel = new JSONModel();
-                oJSONModel.setData(oData);
+                // var oJSONModel = new JSONModel();
+                // oJSONModel.setData(oData);
 
                 if (!this._ConfirmDialog) {
                     this._ConfirmDialog = sap.ui.xmlfragment("zuiaprocess.view.fragments.dialog.ConfirmDialog", this);
 
-                    this._ConfirmDialog.setModel(oJSONModel);
+                    this._ConfirmDialog.setModel(new JSONModel(oData));
                     this.getView().addDependent(this._ConfirmDialog);
                 }
-                else this._ConfirmDialog.setModel(oJSONModel);
+                else this._ConfirmDialog.setModel(new JSONModel(oData));
                     
                 this._ConfirmDialog.open();
             }
@@ -1674,16 +1678,16 @@ function (Controller, JSONModel, MessageBox, History, MessageToast) {
             }
 
             if (!bProceed) {
-                var oJSONModel = new JSONModel();
-                oJSONModel.setData(oData);
+                // var oJSONModel = new JSONModel();
+                // oJSONModel.setData(oData);
 
                 if (!this._ConfirmDialog) {
                     this._ConfirmDialog = sap.ui.xmlfragment("zuiaprocess.view.fragments.dialog.ConfirmDialog", this);
 
-                    this._ConfirmDialog.setModel(oJSONModel);
+                    this._ConfirmDialog.setModel(new JSONModel(oData));
                     this.getView().addDependent(this._ConfirmDialog);
                 }
-                else this._ConfirmDialog.setModel(oJSONModel);
+                else this._ConfirmDialog.setModel(new JSONModel(oData));
                     
                 this._ConfirmDialog.open();
             }
@@ -1793,10 +1797,10 @@ function (Controller, JSONModel, MessageBox, History, MessageToast) {
                 this.byId("btnCancelHdr").setVisible(false);
                 // this.getView().getModel("detail").setProperty("/", this._aHeaderDataBeforeChange);
 
-                var oJSONModel = new JSONModel();
-                oJSONModel.setData(this._aHeaderDataBeforeChange);
+                // var oJSONModel = new JSONModel();
+                // oJSONModel.setData(this._aHeaderDataBeforeChange);
     
-                this.byId("headerTab").setModel(oJSONModel, "header");
+                this.byId("headerTab").setModel(new JSONModel(this._aHeaderDataBeforeChange), "header");
                 this.byId("headerTab").bindRows({path: "header>/"});
             }
             else if (this._ConfirmDialog.getModel().getData().Process === "details-cancel") {
@@ -1807,10 +1811,10 @@ function (Controller, JSONModel, MessageBox, History, MessageToast) {
                 this.byId("btnSaveDtl").setVisible(false);
                 this.byId("btnCancelDtl").setVisible(false);
                 
-                var oJSONModel = new JSONModel();
-                oJSONModel.setData(this._aDetailsDataBeforeChange);
+                // var oJSONModel = new JSONModel();
+                // oJSONModel.setData(this._aDetailsDataBeforeChange);
     
-                this.byId("detailTab").setModel(oJSONModel, "detail");
+                this.byId("detailTab").setModel(new JSONModel(this._aDetailsDataBeforeChange), "detail");
                 this.byId("detailTab").bindRows({path: "detail>/"});
             }
             else if (this._ConfirmDialog.getModel().getData().Process === "po-cancel") {
@@ -1828,7 +1832,7 @@ function (Controller, JSONModel, MessageBox, History, MessageToast) {
                     oRouter.navTo("RouteMain", {}, true /*no history*/);
                 }
     
-                this.setRowReadMode("header");
+                // this.setRowReadMode("header");
                 this.setRowReadMode("detail");
             }
             else if (this._ConfirmDialog.getModel().getData().Process === "batchdelvdate-update") {
@@ -2127,7 +2131,7 @@ function (Controller, JSONModel, MessageBox, History, MessageToast) {
                                                     oParamCPO['N_CreatePOClosePRParam'] = oParamCPOClosePRData;
                                                     oParamCPO['N_CreatePOReturn'] = [];
                                                         
-                                                    console.log(oParamCPO);    
+                                                    console.log(oParamCPO);
                                                     oModel.create("/CreatePOSet", oParamCPO, {
                                                         method: "POST",
                                                         success: function(oResult, oResponse) {
