@@ -2096,6 +2096,7 @@ function (Controller, JSONModel, MessageBox, History, MessageToast) {
                                                             })
             
                                                             oParamCPOItemSchedData.push({
+                                                                PoNumber: oResult.EReturnno,
                                                                 PoItem: poitem.ITEM,
                                                                 SchedLine: "1",
                                                                 DelivDate: sapDateFormat.format(new Date(poitem.DELVDATE)) + "T00:00:00",
