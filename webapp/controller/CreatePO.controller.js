@@ -53,6 +53,8 @@ function (Controller, JSONModel, MessageBox, History, MessageToast) {
             var oDataDetail = this.getOwnerComponent().getModel("CREATEPO_MODEL").getData().detail.filter(fItem => fItem.GROUP === "1");
             // oJSONModelDtl.setData(oDataDetail);
             this.getView().setModel(new JSONModel(oDataDetail), "detail");
+            this.byId("detailTab").setModel(new JSONModel(oDataDetail), "detail");
+            this.byId("detailTab").bindRows({path: "detail>/"});
             // console.log(oDataDetail)
             
             // var oJSONModel = new JSONModel();
@@ -1126,10 +1128,10 @@ function (Controller, JSONModel, MessageBox, History, MessageToast) {
         },
 
         onClickDate: function(oEvent) {
-            console.log("onClickDate")
+            // console.log("onClickDate")
             var sActiveGroup = this.getView().getModel("ui").getData().activeGroup;
             this._prevDelvDate = this.getView().getModel("detail").getData().filter(fItem => fItem.GROUP === sActiveGroup)[0].DELVDATE;
-            console.log(this._prevDelvDate)
+            // console.log(this._prevDelvDate)
         },
 
         onUpdDate: function(oEvent) {
@@ -1139,7 +1141,7 @@ function (Controller, JSONModel, MessageBox, History, MessageToast) {
                 this.getView().getModel("ui").setProperty("/activeGroup", this.getView().getModel("header").getData()[0].GROUP);
             }
 
-            var sActiveGroup = this.getView().getModel("ui").getData().activeGroup;
+            // var sActiveGroup = this.getView().getModel("ui").getData().activeGroup;
 
             if (bProceed) {
                 if (!this._ChangeDateDialog) {
@@ -2081,13 +2083,13 @@ function (Controller, JSONModel, MessageBox, History, MessageToast) {
                                                                 MatGrp: poitem.MATERIALGRP,
                                                                 ShortText: poitem.GMCDESCEN.length > 40 ? poitem.GMCDESCEN.slice(0, 40) : poitem.GMCDESCEN,
                                                                 Plant: poitem.PURCHPLANT,
-                                                                PoUnit: poitem.BASEUOM,
-                                                                OrderprUn: poitem.BASEUOM,
-                                                                NetPrice: "0",
-                                                                PriceUnit: "0",
-                                                                ConvNum1: "0",
-                                                                ConvDen1: "0",
-                                                                DispQuant: poitem.BASEPOQTY,
+                                                                PoUnit: poitem.UOM,
+                                                                OrderprUn: poitem.UOM,
+                                                                NetPrice: poitem.GROSSPRICE,
+                                                                PriceUnit: poitem.PER,
+                                                                ConvNum1: poitem.ORDERCONVFACTOR,
+                                                                ConvDen1: poitem.BASECONVFACTOR,
+                                                                DispQuant: poitem.ORDERPOQTY,
                                                                 GrInd: bGRInd,
                                                                 IrInd: bIRInd,
                                                                 GrBasediv: bGRBasedIV, //poitem.GRBASEDIV,
@@ -2100,9 +2102,10 @@ function (Controller, JSONModel, MessageBox, History, MessageToast) {
                                                                 PoItem: poitem.ITEM,
                                                                 SchedLine: "1",
                                                                 DelivDate: sapDateFormat.format(new Date(poitem.DELVDATE)) + "T00:00:00",
-                                                                Quantity: poitem.BASEPOQTY,
+                                                                Quantity: poitem.ORDERPOQTY,
                                                                 PreqNo: poitem.PRNUMBER,
-                                                                PreqItem: poitem.PRITEMNO
+                                                                PreqItem: poitem.PRITEMNO,
+                                                                Batch: poitem.IONUMBER
                                                             })   
                                                             
                                                             oParamCPOClosePRData.push({
