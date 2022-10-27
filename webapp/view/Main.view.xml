@@ -13,8 +13,8 @@
     displayBlock="true"> 
     <Page id="page" title="{i18n>title}" showHeader="false">
         <content> 
-            <VBox fitContainer="true">
-                <smartfilterbar:SmartFilterBar id="smartFilterBar" entitySet="ZVB_3DERP_ANP_FILTERS" search="onSearch" persistencyKey="3DERP_StylesPKey" filterContainerWidth="15rem">
+            <VBox fitContainer="true" class="anp">
+                <smartfilterbar:SmartFilterBar id="smartFilterBar" entitySet="ZVB_3DERP_ANP_FILTERS" search="onSearch" persistencyKey="3DERP_ANPPKey">
                     <smartfilterbar:controlConfiguration>
                         <smartfilterbar:ControlConfiguration key="SBU" label="{ddtext>/SBU}" groupId="_BASIC" mandatory="mandatory" width="50px">
                             <smartfilterbar:customControl>
@@ -101,7 +101,15 @@
                     showColumnVisibilityMenu="true"
                     enableColumnFreeze="true"
                     selectionMode="MultiToggle"
-                    sort="onSorted">
+                    firstVisibleRowChanged="onFirstVisibleRowChanged"
+                    cellClick="onCellClick"
+                    sort="onSort"
+                    filter="onFilter"
+                    columnFreeze="onColumnUpdated"
+                    columnMove="onColumnUpdated"
+                    columnResize="onColumnUpdated"
+                    columnSelect="onColumnUpdated"
+                    columnVisibility="onColumnUpdated">
                     <uiT:extension>
                         <Toolbar class="sapUiTinyMarginBottom">
                             <!-- <Text text="{counts>/total} PRs" /> -->

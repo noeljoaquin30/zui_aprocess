@@ -373,6 +373,9 @@
                                                 <suggestionItems>
                                                     <core:ListItem key="{shipmode>SHIPMODE}" text="{shipmode>SHIPMODE}" additionalText="{shipmode>DESC}" />
                                                 </suggestionItems>
+                                                <!-- <customData>
+                                                    <core:CustomData key="SHIPMODE" value="{grpheader>/0/SHIPMODE}"/>
+                                                </customData>                                                  -->
                                             </Input>                                            
                                         </form:fields>
                                     </form:FormElement>
