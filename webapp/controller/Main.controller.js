@@ -169,6 +169,8 @@ sap.ui.define([
                 oDDTextParam.push({CODE: "INFO_NEXT_DELVDATE"});
                 oDDTextParam.push({CODE: "CONTINUE"});
                 oDDTextParam.push({CODE: "GENPOCANCEL"});
+                oDDTextParam.push({CODE: "INFO_ERROR"});
+                oDDTextParam.push({CODE: "INFO_NO_DATA_SAVE"});
 
                 oModel.create("/CaptionMsgSet", { CaptionMsgItems: oDDTextParam  }, {
                     method: "POST",
@@ -208,7 +210,7 @@ sap.ui.define([
             },
 
             onExit: function() {
-                // sap.ui.getCore().byId("backBtn").mEventRegistry.press[0].fFunction = this._fBackButton;
+                sap.ui.getCore().byId("backBtn").mEventRegistry.press[0].fFunction = this._fBackButton;
             },
 
             onSBUChange: function(oEvent) {

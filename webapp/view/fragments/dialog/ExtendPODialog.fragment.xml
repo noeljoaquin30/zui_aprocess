@@ -35,7 +35,7 @@ xmlns:f="sap.ui.layout.form" >
             </f:Form>
 		</Panel>
 		<buttons>
-			<Button text="Extend" press="onCloseConfirmDialog"/>
+			<Button text="Extend" press="onExtendPO"/>
 			<Button text="New Purchase Order" press="onGeneratePO"/>
             <Button text="Cancel" press="onCancelExtendPODialog"/>
 		</buttons>
