@@ -1035,10 +1035,13 @@ sap.ui.define([
                 if (this._refresh) this.refreshTableData();
 
                 this._AssignVendorResultDialog.close();
-                this._AssignVendorDialog.close();
-
-                var oTable = sap.ui.getCore().byId("assignVendorTab");
-                oTable.clearSelection();
+                
+                if (this._AssignVendorDialog !== undefined) {
+                    var oTable = sap.ui.getCore().byId("assignVendorTab");
+                    oTable.clearSelection();
+                       
+                    this._AssignVendorDialog.close();
+                }
             },
 
             showAssignVendorResult(arg) {
@@ -1138,10 +1141,10 @@ sap.ui.define([
                     if (oParamData.length > 0) {
                         this.showLoadingDialog('Processing...');
                         
-                        console.log("before lock");
+                        // console.log("before lock");
                         var bProceed = await this.lock(this);
                         if (!bProceed) return;
-                        console.log("after lock");
+                        // console.log("after lock");
 
                         oParam['N_ChangePRParam'] = oParamData;
                         oParam['N_ChangePRReturn'] = [];
@@ -1361,10 +1364,10 @@ sap.ui.define([
                         this.showLoadingDialog('Processing...');
                         bProceed = true;
 
-                        console.log("before lock");
+                        // console.log("before lock");
                         var bProceed = await this.lock(this);
                         if (!bProceed) return;
-                        console.log("after lock");
+                        // console.log("after lock");
                         
                         this._oModel.read("/ZERPCheckSet", {
                             urlParameters: {
@@ -1907,7 +1910,7 @@ sap.ui.define([
                     oModelLock.create("/Lock_PRSet", oParamLock, {
                         method: "POST",
                         success: function(oResultLock) {
-                            console.log("Lock", oResultLock);
+                            // console.log("Lock", oResultLock);
                             oResultLock.N_LOCK_MESSAGES.results.forEach(item => {
                                 if (item.Type === "E") {
                                     sError += item.Message + ". ";
