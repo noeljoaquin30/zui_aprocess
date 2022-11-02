@@ -18,9 +18,11 @@ function (Controller, JSONModel, MessageBox, History, MessageToast) {
             
             var me = this;
 
-            // sap.ui.getCore().byId("backBtn").mEventRegistry.press[0].fFunction = function(oEvent) {
-            //     me.onNavBack();
-            // }
+            if (sap.ui.getCore().byId("backBtn") !== undefined) {
+                sap.ui.getCore().byId("backBtn").mEventRegistry.press[0].fFunction = function(oEvent) {
+                    me.onNavBack();
+                }
+            }
         },
         
         onPatternMatched: function() {
