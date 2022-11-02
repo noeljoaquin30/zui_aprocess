@@ -26,28 +26,13 @@ sap.ui.define([
                 oView.addEventDelegate({
                     onAfterShow: function(oEvent){
                         sap.ui.getCore().byId("backBtn").mEventRegistry.press[0].fFunction = that._fBackButton; 
-                        console.log("back");
+                        
                         if (that.getOwnerComponent().getModel("UI_MODEL").getData().flag) {
                             that.refresh();
+                        }
 
-                            var oModelLock = this.getOwnerComponent().getModel("ZGW_3DERP_LOCK_SRV");
-                            var oParamLock = {};
-
-                            oParamLock["N_IMPRTAB"] = me._oLock;
-                            oParamLock["N_PRUNLOCK_RETURN"] = []; 
-    
-                            oModelLock.create("/Unlock_PRSet", oParamLock, {
-                                method: "POST",
-                                success: function(oResultLock) {
-                                    console.log("Unlock", oResultLock)
-                                },
-                                error: function (err) {
-                                    me.closeLoadingDialog();
-                                    sap.m.MessageBox.information(err)
-                                }
-                            })
-
-                            me._oLock = [];
+                        if (that._oLock.length > 0) {
+                            that.unLock();
                         }
                     }
                 }, oView);
@@ -227,6 +212,7 @@ sap.ui.define([
 
                 this.byId("mainTab").addEventDelegate(oTableEventDelegate);
                 this._tableRendered = "";
+                this._refresh = false;
             },
 
             onExit: function() {
@@ -603,9 +589,11 @@ sap.ui.define([
             },
 
             onAssign: function() {
-                this._oAssignVendorData = [];
-
                 var me = this;
+                this._oAssignVendorData = [];
+                this._oLock = [];
+                this._refresh = false;
+
                 var oTable = this.byId("mainTab");
                 var oSelectedIndices = oTable.getSelectedIndices();
                 var oTmpSelectedIndices = [];
@@ -621,9 +609,7 @@ sap.ui.define([
                         urlParameters: {
                             "$filter": "Sbu eq '" + vSBU + "'"
                         },
-                        success: function (oDataCheck, oResponse) {
-                            // console.log(oDataCheck);
-                            
+                        success: async function (oDataCheck, oResponse) {
                             oSelectedIndices.forEach(item => {
                                 oTmpSelectedIndices.push(oTable.getBinding("rows").aIndices[item])
                             })
@@ -655,6 +641,11 @@ sap.ui.define([
                                             PURCHGRP: aData.at(item).PURCHGRP,
                                             REMARKS: ''
                                         })
+
+                                        me._oLock.push({
+                                            Prno: aData.at(item).PRNUMBER,
+                                            Prln: aData.at(item).PRITEMNO
+                                        })
                                     }
                                     else vMatTypExist = true;
                                 }
@@ -681,22 +672,29 @@ sap.ui.define([
                                         PURCHGRP: aData.at(item).PURCHGRP,
                                         REMARKS: ''
                                     })
+
+                                    me._oLock.push({
+                                        Prno: aData.at(item).PRNUMBER,
+                                        Prln: aData.at(item).PRITEMNO
+                                    })
                                 }
                             })
                             
                             if (oParamData.length > 0) {
                                 me.showLoadingDialog('Processing...');
-                                
+
+                                // console.log("before lock");
+                                var bProceed = await me.lock(me);
+                                if (!bProceed) return;
+                                // console.log("after lock");
+
                                 oParamData = oParamData.filter((value, index, self) => self.findIndex(item => item.Vendor === value.Vendor && item.Material === value.Material && item.PurchOrg === value.PurchOrg && item.PurGroup === value.PurGroup) === index) ;
-        
                                 oParam['N_GetInfoRecMatParam'] = oParamData;
                                 oParam['N_GetInfoRecReturn'] = [];
-                                // console.log(oParam)
-            
+                                console.log(oParamData)
                                 oModel.create("/GetInfoRecordSet", oParam, {
                                     method: "POST",
                                     success: function(oResult, oResponse) {
-                                        // console.log(oResult.N_GetInfoRecReturn.results)
                                         var oManualAssignVendorData = [];
                                         oParamData = [];
                                         oParam = {};
@@ -765,26 +763,22 @@ sap.ui.define([
                                                     .forEach(item => item.REMARKS = 'No matching info record retrieve.');
                                             }
                                         })
-                                        // console.log(me._oAssignVendorData)
+
                                         // Call change PR function module
                                         if (oParamData.length > 0) {
                                             oParam['N_ChangePRParam'] = oParamData;
                                             oParam['N_ChangePRReturn'] = [];
-                                            // console.log(oParam)
+
                                             oModel.create("/ChangePRSet", oParam, {
                                                 method: "POST",
-                                                success: function(oResultCPR, oResponse) {
-                                                    // console.log(oResultCPR);
-            
+                                                success: function(oResultCPR, oResponse) {           
                                                     if (oResultCPR.N_ChangePRReturn.results.length > 0) {
                                                         me._oAssignVendorData.forEach(item => {
                                                             // var oRetMsg = oResultCPR.N_ChangePRReturn.results.filter(fItem => fItem.PreqNo === item.PRNUMBER && fItem.PreqItem === item.PRITEMNO);
                                                             var oRetMsg = oResultCPR.N_ChangePRReturn.results.filter(fItem => fItem.PreqNo === item.PRNUMBER);
-                                                            console.log(oParamData)
+                                                            
                                                             if (oRetMsg.length > 0) {
                                                                 if (oRetMsg[0].Type === 'S') {
-                                                                    console.log(item.PRNUMBER, item.PRITEMNO);
-                                                                    var pVendor = "", pPurchOrg = "";
                                                                     oParamData.filter(fItem => fItem.PreqNo === item.PRNUMBER && fItem.PreqItem === item.PRITEMNO)
                                                                         .forEach(row => {
                                                                             if (item.VENDOR !== '' && item.VENDOR !== row.DesVendor) {
@@ -800,8 +794,8 @@ sap.ui.define([
                                                                                 item.REMARKS = oRetMsg[0].Message;
                                                                             }
                                                                         })
-                                                                    // var pVendor = oParamData.filter(fItem => fItem.PreqNo === item.PRNUMBER && fItem.PreqItem === item.PRITEMNO)[0].DesVendor;
-                                                                    // var pPurchOrg = oParamData.filter(fItem => fItem.PreqNo === item.PRNUMBER && fItem.PreqItem === item.PRITEMNO)[0].PurchOrg;
+
+                                                                        me._refresh = true;
                                                                 }
                                                                 else {
                                                                     item.REMARKS = oRetMsg[0].Message;
@@ -870,11 +864,13 @@ sap.ui.define([
                                         }
                                         else {
                                             me.closeLoadingDialog();
-                                            me.showAssignVendorResult("aasign");
+                                            me.showAssignVendorResult("assign");
+                                            me.unLock();
                                         }
                                     },
                                     error: function() {
                                         me.closeLoadingDialog();
+                                        me.unLock();
                                     }
                                 }); 
                             }
@@ -988,6 +984,8 @@ sap.ui.define([
                                                         else {
                                                             item.REMARKS = oRetMsg[0].Message;
                                                         }
+
+                                                        me._refresh = true;
                                                     })
                                                 // var pVendor = oParamData.filter(fItem => fItem.PreqNo === item.PRNUMBER && fItem.PreqItem === item.PRITEMNO)[0].DesVendor;
                                                 // var pPurchOrg = oParamData.filter(fItem => fItem.PreqNo === item.PRNUMBER && fItem.PreqItem === item.PRITEMNO)[0].PurchOrg;
@@ -1007,6 +1005,7 @@ sap.ui.define([
                             },
                             error: function() {
                                 // alert("Error");
+                                me.unLock();
                             }
                         });                        
                     }
@@ -1020,10 +1019,21 @@ sap.ui.define([
 
             onAssignVendorManualCancel: function(oEvent) {
                 this._AssignVendorDialog.close();
+
+                var oSource = oEvent.getSource();
+                var oTable = oSource.oParent.getContent()[0];
+                console.log(oTable.getModel().getData().items);
+                
+                this._oAssignVendorData.forEach(item => {
+                    oTable.getModel().getData().items.filter(fItem => fItem.PRNUMBER === item.PRNUMBER && fItem.PRITEMNO === item.PRITEMNO).forEach(rItem => item.REMARKS = "Assign vendor cancelled.");
+                })
+
+                this.showAssignVendorResult("assign");
             },
 
             onAssignVendorClose: function(oEvent) {
-                this.refreshTableData();
+                if (this._refresh) this.refreshTableData();
+
                 this._AssignVendorResultDialog.close();
                 this._AssignVendorDialog.close();
 
@@ -1034,6 +1044,8 @@ sap.ui.define([
             showAssignVendorResult(arg) {
                 // console.log(this._oAssignVendorData)
                 // display pop-up for user selection
+                this.unLock();
+
                 if (!this._AssignVendorResultDialog) {
                     this._AssignVendorResultDialog = sap.ui.xmlfragment("zuiaprocess.view.fragments.dialog.AssignVendorResultDialog", this);
 
@@ -1057,8 +1069,10 @@ sap.ui.define([
                 this._AssignVendorResultDialog.open();
             },
 
-            onUnassign: function() {
+            onUnassign: async function() {
                 this._oAssignVendorData = [];
+                this._oLock = [];
+                this._refresh = false;
 
                 var me = this;
                 var oTable = this.byId("mainTab");
@@ -1113,11 +1127,21 @@ sap.ui.define([
                                 PURCHGRP: aData.at(selItemIdx).PURCHGRP,
                                 REMARKS: ''
                             })
+
+                            this._oLock.push({
+                                Prno: aData.at(selItemIdx).PRNUMBER,
+                                Prln: aData.at(selItemIdx).PRITEMNO
+                            })
                         }
                     })
 
                     if (oParamData.length > 0) {
                         this.showLoadingDialog('Processing...');
+                        
+                        console.log("before lock");
+                        var bProceed = await this.lock(this);
+                        if (!bProceed) return;
+                        console.log("after lock");
 
                         oParam['N_ChangePRParam'] = oParamData;
                         oParam['N_ChangePRReturn'] = [];
@@ -1138,6 +1162,8 @@ sap.ui.define([
                                         else {
                                             item.REMARKS = 'No return message on PR change.';
                                         }
+
+                                        me._refresh = true;
                                     })
                                 }
     
@@ -1258,7 +1284,7 @@ sap.ui.define([
                 });
             },
 
-            onCreatePO: function(oEvent) {
+            onCreatePO: async function(oEvent) {
                 var me = this;
                 var oTable = this.byId("mainTab");
                 var oSelectedIndices = oTable.getSelectedIndices();
@@ -1267,14 +1293,12 @@ sap.ui.define([
                 var oParamData = [];
                 var oParam = {};
                 var oModel = this.getOwnerComponent().getModel("ZGW_3DERP_RFC_SRV");
-                var oModelLock = this.getOwnerComponent().getModel("ZGW_3DERP_LOCK_SRV");
                 var vSBU = this.getView().getModel("ui").getData().sbu;
-                var vMatTypExist = false;
                 var sVendor = "", sPurchOrg = "", sPurchGrp = "", sPurchPlant = "";
                 var bProceed = true;
-                var oParamLock = {};
 
                 this._oCreateData = [];
+                this._oLock = [];
 
                 if (oSelectedIndices.length > 0) {
                     oSelectedIndices.forEach(item => {
@@ -1293,12 +1317,12 @@ sap.ui.define([
                             bProceed = false;
                         }
                         else {
-                            me._oLock.push({
+                            this._oLock.push({
                                 Prno: aData.at(item).PRNUMBER,
                                 Prln: aData.at(item).PRITEMNO
                             })
 
-                            me._oCreateData.push({
+                            this._oCreateData.push({
                                 PRNUMBER: aData.at(item).PRNUMBER,
                                 PRITEMNO: aData.at(item).PRITEMNO,
                                 MATERIALNO: aData.at(item).MATERIALNO,
@@ -1334,22 +1358,13 @@ sap.ui.define([
                     })
 
                     if (bProceed) {
-                        me.showLoadingDialog('Processing...');
+                        this.showLoadingDialog('Processing...');
+                        bProceed = true;
 
-                        // oParamLock["N_IMPRTAB"] = me._oLock;
-                        // oParamLock["iv_count"] = 300;
-                        // oParamLock["N_PRLOCK_RETURN"] = []; 
-
-                        // oModelLock.create("/Lock_PRSet", oParamLock, {
-                        //     method: "POST",
-                        //     success: function(oResultLock) {
-                        //         console.log("Lock", oResultLock)
-                        //     },
-                        //     error: function (err) {
-                        //         me.closeLoadingDialog();
-                        //         sap.m.MessageBox.information(err)
-                        //     }
-                        // });
+                        console.log("before lock");
+                        var bProceed = await this.lock(this);
+                        if (!bProceed) return;
+                        console.log("after lock");
                         
                         this._oModel.read("/ZERPCheckSet", {
                             urlParameters: {
@@ -1668,11 +1683,13 @@ sap.ui.define([
                                 else if (me._oCreateData.length === 0) {
                                     me.closeLoadingDialog();
                                     sap.m.MessageBox.information(me.getView().getModel("ddtext").getData()["INFO_NO_RECORD_TO_PROC"]);
+                                    me.unLock();
                                 }
                             },
                             error: function (err) {
                                 me.closeLoadingDialog();
-                                sap.m.MessageBox.information(err)
+                                sap.m.MessageBox.information(err);
+                                me.unLock();
                             }
                         });
                     }
@@ -1689,6 +1706,8 @@ sap.ui.define([
                 var oParamData = arg;
                 var oCreatePOHdr = oParamData.filter((value, index, self) => self.findIndex(item => item.DOCTYPE === value.DOCTYPE && item.VENDOR === value.VENDOR && item.PURCHORG === value.PURCHORG && item.PURCHGRP === value.PURCHGRP && item.COMPANY === value.COMPANY && item.PURCHPLANT === value.PURCHPLANT && item.SHIPTOPLANT === value.SHIPTOPLANT && item.VENDORNAME === value.VENDORNAME) === index) ;
                 var oCreatePODtls = this._oCreateData.filter(fItem => fItem.REMARKS === '');
+                var me = this;
+                this._oLock = [];  
 
                 //Add GROUP key
                 oCreatePOHdr.forEach((item, index) => {
@@ -1702,6 +1721,11 @@ sap.ui.define([
                             while (sItem.length < 5) sItem = "0" + sItem;
 
                             rItem.ITEM = sItem;
+
+                            this._oLock.push({
+                                Prno: rItem.PRNUMBER,
+                                Prln: rItem.PRITEMNO
+                            })
                         });
                 });
                 // console.log(oCreatePODtls)
@@ -1713,11 +1737,41 @@ sap.ui.define([
                 // console.log(oCreatePOHdr)
                 var oRouter = sap.ui.core.UIComponent.getRouterFor(this);
                 oRouter.navTo("RouteCreatePO");
+
+                //unlock PRs not valid for PO creation
+                if (this._oCreateData.filter(fItem => fItem.REMARKS !== '').length > 0) {
+                    var oModelLock = this.getOwnerComponent().getModel("ZGW_3DERP_LOCK_SRV");
+                    var oParamUnLock = {};
+                    var oParamUnLockData = [];  
+
+                    this._oCreateData.filter(fItem => fItem.REMARKS !== '').forEach(item => {
+                        oParamUnLockData.push({
+                            Prno: item.PRNUMBER,
+                            Prln: item.PRITEMNO
+                        })
+                    })
+
+                    oParamUnLock["N_IMPRTAB"] = oParamUnLockData;
+                    oParamUnLock["N_PRUNLOCK_RETURN"] = []; 
+    
+                    oModelLock.create("/Unlock_PRSet", oParamUnLock, {
+                        method: "POST",
+                        success: function(oResultLock) {
+                            // console.log("Unlock", oResultLock)
+                        },
+                        error: function (err) {
+                            me.closeLoadingDialog();
+                            sap.m.MessageBox.information(err)
+                        }
+                    })
+                }
             },
 
             showCreatePOResult() {
                 // console.log(this._oCreateData)
                 // display pop-up for user selection
+                this.unLock();
+
                 if (!this._CreatePOResultDialog) {
                     this._CreatePOResultDialog = sap.ui.xmlfragment("zuiaprocess.view.fragments.dialog.CreatePOResultDialog", this);
 
@@ -1837,6 +1891,64 @@ sap.ui.define([
                         else row.removeStyleClass("activeRow");
                     })                    
                 }, 1);
+            },
+
+
+            lock: async (me) => {
+                var oModelLock = me.getOwnerComponent().getModel("ZGW_3DERP_LOCK_SRV");
+                var oParamLock = {};
+                var sError = "";
+
+                var promise = new Promise((resolve, reject) => {
+                    oParamLock["N_IMPRTAB"] = me._oLock;
+                    oParamLock["iv_count"] = 300;
+                    oParamLock["N_LOCK_MESSAGES"] = []; 
+
+                    oModelLock.create("/Lock_PRSet", oParamLock, {
+                        method: "POST",
+                        success: function(oResultLock) {
+                            console.log("Lock", oResultLock);
+                            oResultLock.N_LOCK_MESSAGES.results.forEach(item => {
+                                if (item.Type === "E") {
+                                    sError += item.Message + ". ";
+                                }
+                            })
+                            
+                            if (sError.length > 0) {
+                                resolve(false);
+                                sap.m.MessageBox.information(sError);
+                                me.closeLoadingDialog();
+                            }
+                            else resolve(true);
+                        },
+                        error: function (err) {
+                            me.closeLoadingDialog();
+                            resolve(false);
+                        }
+                    });
+                })
+
+                return await promise;
+            },
+
+            unLock() {
+                var oModelLock = this.getOwnerComponent().getModel("ZGW_3DERP_LOCK_SRV");
+                var oParamUnLock = {};
+                var me = this;
+
+                oParamUnLock["N_IMPRTAB"] = this._oLock;
+                
+                oModelLock.create("/Unlock_PRSet", oParamUnLock, {
+                    method: "POST",
+                    success: function(oResultLock) {
+                        // console.log("Unlock", oResultLock)
+                    },
+                    error: function (err) {
+                        me.closeLoadingDialog();
+                    }
+                })
+
+                this._oLock = [];
             },
 
         });
