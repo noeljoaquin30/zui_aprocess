@@ -37,8 +37,10 @@ function (Controller, JSONModel, MessageBox, History, MessageToast) {
             this.getColumnProp();
             this._poCreated = false;
             
-            sap.ui.getCore().byId("backBtn").mEventRegistry.press[0].fFunction = function(oEvent) {
-                me.onNavBack();
+            if (sap.ui.getCore().byId("backBtn") !== undefined) {
+                sap.ui.getCore().byId("backBtn").mEventRegistry.press[0].fFunction = function(oEvent) {
+                    me.onNavBack();
+                }
             }
 
             // console.log(this.getOwnerComponent().getModel("UI"))
