@@ -213,6 +213,7 @@ sap.ui.define([
                 this.byId("mainTab").addEventDelegate(oTableEventDelegate);
                 this._tableRendered = "";
                 this._refresh = false;
+                this._colFilters = [];
             },
 
             onExit: function() {
@@ -523,7 +524,6 @@ sap.ui.define([
             },
 
             getTableData() {
-                // return;
                 var me = this;
                 var oModel = this.getOwnerComponent().getModel();
                 var aFilters = this.getView().byId("smartFilterBar").getFilters();
@@ -531,7 +531,6 @@ sap.ui.define([
 
                 if (aFilters.length > 0) {
                     aFilters[0].aFilters.forEach(item => {
-                        // console.log(item)
                         if (item.sPath === 'VENDOR') {
                             if (!isNaN(item.oValue1)) {
                                 while (item.oValue1.length < 10) item.oValue1 = "0" + item.oValue1;
@@ -547,9 +546,6 @@ sap.ui.define([
                     filters: aFilters,
                     success: function (oData, oResponse) {
                         var vUnassigned = 0, vPartial = 0;
-                        // console.log(oData)
-                        //for testing
-                        // oData.results.sort((a,b) => (a.VENDOR > b.VENDOR ? -1 : 1))
 
                         oData.results.forEach((item, index) => {
                             if (item.VENDOR === '') vUnassigned++;
@@ -1001,6 +997,7 @@ sap.ui.define([
                                 }
 
                                 me.showAssignVendorResult("assign");
+                                me._AssignVendorDialog.close();
                                 // MessageBox.information(res.RetMsgSet.results[0].Message);
                             },
                             error: function() {
@@ -1039,7 +1036,7 @@ sap.ui.define([
                 if (this._AssignVendorDialog !== undefined) {
                     var oTable = sap.ui.getCore().byId("assignVendorTab");
                     oTable.clearSelection();
-                       
+
                     this._AssignVendorDialog.close();
                 }
             },
@@ -1207,6 +1204,10 @@ sap.ui.define([
                     })
                 }
 
+                if (this.getView().byId("mainTab").getBinding("rows")) {
+                    this._colFilters = this.getView().byId("mainTab").getBinding("rows").aFilters;
+                }
+
                 //get styles data for the table
                 var oJSONDataModel = new JSONModel(); 
 
@@ -1233,7 +1234,7 @@ sap.ui.define([
                         me.getView().setModel(oJSONDataModel, "mainData");
                         me.closeLoadingDialog();
                         me.setTableData();
-                        // me.setChangeStatus(false);
+                        me.applyColFilter();
                     },
                     error: function (err) { 
                         // console.log(err)
@@ -1302,7 +1303,7 @@ sap.ui.define([
 
                 this._oCreateData = [];
                 this._oLock = [];
-
+                
                 if (oSelectedIndices.length > 0) {
                     oSelectedIndices.forEach(item => {
                         oTmpSelectedIndices.push(oTable.getBinding("rows").aIndices[item])
@@ -1952,6 +1953,21 @@ sap.ui.define([
                 })
 
                 this._oLock = [];
+            },
+
+            applyColFilter() {
+                var pFilters = this._colFilters;
+
+                if (pFilters.length > 0) {
+                    var oTable = this.byId("mainTab");
+                    var oColumns = oTable.getColumns();
+                    
+    
+                    pFilters.forEach(item => {
+                        oColumns.filter(fItem => fItem.getFilterProperty() === item.sPath)
+                            .forEach(col => col.filter(item.oValue1))
+                    }) 
+                }
             },
 
         });
