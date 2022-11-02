@@ -26,9 +26,28 @@ sap.ui.define([
                 oView.addEventDelegate({
                     onAfterShow: function(oEvent){
                         sap.ui.getCore().byId("backBtn").mEventRegistry.press[0].fFunction = that._fBackButton; 
-
+                        console.log("back");
                         if (that.getOwnerComponent().getModel("UI_MODEL").getData().flag) {
                             that.refresh();
+
+                            var oModelLock = this.getOwnerComponent().getModel("ZGW_3DERP_LOCK_SRV");
+                            var oParamLock = {};
+
+                            oParamLock["N_IMPRTAB"] = me._oLock;
+                            oParamLock["N_PRUNLOCK_RETURN"] = []; 
+    
+                            oModelLock.create("/Unlock_PRSet", oParamLock, {
+                                method: "POST",
+                                success: function(oResultLock) {
+                                    console.log("Unlock", oResultLock)
+                                },
+                                error: function (err) {
+                                    me.closeLoadingDialog();
+                                    sap.m.MessageBox.information(err)
+                                }
+                            })
+
+                            me._oLock = [];
                         }
                     }
                 }, oView);
@@ -55,6 +74,7 @@ sap.ui.define([
                 this.setSmartFilterModel();
                 this._oAssignVendorData = [];
                 this._oCreateData = [];
+                this._oLock = [];
 
                 var oModel = this.getOwnerComponent().getModel("ZVB_3DERP_ANP_FILTERS_CDS");
                 oModel.read("/ZVB_3DERP_SBU_SH", {
@@ -674,20 +694,20 @@ sap.ui.define([
                                 oModel.create("/GetInfoRecordSet", oParam, {
                                     method: "POST",
                                     success: function(oResult, oResponse) {
-                                        // console.log(oResult.N_GetInfoRecReturn)
+                                        // console.log(oResult.N_GetInfoRecReturn.results)
                                         var oManualAssignVendorData = [];
                                         oParamData = [];
                                         oParam = {};
             
                                         oSelectedIndices.forEach(selItemIdx => {
                                             var returnData = jQuery.extend(true, [], oResult.N_GetInfoRecReturn.results);
-                                            console.log(oResult.N_GetInfoRecReturn.results)
+                                            // console.log(oResult.N_GetInfoRecReturn.results)
                                             if (aData.at(selItemIdx).VENDOR !== '') returnData = returnData.filter(fItem => fItem.Vendor === aData.at(selItemIdx).VENDOR);
                                             if (aData.at(selItemIdx).MATERIALNO !== '') returnData = returnData.filter(fItem => fItem.Material === aData.at(selItemIdx).MATERIALNO);
                                             // if (aData.at(selItemIdx).PURCHPLANT !== '') returnData = returnData.filter(fItem => fItem.Plant === aData.at(selItemIdx).PURCHPLANT);
                                             if (aData.at(selItemIdx).PURCHGRP !== '') returnData = returnData.filter(fItem => fItem.PurGroup === aData.at(selItemIdx).PURCHGRP);
                                             if (aData.at(selItemIdx).PURCHORG !== '') returnData = returnData.filter(fItem => fItem.PurchOrg === aData.at(selItemIdx).PURCHORG);
-                                            console.log(returnData)
+                                            // console.log(returnData)
                                             if (returnData.length > 0) {
                                                 if (returnData[0].RetType === 'E') {
                                                     me._oAssignVendorData.filter(fItem => fItem.PRNUMBER === aData.at(selItemIdx).PRNUMBER && fItem.PRITEMNO === aData.at(selItemIdx).PRITEMNO)
@@ -1141,7 +1161,7 @@ sap.ui.define([
                 this.showLoadingDialog('Loading...');
                 this.byId("searchFieldMain").setProperty("value", "");
 
-                var me = this;
+                var me = this; 
                 var oModel = this.getOwnerComponent().getModel();
                 var aFilters = this.getView().byId("smartFilterBar").getFilters();
 
@@ -1245,10 +1265,12 @@ sap.ui.define([
                 var oParamData = [];
                 var oParam = {};
                 var oModel = this.getOwnerComponent().getModel("ZGW_3DERP_RFC_SRV");
+                var oModelLock = this.getOwnerComponent().getModel("ZGW_3DERP_LOCK_SRV");
                 var vSBU = this.getView().getModel("ui").getData().sbu;
                 var vMatTypExist = false;
                 var sVendor = "", sPurchOrg = "", sPurchGrp = "", sPurchPlant = "";
                 var bProceed = true;
+                var oParamLock = {};
 
                 this._oCreateData = [];
 
@@ -1269,6 +1291,11 @@ sap.ui.define([
                             bProceed = false;
                         }
                         else {
+                            me._oLock.push({
+                                Prno: aData.at(item).PRNUMBER,
+                                Prln: aData.at(item).PRITEMNO
+                            })
+
                             me._oCreateData.push({
                                 PRNUMBER: aData.at(item).PRNUMBER,
                                 PRITEMNO: aData.at(item).PRITEMNO,
@@ -1306,6 +1333,21 @@ sap.ui.define([
 
                     if (bProceed) {
                         me.showLoadingDialog('Processing...');
+
+                        // oParamLock["N_IMPRTAB"] = me._oLock;
+                        // oParamLock["iv_count"] = 300;
+                        // oParamLock["N_PRLOCK_RETURN"] = []; 
+
+                        // oModelLock.create("/Lock_PRSet", oParamLock, {
+                        //     method: "POST",
+                        //     success: function(oResultLock) {
+                        //         console.log("Lock", oResultLock)
+                        //     },
+                        //     error: function (err) {
+                        //         me.closeLoadingDialog();
+                        //         sap.m.MessageBox.information(err)
+                        //     }
+                        // });
                         
                         this._oModel.read("/ZERPCheckSet", {
                             urlParameters: {

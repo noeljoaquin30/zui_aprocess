@@ -5,7 +5,7 @@
         xmlns:uit="sap.ui.table"
         id="fragment-genporesult" 
         fragmentName="genporesult">
-    <Dialog contentWidth="790px"
+    <Dialog contentWidth="870px"
         contentHeight="300px"
         title="Generate PO Result"
         resizable="true"
@@ -25,7 +25,7 @@
                         <Text text="{GROUP}" wrapping="false" />
                     </uit:template>
                 </uit:Column> -->
-                <uit:Column width="25rem">
+                <uit:Column width="30rem">
                     <Label text="REMARKS" />
                     <uit:template>
                         <Text text="{REMARKS}" wrapping="false" />

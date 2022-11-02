@@ -2253,9 +2253,11 @@ function (Controller, JSONModel, MessageBox, History, MessageToast) {
     
                 // var oJSONModel = new JSONModel();
                 var oDataDetail = me.getOwnerComponent().getModel("CREATEPO_MODEL").getData().detail.filter(fItem => fItem.GROUP === arg);
-                
+                console.log(arg)
+                console.log(oDataDetail)
                 me.getView().getModel("detail").setProperty("/", oDataDetail);
-                me.byId("detailTab").getModel().setProperty("/", oDataDetail);
+                // me.byId("detailTab").getModel().setProperty("/", oDataDetail);
+                me.byId("detailTab").setModel(new JSONModel(oDataDetail), "detail");
                 me.byId("detailTab").bindRows({path: "detail>/"});
     
                 var oTable = me.byId("detailTab");
