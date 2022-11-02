@@ -65,6 +65,7 @@ function (Controller, JSONModel, MessageBox, History, MessageToast) {
             // var oJSONModelSM = new JSONModel();
             var iCounter = 0, iCounter2 = 0;
             var mData = {};
+            this._poNO = "";
 
             oHeaderData.forEach((item, idx) => {
                 item.PODATE = dateFormat.format(new Date());
@@ -2237,6 +2238,245 @@ function (Controller, JSONModel, MessageBox, History, MessageToast) {
             else {
                 this.showMessage(this.getView().getModel("ddtext").getData()["INFO_CHECK_INVALID_ENTRIES"]);
             }
+        },
+
+        onValidateExtendPO: async function(oEvent){
+            this._aCreatePOResult = [];
+            
+            var me = this;
+            var oModel = this.getOwnerComponent().getModel("ZGW_3DERP_RFC_SRV");
+            var vSBU = this.getOwnerComponent().getModel("UI_MODEL").getData().sbu;
+            var bProceed = true;
+
+            var extendPOEntitySet = "/ExtendPO";
+            var extendPOModel = this.getOwnerComponent().getModel();
+            var resultPOExtend = [];
+            var validPOExists = false;
+
+            this.byId("headerForm").getFormContainers().forEach(c => {
+                c.getFormElements().forEach(e => {
+                    if (e.mAggregations.label.mProperties !== undefined) {
+                        if (e.mAggregations.label.mProperties.required) {
+                            if (e.mAggregations.fields[0].mProperties.value === "") {
+                                bProceed = false;
+                                e.mAggregations.fields[0].setValueState("Error");
+                            }
+                            else {
+                                e.mAggregations.fields[0].setValueState("None");
+                            }
+                        }
+                    }
+
+                })
+            })
+
+            this.getView().getModel("header").getData().forEach(item => {
+                if (item.PAYTERMS === "" || item.INCOTERMS == "" || item.DESTINATION == "" || item.SHIPMODE == "") {
+                    bProceed = false;
+                }
+            })
+
+            if (bProceed) {
+                this.getView().getModel("detail").getData().forEach(item => {
+                    if (item.DELVDATE === "" || item.BASEPOQTY == "" || item.GROSSPRICE == "") {
+                        bProceed = false;
+                    }
+                })
+            }
+
+            if (bProceed) {
+                me.showLoadingDialog('Processing...');
+                var iCounter = 0;
+
+                var result = new Promise((resolve, reject)=>{
+                    setTimeout(() => {
+                        this.getView().getModel("header").getData().forEach(item => {
+                            if (!isNaN(item.VENDOR)) {
+                                while (item.VENDOR.length < 10) item.VENDOR = "0" + item.VENDOR;
+                            }
+                            var PODate = sapDateFormat.format(new Date(item.PODATE)) + "T00:00:00";
+                            var filter = encodeURIComponent("(VENDOR='"+item.VENDOR+"',PURCHGRP='" + item.PURCHGRP +"',PURCHORG='"+ item.PURCHORG +"',SHIPTOPLANT='"+ item.SHIPTOPLANT +"',PURCHPLANT='"+ item.PURCHPLANT +"',PODT=datetime'"+ PODate +"')")
+                            extendPOModel.read(extendPOEntitySet+filter , {
+                                success: function (oData, oResponse) {
+                                    oData.PODT = dateFormat.format(new Date(oData.PODT));
+                                    resultPOExtend.push(oData);
+                                    validPOExists = true;
+                                    resolve(resultPOExtend);
+                                },
+                                error: function() {
+                                    resolve("Error");
+                                }
+                            });
+                        })
+                    }, 500);
+                });
+                await result;
+                me.closeLoadingDialog();
+                if(validPOExists){
+                    var oJSONModel = new JSONModel();
+                    this._poNO = resultPOExtend.at(0).PONO;
+                    var extendPOData = {
+                        Title: "Create Purchase Order: Extension Option",
+                        Text: "PO of today's date already exists",
+                        POLabel: "Purchase Order",
+                        VendorLabel: "Vendor",
+                        PurchGrpLabel: "Purchasing Group",
+                        PONO: resultPOExtend.at(0).PONO,
+                        VENDOR: resultPOExtend.at(0).VENDOR,
+                        PURCHGRP: resultPOExtend.at(0).PURCHGRP,
+                    }
+                    
+                    oJSONModel.setData(extendPOData);
+
+                    this.loadExtendPODialog = sap.ui.xmlfragment("zuiaprocess.view.fragments.dialog.ExtendPODialog", this);
+                    this.loadExtendPODialog.setModel(oJSONModel);
+                    this.getView().addDependent(this.loadExtendPODialog);
+                    this.loadExtendPODialog.open();
+                }else{
+                    //code here
+                    this.onGeneratePO();
+                }
+            }
+            else{
+                this.showMessage(this.getView().getModel("ddtext").getData()["INFO_CREATEPO_CHECK_REQD"], 5000);
+            }
+        },
+
+        onExtendPO: async function(){
+            var me = this;
+            var poNo = this._poNO;
+            var extendPopPOEntitySet = "/ExtendPOPopulateDtlsSet";
+            var extendPopPOModel = this.getOwnerComponent().getModel();
+            var resultExtendPop = [];
+            var promiseResult;
+
+            
+            var rfcModel = this.getOwnerComponent().getModel("ZGW_3DERP_RFC_SRV");
+            var oParamInitParam = {};
+            var oParamDataPO = [];
+
+            var delDt; 
+            var ebelpArray = [];
+            var ebelpLastCount = 0;
+
+            this.getView().getModel("detail").getData().forEach(item => {
+                delDt = item.DELVDATE
+            })
+
+            promiseResult = new Promise((resolve, reject)=>{
+                extendPopPOModel.read(extendPopPOEntitySet , { 
+                    urlParameters: {
+                        "$filter": "EBELN eq '"+ poNo +"'"
+                    },
+                    success: function (oData, oResponse) {
+
+                        oData.results.forEach((item, index) => {
+                            if (item.BEDAT !== null)
+                                item.BEDAT = dateFormat.format(new Date(item.BEDAT));
+                        })
+                        resultExtendPop.push(oData.results);
+                        console.log(resultExtendPop);
+                        resolve();
+                    },
+                    error: function(error) {
+                        console.log(error);
+                        resolve();
+                    }
+                });
+            });
+            await promiseResult;
+
+            oParamInitParam = {
+                IPoNumber: poNo,
+                IDoDownload: "",
+                IChangeonlyHdrplants: "",
+            }
+            //get last EBELP
+            for(var x = 0; x < resultExtendPop[0].length; x++){
+                ebelpArray.push(resultExtendPop[0][x].EBELP);
+                
+            }
+            ebelpArray.sort(function(a, b){return b - a});
+            ebelpLastCount = ebelpArray[0];
+
+            ebelpLastCount = String(parseInt(ebelpLastCount) + 10);
+
+            if(ebelpLastCount != "" || ebelpLastCount != null){
+                while(ebelpLastCount.length < 5) ebelpLastCount = "0" + ebelpLastCount.toString();
+                
+            }
+
+            for(var x = 0; x < resultExtendPop[0].length; x++){
+                oParamDataPO.push({
+                    Bedat     : sapDateFormat.format(new Date(resultExtendPop[0][x].BEDAT)) + "T00:00:00",
+                    Bsart     : resultExtendPop[0][x].BSART,
+                    Banfn     : resultExtendPop[0][x].BANFN,
+                    Bnfpo     : resultExtendPop[0][x].BNFPO,
+                    Ebeln     : resultExtendPop[0][x].EBELN,
+                    Ebelp     : ebelpLastCount,
+                    Bukrs     : resultExtendPop[0][x].BUKRS,
+                    Werks     : resultExtendPop[0][x].WERKS,
+                    Unsez     : resultExtendPop[0][x].UNSEZ,
+                    Txz01     : resultExtendPop[0][x].TXZ01,
+                    Menge     : resultExtendPop[0][x].MENGE,
+                    Meins     : resultExtendPop[0][x].MEINS,
+                    Netpr     : resultExtendPop[0][x].NETPR,
+                    Peinh     : resultExtendPop[0][x].PEINH,
+                    Bprme     : resultExtendPop[0][x].BPRME,
+                    Repos     : resultExtendPop[0][x].REPOS,
+                    Webre     : resultExtendPop[0][x].WEBRE,
+                    Eindt     : sapDateFormat.format(new Date(delDt)) + "T00:00:00", //Delivery Date
+                    Evers     : resultExtendPop[0][x].EVERS,
+                    Uebto     : resultExtendPop[0][x].UEBTO,
+                    Untto     : resultExtendPop[0][x].UNTTO,
+                    Uebtk     : resultExtendPop[0][x].UEBTK,
+                    Elikz     : resultExtendPop[0][x].ELIKZ,
+                    DeleteRec : resultExtendPop[0][x].LOEKZ
+                });
+
+                ebelpLastCount = String(parseInt(ebelpLastCount) + 10);
+
+                if(ebelpLastCount != "" || ebelpLastCount != null){
+                    while(ebelpLastCount.length < 5) ebelpLastCount = "0" + ebelpLastCount.toString();
+                }
+            }
+            
+
+            oParam = oParamInitParam;
+            oParam['N_ChangePOItemParam'] = oParamDataPO;
+            oParam['N_ChangePOReturn'] = [];
+
+            console.log(oParam);
+
+            this.showLoadingDialog('Processing...');
+            promiseResult = new Promise((resolve, reject)=>{
+                rfcModel.create("/ChangePOSet", oParam, {
+                    method: "POST",
+                    success: function(oData, oResponse){
+                        if(oData.N_ChangePOReturn.results.length > 0){
+                            message = oData.N_ChangePOReturn.results[0].Msgv1;
+                            me.closeLoadingDialog();
+                            MessageBox.information(message);
+                            me.loadExtendPODialog.close();
+                            resolve()
+                        }else{
+                            me.closeLoadingDialog();
+                            MessageBox.information(me.getView().getModel("ddtext").getData()["INFO_NO_DATA_SAVE"]);
+                            resolve()
+                        }
+                    },error: function(error){
+                        me.closeLoadingDialog();
+                        MessageBox.error(me.getView().getModel("ddtext").getData()["INFO_ERROR"]);
+                        resolve()
+                    }
+                })
+            });
+            await promiseResult;
+
+        },
+
+        onCancelExtendPODialog: function(oEvent){
+            this.loadExtendPODialog.close();
         },
 
         onNextGroup(arg) {
