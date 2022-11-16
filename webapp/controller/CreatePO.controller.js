@@ -2396,86 +2396,90 @@ function (Controller, JSONModel, MessageBox, History, MessageToast) {
                 IChangeonlyHdrplants: "",
             }
             //get last EBELP
-            for(var x = 0; x < resultExtendPop[0].length; x++){
-                ebelpArray.push(resultExtendPop[0][x].EBELP);
-                
-            }
-            ebelpArray.sort(function(a, b){return b - a});
-            ebelpLastCount = ebelpArray[0];
-
-            ebelpLastCount = String(parseInt(ebelpLastCount) + 10);
-
-            if(ebelpLastCount != "" || ebelpLastCount != null){
-                while(ebelpLastCount.length < 5) ebelpLastCount = "0" + ebelpLastCount.toString();
-                
-            }
-
-            for(var x = 0; x < resultExtendPop[0].length; x++){
-                oParamDataPO.push({
-                    Bedat     : sapDateFormat.format(new Date(resultExtendPop[0][x].BEDAT)) + "T00:00:00",
-                    Bsart     : resultExtendPop[0][x].BSART,
-                    Banfn     : resultExtendPop[0][x].BANFN,
-                    Bnfpo     : resultExtendPop[0][x].BNFPO,
-                    Ebeln     : resultExtendPop[0][x].EBELN,
-                    Ebelp     : ebelpLastCount,
-                    Bukrs     : resultExtendPop[0][x].BUKRS,
-                    Werks     : resultExtendPop[0][x].WERKS,
-                    Unsez     : resultExtendPop[0][x].UNSEZ,
-                    Txz01     : resultExtendPop[0][x].TXZ01,
-                    Menge     : resultExtendPop[0][x].MENGE,
-                    Meins     : resultExtendPop[0][x].MEINS,
-                    Netpr     : resultExtendPop[0][x].NETPR,
-                    Peinh     : resultExtendPop[0][x].PEINH,
-                    Bprme     : resultExtendPop[0][x].BPRME,
-                    Repos     : resultExtendPop[0][x].REPOS,
-                    Webre     : resultExtendPop[0][x].WEBRE,
-                    Eindt     : sapDateFormat.format(new Date(delDt)) + "T00:00:00", //Delivery Date
-                    Evers     : resultExtendPop[0][x].EVERS,
-                    Uebto     : resultExtendPop[0][x].UEBTO,
-                    Untto     : resultExtendPop[0][x].UNTTO,
-                    Uebtk     : resultExtendPop[0][x].UEBTK,
-                    Elikz     : resultExtendPop[0][x].ELIKZ,
-                    DeleteRec : resultExtendPop[0][x].LOEKZ
-                });
+            if(resultExtendPop[0] !== undefined){
+                for(var x = 0; x < resultExtendPop[0].length; x++){
+                    ebelpArray.push(resultExtendPop[0][x].EBELP);
+                    
+                }
+                ebelpArray.sort(function(a, b){return b - a});
+                ebelpLastCount = ebelpArray[0];
 
                 ebelpLastCount = String(parseInt(ebelpLastCount) + 10);
 
                 if(ebelpLastCount != "" || ebelpLastCount != null){
                     while(ebelpLastCount.length < 5) ebelpLastCount = "0" + ebelpLastCount.toString();
+                    
                 }
-            }
-            
 
-            oParam = oParamInitParam;
-            oParam['N_ChangePOItemParam'] = oParamDataPO;
-            oParam['N_ChangePOReturn'] = [];
+                for(var x = 0; x < resultExtendPop[0].length; x++){
+                    oParamDataPO.push({
+                        Bedat     : sapDateFormat.format(new Date(resultExtendPop[0][x].BEDAT)) + "T00:00:00",
+                        Bsart     : resultExtendPop[0][x].BSART,
+                        Banfn     : resultExtendPop[0][x].BANFN,
+                        Bnfpo     : resultExtendPop[0][x].BNFPO,
+                        Ebeln     : resultExtendPop[0][x].EBELN,
+                        Ebelp     : ebelpLastCount,
+                        Bukrs     : resultExtendPop[0][x].BUKRS,
+                        Werks     : resultExtendPop[0][x].WERKS,
+                        Unsez     : resultExtendPop[0][x].UNSEZ,
+                        Txz01     : resultExtendPop[0][x].TXZ01,
+                        Menge     : resultExtendPop[0][x].MENGE,
+                        Meins     : resultExtendPop[0][x].MEINS,
+                        Netpr     : resultExtendPop[0][x].NETPR,
+                        Peinh     : resultExtendPop[0][x].PEINH,
+                        Bprme     : resultExtendPop[0][x].BPRME,
+                        Repos     : resultExtendPop[0][x].REPOS,
+                        Webre     : resultExtendPop[0][x].WEBRE,
+                        Eindt     : sapDateFormat.format(new Date(delDt)) + "T00:00:00", //Delivery Date
+                        Evers     : resultExtendPop[0][x].EVERS,
+                        Uebto     : resultExtendPop[0][x].UEBTO,
+                        Untto     : resultExtendPop[0][x].UNTTO,
+                        Uebtk     : resultExtendPop[0][x].UEBTK,
+                        Elikz     : resultExtendPop[0][x].ELIKZ,
+                        DeleteRec : resultExtendPop[0][x].LOEKZ
+                    });
 
-            console.log(oParam);
+                    ebelpLastCount = String(parseInt(ebelpLastCount) + 10);
 
-            this.showLoadingDialog('Processing...');
-            promiseResult = new Promise((resolve, reject)=>{
-                rfcModel.create("/ChangePOSet", oParam, {
-                    method: "POST",
-                    success: function(oData, oResponse){
-                        if(oData.N_ChangePOReturn.results.length > 0){
-                            message = oData.N_ChangePOReturn.results[0].Msgv1;
+                    if(ebelpLastCount != "" || ebelpLastCount != null){
+                        while(ebelpLastCount.length < 5) ebelpLastCount = "0" + ebelpLastCount.toString();
+                    }
+                }
+                
+
+                oParam = oParamInitParam;
+                oParam['N_ChangePOItemParam'] = oParamDataPO;
+                oParam['N_ChangePOReturn'] = [];
+
+                console.log(oParam);
+
+                this.showLoadingDialog('Processing...');
+                promiseResult = new Promise((resolve, reject)=>{
+                    rfcModel.create("/ChangePOSet", oParam, {
+                        method: "POST",
+                        success: function(oData, oResponse){
+                            if(oData.N_ChangePOReturn.results.length > 0){
+                                message = oData.N_ChangePOReturn.results[0].Msgv1;
+                                me.closeLoadingDialog();
+                                MessageBox.information(message);
+                                me.loadExtendPODialog.close();
+                                resolve()
+                            }else{
+                                me.closeLoadingDialog();
+                                MessageBox.information(me.getView().getModel("ddtext").getData()["INFO_NO_DATA_SAVE"]);
+                                resolve()
+                            }
+                        },error: function(error){
                             me.closeLoadingDialog();
-                            MessageBox.information(message);
-                            me.loadExtendPODialog.close();
-                            resolve()
-                        }else{
-                            me.closeLoadingDialog();
-                            MessageBox.information(me.getView().getModel("ddtext").getData()["INFO_NO_DATA_SAVE"]);
+                            MessageBox.error(me.getView().getModel("ddtext").getData()["INFO_ERROR"]);
                             resolve()
                         }
-                    },error: function(error){
-                        me.closeLoadingDialog();
-                        MessageBox.error(me.getView().getModel("ddtext").getData()["INFO_ERROR"]);
-                        resolve()
-                    }
-                })
-            });
-            await promiseResult;
+                    })
+                });
+                await promiseResult;
+            }else{
+                MessageBox.information(me.getView().getModel("ddtext").getData()["INFO_NO_DATA_SAVE"]);
+            }
 
         },
 
