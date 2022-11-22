@@ -2099,7 +2099,8 @@ function (Controller, JSONModel, MessageBox, History, MessageToast) {
                                                                 IrInd: bIRInd,
                                                                 GrBasediv: bGRBasedIV, //poitem.GRBASEDIV,
                                                                 PreqNo: poitem.PRNUMBER,
-                                                                PreqItem: poitem.PRITEMNO
+                                                                PreqItem: poitem.PRITEMNO,
+                                                                Shipping: item.SHIPMODE
                                                             })
             
                                                             oParamCPOItemSchedData.push({
