@@ -58,7 +58,49 @@
                         <smartfilterbar:ControlConfiguration key="MATERIALGRP" label="{ddtext>/MATERIALGRP}" groupId="_BASIC" preventInitialDataFetchInValueHelpDialog="false" />
                     </smartfilterbar:controlConfiguration>
                     <smartfilterbar:controlConfiguration>
-                        <smartfilterbar:ControlConfiguration key="MATERIALTYPE" label="{ddtext>/MATERIALTYPE}" groupId="_BASIC" preventInitialDataFetchInValueHelpDialog="false" />
+                        <smartfilterbar:ControlConfiguration key="MATERIALTYPE" label="{ddtext>/MATERIALTYPE}" groupId="_BASIC" preventInitialDataFetchInValueHelpDialog="false" >
+                            <smartfilterbar:customControl>
+                                <!-- <MultiInput
+                                    id="multiInput2"
+                                    width="100%"
+                                    placeholder=""
+                                    showSuggestion="true"
+                                    showValueHelp="false"
+                                    suggestionRows="{/ZVB_3DERP_MATTYPE_SH}">
+                                    <suggestionColumns>
+                                        <Column
+                                            hAlign="Begin"
+                                            popinDisplay="Inline"
+                                            demandPopin="true">
+                                            <Label text="Name"/>
+                                        </Column>
+                                        <Column
+                                            hAlign="Center"
+                                            popinDisplay="Inline"
+                                            demandPopin="true"
+                                            minScreenWidth="Tablet">
+                                            <Label text="Product ID"/>
+                                        </Column>
+                                    </suggestionColumns>
+                                    <suggestionRows>
+                                        <ColumnListItem>
+                                            <cells>
+                                                <Label text="{MaterialType}"/>
+                                                <Label text="{Description}"/>
+                                            </cells>
+                                        </ColumnListItem>
+                                    </suggestionRows>
+                                </MultiInput> -->
+                                <MultiInput id="multiInput4"
+                                            width="100%"
+                                            showValueHelp="false"
+                                            suggestionItems="{
+                                    path: 'ZVB_3DERP_MATTYPE_SH_FILTER>/'
+                                }">
+                                    <core:Item key="{ZVB_3DERP_MATTYPE_SH_FILTER>MaterialType}" text="{ZVB_3DERP_MATTYPE_SH_FILTER>MaterialType} - {ZVB_3DERP_MATTYPE_SH_FILTER>Description}" />
+                                </MultiInput>
+                            </smartfilterbar:customControl>
+                        </smartfilterbar:ControlConfiguration>
                     </smartfilterbar:controlConfiguration>
 
                     <smartfilterbar:controlConfiguration>

@@ -2,12 +2,13 @@ sap.ui.define([
     "sap/ui/core/mvc/Controller",
     "sap/ui/model/json/JSONModel",
     "sap/m/MessageBox",
-    "../js/Common"
+    "../js/Common",
+    "sap/m/Token"
 ],
     /**
      * @param {typeof sap.ui.core.mvc.Controller} Controller
      */
-    function (Controller, JSONModel, MessageBox, Common) {
+    function (Controller, JSONModel, MessageBox, Common, Token) {
         "use strict";
 
         var that;
@@ -428,6 +429,17 @@ sap.ui.define([
                 // console.log(oModel)
                 var oSmartFilter = this.getView().byId("smartFilterBar");
                 oSmartFilter.setModel(oModel);
+
+                // var oMultiInput2 = this.getView().byId("multiInput2");
+                // oMultiInput2.addValidator(function(args){
+                //     if (args.suggestionObject){
+                //         var key = args.suggestionObject.getCells()[0].getText();
+                //         var text = key + "(" + args.suggestionObject.getCells()[1].getText() + ")";
+    
+                //         return new Token({key: key, text: text});
+                //     }
+                //     return null;
+                // });
                 // console.log(oSmartFilter)
                 //modify smartfilter control width
 
@@ -500,7 +512,34 @@ sap.ui.define([
                 this.showLoadingDialog('Loading...');
 
                 var vSBU = this.getView().byId("cboxSBU").getSelectedKey();
-                
+                var me = this;
+                var oModel = this.getOwnerComponent().getModel("ZVB_3DERP_ANP_FILTERS_CDS");
+                var oJSONDataModel = new JSONModel(); 
+                var matTypListItem = [];
+                console.log(this.getView())
+                oModel.read("/ZVB_3DERP_MATTYPE_SH", {
+                    success: function (oData, oResponse) {
+                        console.log(oData)
+                        if (oData.results.length >0) {
+                            oData.results.forEach(item => {
+                                if(item.SBU === vSBU){
+                                    var key = "ZVB_3DERP_MATTYPE_SH_FILTER('" + item.MaterialType + "')";
+                                    
+                                    matTypListItem.push(item)
+                                }
+                            });
+                            oJSONDataModel.setData(matTypListItem);
+                            me.getView().setModel(oJSONDataModel, "ZVB_3DERP_MATTYPE_SH_FILTER");
+                            
+                            console.log(me.getView());
+                        }
+                        else {
+                        }
+                    },
+                    error: function (err) { }
+                });
+                console.log(oModel)
+
                 if (this.getView().getModel("ui").getData().sbu === '' || this._sbuChange) {
                     this.getColumns('MANUAL_INIT');
                 }
@@ -518,7 +557,7 @@ sap.ui.define([
                             this.getTableData();
                         }
                     }
-                }                
+                } 
             },
 
             refresh() {
@@ -528,9 +567,47 @@ sap.ui.define([
             getTableData() {
                 var me = this;
                 var oModel = this.getOwnerComponent().getModel();
-                var aFilters = this.getView().byId("smartFilterBar").getFilters();
-                var oJSONDataModel = new JSONModel();                                
+                var oJSONDataModel = new JSONModel();     
+                
+                var aFilters = this.getView().byId("smartFilterBar").getFilters();   
+                var aFiltersObj = [];
+                
+                aFiltersObj.push(aFilters)
+                aFiltersObj = aFiltersObj[0]
+                if (this.getView().byId("smartFilterBar")) {
 
+                    var oCtrl = this.getView().byId("smartFilterBar").determineControlByName("MATERIALTYPE");
+                    if (oCtrl) {
+                        oCtrl.getTokens().map(function(oToken) {
+                            if(aFilters.length === 0){
+                                aFiltersObj.push({
+                                    aFilters: [{
+                                        sPath: "MATERIALTYPE",
+                                        sOperator: "EQ",
+                                        oValue1: oToken.getKey(),
+                                        _bMultiFilter: false
+                                    }]
+                                })
+                            }else{
+                                aFiltersObj[0].aFilters[parseInt(Object.keys(aFiltersObj[0].aFilters).pop())+1] = ({
+                                    sPath: "MATERIALTYPE",
+                                    sOperator: "EQ",
+                                    oValue1: oToken.getKey(),
+                                    _bMultiFilter: false
+                                })
+                            }
+                            // me.getView().byId("smartFilterBar").setFilterData({
+                            //     _CUSTOM: {
+                            //         item: {key: oToken.getKey(), text: oToken.getKey()}, 
+                            //     }
+                            
+                            // });
+                        })
+                    }
+                }
+                
+                console.log(aFiltersObj);
+                console.log(aFilters);
                 if (aFilters.length > 0) {
                     aFilters[0].aFilters.forEach(item => {
                         if (item.sPath === 'VENDOR') {
@@ -543,7 +620,7 @@ sap.ui.define([
 
                 // console.log(this.byId('mainTab').getColumns());
                 // this.addDateFilters(aFilters); //date not automatically added to filters
-                
+                console.log(aFilters);
                 oModel.read("/MainSet", { 
                     filters: aFilters,
                     success: function (oData, oResponse) {
