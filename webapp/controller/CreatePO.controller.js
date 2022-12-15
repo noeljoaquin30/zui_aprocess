@@ -2786,19 +2786,34 @@ function (Controller, JSONModel, MessageBox, History, MessageToast, NavigationHa
                                 }
                             })
 
-                        me._oParamCPOTolData.push({
-                            EBELN: "",
-                            EBELP: oDetailData.ITEM,
-                            WEMNG: oData.WEMNG,
-                            FOCQTY: oData.FOCQTY,
-                            TOLALLOWEDIT: oData.TOLALLOWEDIT,
-                            QTYMIN: oData.QTYMIN,
-                            QTYMAX: oData.QTYMAX,
-                            UNTTOMIN: oData.UNTTOMIN,
-                            UNTTOMAX: oData.UNTTOMAX,
-                            UEBTOMIN: oData.UEBTOMIN,
-                            UEBTOMAX: oData.UEBTOMAX,
-                        })
+                        if (me._oParamCPOTolData.filter(fItem => fItem.EBELP === oDetailData.ITEM).length > 0) {
+                            me._oParamCPOTolData.forEach((item, index) => {
+                                if (item.EBELP === oDetailData.ITEM) {
+                                    me._oParamCPOTolData[index].TOLALLOWEDIT = oData.EV_ALLOWEDIT;
+                                    me._oParamCPOTolData[index].QTYMIN = oData.EV_QTYMIN;
+                                    me._oParamCPOTolData[index].QTYMAX = oData.EV_QTYMAX;
+                                    me._oParamCPOTolData[index].UNTTOMIN = oData.EV_UNTTOMIN;
+                                    me._oParamCPOTolData[index].UNTTOMAX = oData.EV_UNTTOMAX;
+                                    me._oParamCPOTolData[index].UEBTOMIN = oData.EV_UEBTOMIN;
+                                    me._oParamCPOTolData[index].UEBTOMAX = oData.EV_UEBTOMAX;
+                                }
+                            })                            
+                        }
+                        else {
+                            me._oParamCPOTolData.push({
+                                EBELN: "",
+                                EBELP: oDetailData.ITEM,
+                                WEMNG: "0",
+                                FOCQTY: "0",
+                                TOLALLOWEDIT: oData.EV_ALLOWEDIT,
+                                QTYMIN: oData.EV_QTYMIN,
+                                QTYMAX: oData.EV_QTYMAX,
+                                UNTTOMIN: oData.EV_UNTTOMIN,
+                                UNTTOMAX: oData.EV_UNTTOMAX,
+                                UEBTOMIN: oData.EV_UEBTOMIN,
+                                UEBTOMAX: oData.EV_UEBTOMAX,
+                            })
+                        }
                     }
                     else {
                         if (me._oParamCPOTolData.filter(fItem => fItem.EBELP === oDetailData.ITEM).length > 0) {
@@ -2824,6 +2839,7 @@ function (Controller, JSONModel, MessageBox, History, MessageToast, NavigationHa
 
                     me.byId("detailTab").setModel(new JSONModel(me.getView().getModel("detail").getData()), "detail");
                     me.byId("detailTab").bindRows({path: "detail>/"});
+                    console.log(me._oParamCPOTolData);
                 },
                 error: function (err) { }
             })
