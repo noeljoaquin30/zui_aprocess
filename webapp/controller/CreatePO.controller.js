@@ -2031,6 +2031,8 @@ function (Controller, JSONModel, MessageBox, History, MessageToast, NavigationHa
                                                 }
                                                 else {
                                                     var sPONo = oResult.EReturnno;
+                                                    var wInforec = false;
+
                                                     var oParamCPO = {};
                                                     var oParamCPOHdrData = [{
                                                         DocDate: sapDateFormat.format(new Date(item.PODATE)) + "T00:00:00",
@@ -2139,6 +2141,8 @@ function (Controller, JSONModel, MessageBox, History, MessageToast, NavigationHa
 
                                                     me.getOwnerComponent().getModel("CREATEPO_MODEL").getData().detail.filter(fItem => fItem.GROUP === item.GROUP)
                                                         .forEach(poitem => {
+                                                            if (poitem.INFORECCHECK) wInforec = true;
+
                                                             oParamCPOItemData.push({
                                                                 PoNumber: oResult.EReturnno,
                                                                 PoItem: poitem.ITEM,
@@ -2159,7 +2163,10 @@ function (Controller, JSONModel, MessageBox, History, MessageToast, NavigationHa
                                                                 GrBasediv: bGRBasedIV, //poitem.GRBASEDIV,
                                                                 PreqNo: poitem.PRNUMBER,
                                                                 PreqItem: poitem.PRITEMNO,
-                                                                Shipping: item.SHIPMODE 
+                                                                Shipping: item.SHIPMODE,
+                                                                Over_Dlv_Tol: poitem.OVERDELTOL,
+                                                                Under_Dlv_Tol: poitem.UNDERDELTOL,
+                                                                Unlimited_Dlv: poitem.UNLI === true ? "X" : ""
                                                             })
             
                                                             oParamCPOItemSchedData.push({
@@ -2206,6 +2213,7 @@ function (Controller, JSONModel, MessageBox, History, MessageToast, NavigationHa
                                                     }]
     
                                                     oParamCPO["PONumber"] = "";
+                                                    oParamCPO["No_Price_From_PO"] = wInforec ? "" : "X";
                                                     oParamCPO['N_CreatePOHdrParam'] = oParamCPOHdrData;
                                                     oParamCPO['N_CreatePOHdrTextParam'] = oParamCPOHdrTextData;
                                                     oParamCPO['N_CreatePOItemParam'] = oParamCPOItemData;
