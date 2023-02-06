@@ -368,7 +368,11 @@
                                         <form:fields>
                                             <!-- <Input value="{grpheader>/0/SHIPMODE}" /> -->
                                             <Input type="Text" 
-                                                value="{grpheader>/0/SHIPMODE}"
+                                                value="{ 
+                                                    parts: [{ path: 'grpheader>/0/SHIPMODE' }, { value: 'shipmode' }, { value: 'SHIPMODE' }, { value: 'DESC' }, { value: 'ValueKey' }],
+                                                    formatter: '.formatValueHelp'
+                                                }" 
+                                                textFormatMode="ValueKey"
                                                 showValueHelp="true"
                                                 valueHelpRequest="handleValueHelp" 
                                                 showSuggestion="true" 
@@ -376,7 +380,7 @@
                                                 maxSuggestionWidth="160px"
                                                 change="onValueHelpInputChange">
                                                 <suggestionItems>
-                                                    <core:ListItem key="{shipmode>SHIPMODE}" text="{shipmode>SHIPMODE}" additionalText="{shipmode>DESC}" />
+                                                    <core:ListItem key="{shipmode>SHIPMODE}" text="{shipmode>DESC}" additionalText="{shipmode>SHIPMODE}" />
                                                 </suggestionItems>
                                                 <!-- <customData>
                                                     <core:CustomData key="SHIPMODE" value="{grpheader>/0/SHIPMODE}"/>

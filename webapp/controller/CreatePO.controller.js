@@ -766,7 +766,7 @@ function (Controller, JSONModel, MessageBox, History, MessageToast, NavigationHa
         handleValueHelp: function(oEvent) {
             var oModel = this.getOwnerComponent().getModel();
             var oSource = oEvent.getSource();
-            console.log(oSource)
+            // console.log(oSource)
             var sModel = oSource.getBindingInfo("value").parts[0].model;
             var me = this;
 
@@ -790,11 +790,33 @@ function (Controller, JSONModel, MessageBox, History, MessageToast, NavigationHa
                 var vItemDesc = vColProp[0].valueHelp.items.text;
                 var sPath = vColProp[0].valueHelp.items.path;
                 var vh = this.getView().getModel(sPath).getData();
+                var sTextFormatMode = vColProp[0].TextFormatMode === undefined || vColProp[0].TextFormatMode === "" ? "Key" : vColProp[0].TextFormatMode;
+                
                 vh.forEach(item => {
                     item.VHTitle = item[vItemValue];
-                    item.VHDesc = item[vItemDesc];
-                    item.VHSelected = (item[vItemValue] === me._inputValue);
+                    item.VHDesc = vItemValue === vItemDesc ? "" : item[vItemDesc];
+
+                    if (sTextFormatMode === "Key") {
+                        item.VHSelected = this._inputValue === item[vItemValue];
+                    }
+                    else if (sTextFormatMode === "Value") {
+                        item.VHSelected = this._inputValue === item[vItemDesc];
+                    }
+                    else if (sTextFormatMode === "KeyValue") {
+                        item.VHSelected = this._inputValue === (item[vItemValue] + " (" + item[vItemDesc] + ")");
+                    }
+                    else if (sTextFormatMode === "ValueKey") {
+                        item.VHSelected = this._inputValue === (item[vItemDesc] + " (" + item[vItemValue] + ")");
+                    }
+
+                    if (item.VHSelected) { this._inputKey = item[vItemValue]; }
                 })
+
+                // vh.forEach(item => {
+                //     item.VHTitle = item[vItemValue];
+                //     item.VHDesc = item[vItemDesc];
+                //     item.VHSelected = (item[vItemValue] === me._inputValue);
+                // })
 
                 vh.sort((a,b) => (a.VHTitle > b.VHTitle ? 1 : -1));
 
@@ -972,13 +994,12 @@ function (Controller, JSONModel, MessageBox, History, MessageToast, NavigationHa
                 // var sTable = this._valueHelpDialog.getModel().getData().table;
 
                 if (oSelectedItem) {
-                    this._inputSource.setValue(oSelectedItem.getTitle());
-
+                    // this._inputSource.setValue(oSelectedItem.getTitle());
+                    this._inputSource.setSelectedKey(oSelectedItem.getTitle());
                     // var sRowPath = this._inputSource.getBindingInfo("value").binding.oContext.sPath;
 
                     if (this._inputValue !== oSelectedItem.getTitle()) {                                
                         // this.getView().getModel("mainTab").setProperty(sRowPath + '/Edited', true);
-
                         this._bHeaderChanged = true;
                     }
                 }
@@ -998,8 +1019,9 @@ function (Controller, JSONModel, MessageBox, History, MessageToast, NavigationHa
             oSource.setValueState(isInvalid ? "Error" : "None");
 
             // var sRowPath = oSource.getBindingInfo("value").binding.oContext.sPath;
-            // var sModel = oSource.getBindingInfo("value").parts[0].model;
-
+            var sRowPath = "";
+            var sModel = oSource.getBindingInfo("value").parts[0].model;
+            
             oSource.getSuggestionItems().forEach(item => {
                 if (item.getProperty("key") === oSource.getValue().trim()) {
                     isInvalid = false;
@@ -1016,8 +1038,16 @@ function (Controller, JSONModel, MessageBox, History, MessageToast, NavigationHa
                 })
             }
 
+            if (sModel === "grpheader") {
+                this.getView().getModel(sModel).setProperty(oSource.getBindingInfo("value").parts[0].path, oSource.getSelectedKey());
+            }
+            else {
+                sRowPath = oSource.oParent.getBindingContext().sPath;
+                this.getView().getModel(sModel).setProperty(sRowPath + '/' + oSource.getBindingInfo("value").parts[0].path, oSource.getSelectedKey());
+            }
+            
             // this.getView().getModel(sModel).setProperty(sRowPath + '/Edited', true);
-            // console.log(this._validationErrors);
+            // console.log(this.getView().getModel(sModel));
             this._bHeaderChanged = true;
         },
 
@@ -2226,7 +2256,7 @@ function (Controller, JSONModel, MessageBox, History, MessageToast, NavigationHa
                                                     oParamCPO['N_CreatePOReturn'] = [];
                                                         
                                                     console.log(oParamCPO);
-                                                    
+                                                    // return;
                                                     oModel.create("/CreatePOSet", oParamCPO, {
                                                         method: "POST",
                                                         success: function(oResult, oResponse) {
@@ -2879,7 +2909,7 @@ function (Controller, JSONModel, MessageBox, History, MessageToast, NavigationHa
                     })                    
                 }
             })
-            console.log(this._oParamCPOTolData)
+            // console.log(this._oParamCPOTolData)
             this._oParamCPOTolData.forEach(tol => {
                 this._oModel.create("/PODataSet", tol, mParameters);
             })
@@ -2889,7 +2919,25 @@ function (Controller, JSONModel, MessageBox, History, MessageToast, NavigationHa
                 success: function (oData, oResponse) { },
                 error: function () { }
             }) 
-        }
+        },
+
+        formatValueHelp: function(sValue, sPath, sKey, sText, sFormat) {
+            // console.log(sValue, sPath, sKey, sText, sFormat);
+            var oValue = this.getView().getModel(sPath).getData().filter(v => v[sKey] === sValue);
+
+            if (oValue && oValue.length > 0) {
+                if (sFormat === "Value") {
+                    return oValue[0][sText];
+                }
+                else if (sFormat === "ValueKey") {
+                    return oValue[0][sText] + " (" + sValue + ")";
+                }
+                else if (sFormat === "KeyValue") {
+                    return sValue + " (" + oValue[0][sText] + ")";
+                }
+            }
+            else return sValue;
+        },
 
         // onBrowserBack: function(oEvent) {
         //     var me = this;
