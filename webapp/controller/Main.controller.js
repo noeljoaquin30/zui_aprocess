@@ -32,7 +32,7 @@ sap.ui.define([
                             if (that.getOwnerComponent().getModel("UI_MODEL").getData().flag) {
                                 that.refresh();
                             }
-    
+                            
                             if (that._oLock.length > 0) {
                                 that.unLock();
                             }
@@ -49,7 +49,8 @@ sap.ui.define([
                 }
 
                 this.getView().setModel(new JSONModel({
-                    sbu: ''
+                    sbu: '',
+                    currsbu: ''
                 }), "ui");
 
                 this._sbuChange = false;
@@ -223,6 +224,14 @@ sap.ui.define([
                 this._tableRendered = "";
                 this._refresh = false;
                 this._colFilters = [];
+
+                this._oModel.read("/UOMSet", {
+                    success: function (oData, oResponse) {
+                        that.getView().setModel(new JSONModel(oData.results), "uom");
+                        // console.log(that.getView().getModel("uom").getData())
+                    },
+                    error: function (err) { }
+                });
             },
 
             onExit: function() {
@@ -231,42 +240,53 @@ sap.ui.define([
 
             onSBUChange: function(oEvent) {
                 this._sbuChange = true;
+                var vSBU = this.getView().byId("cboxSBU").getSelectedKey();
                 // console.log(this.byId('cboxSBU').getSelectedKey());
                 // var vSBU = this.byId('cboxSBU').getSelectedKey();
                 
                 // this.showLoadingDialog('Loading...');
                 // this.getGMC();
-                // console.log(this.getView().byId("btnTabLayout"))
-                this.byId("searchFieldMain").setEnabled(false);
-                this.byId("btnAssign").setEnabled(false);                
-                this.byId("btnUnassign").setEnabled(false);
-                this.byId("btnCreatePO").setEnabled(false);
-                this.byId("btnTabLayout").setEnabled(false);
-                this.byId("btnManualAssign").setEnabled(false);
+                // console.log(this.getView().getModel("ui").getData().currsbu, vSBU)
 
-                var vSBU = this.getView().byId("cboxSBU").getSelectedKey();
-                var me = this;
-                var oModel = this.getOwnerComponent().getModel("ZVB_3DERP_ANP_FILTERS_CDS");                
-                var oJSONDataModel = new JSONModel(); 
-                var matTypListItem = [];
+                if (this.getView().getModel("ui").getData().currsbu === vSBU) {
+                    this.byId("searchFieldMain").setEnabled(true);
+                    this.byId("btnAssign").setEnabled(true);
+                    this.byId("btnUnassign").setEnabled(true);
+                    this.byId("btnCreatePO").setEnabled(true);
+                    this.byId("btnTabLayout").setEnabled(true);
+                    this.byId("btnManualAssign").setEnabled(true);
+                }
+                else {
+                    this.byId("searchFieldMain").setEnabled(false);
+                    this.byId("btnAssign").setEnabled(false);
+                    this.byId("btnUnassign").setEnabled(false);
+                    this.byId("btnCreatePO").setEnabled(false);
+                    this.byId("btnTabLayout").setEnabled(false);
+                    this.byId("btnManualAssign").setEnabled(false);
+                }
                 
-                oModel.read("/ZVB_3DERP_MATTYPE_SH", {
-                    success: function (oData, oResponse) {
-                        if (oData.results.length > 0) {
-                            oData.results.forEach(item => {
-                                if (item.SBU === vSBU) {
-                                    // var key = "ZVB_3DERP_MATTYPE_SH('" + item.MaterialType + "')";
-                                    matTypListItem.push(item)
-                                }
-                            });
-                        }
+                // var me = this;
+                // var oModel = this.getOwnerComponent().getModel("ZVB_3DERP_ANP_FILTERS_CDS");                
+                // var oJSONDataModel = new JSONModel(); 
+                // var matTypListItem = [];
+                
+                // oModel.read("/ZVB_3DERP_MATTYPE_SH", {
+                //     success: function (oData, oResponse) {
+                //         if (oData.results.length > 0) {
+                //             oData.results.forEach(item => {
+                //                 if (item.SBU === vSBU) {
+                //                     // var key = "ZVB_3DERP_MATTYPE_SH('" + item.MaterialType + "')";
+                //                     matTypListItem.push(item)
+                //                 }
+                //             });
+                //         }
 
-                        oJSONDataModel.setData(matTypListItem);
-                        me.getView().setModel(oJSONDataModel, "ZVB_3DERP_MATTYPE_SH_FILTER");
-                        oModel.setData(matTypListItem);
-                    },
-                    error: function (err) { }
-                });
+                //         oJSONDataModel.setData(matTypListItem);
+                //         me.getView().setModel(oJSONDataModel, "ZVB_3DERP_MATTYPE_SH_FILTER");
+                //         // oModel.setData(matTypListItem);
+                //     },
+                //     error: function (err) { }
+                // });
             },
 
             getColumns(arg) {
@@ -336,7 +356,7 @@ sap.ui.define([
 
                         oData.results.forEach((item, index) => {
                             if (item.VENDOR === '') vUnassigned++;
-                            if (item.QTY !== item.ORDERQTY) vPartial++;
+                            if (item.QTY !== item.ORDEREDQTY && +item.ORDEREDQTY > 0) vPartial++;
                             item.DELVDATE = dateFormat.format(item.DELVDATE);
                             
                             if (index === 0) item.ACTIVE = "X";
@@ -480,10 +500,10 @@ sap.ui.define([
             setSmartFilterModel: function () {
                 //Model StyleHeaderFilters is for the smartfilterbar
                 var oModel = this.getOwnerComponent().getModel("ZVB_3DERP_ANP_FILTERS_CDS");
-                console.log(oModel)
+                // console.log(oModel)
                 var oSmartFilter = this.getView().byId("smartFilterBar");
                 oSmartFilter.setModel(oModel);
-                console.log(oSmartFilter)
+                // console.log(oSmartFilter)
                 // console.log(oSmartFilter.getFilterData()["DOCTYPE"])
 
                 // var oMultiInput2 = this.getView().byId("multiInput2");
@@ -499,22 +519,22 @@ sap.ui.define([
                 // console.log(oSmartFilter)
                 //modify smartfilter control width
 
-                var ivSmartFilter = setInterval(() => {
-                    if (oSmartFilter !== undefined) {
-                //         oSmartFilter.getControlByKey("SBU").oParent.setWidth("100px");
-                //         oSmartFilter.getControlByKey("IONUMBER").oParent.setWidth("155px");
-                //         oSmartFilter.getControlByKey("MATERIALGRP").oParent.setWidth("135px");
-                //         oSmartFilter.getControlByKey("MATERIALTYPE").oParent.setWidth("135px");
-                //         oSmartFilter.getControlByKey("SEASON").oParent.setWidth("225px");
-                //         oSmartFilter.getControlByKey("SHIPTOPLANT").oParent.setWidth("135px");
-                //         oSmartFilter.getControlByKey("PURCHPLANT").oParent.setWidth("135px");
-                //         oSmartFilter.getControlByKey("PRNUMBER").oParent.setWidth("180px");
-                        console.log(oSmartFilter.getFilterData("ZVB_3DERP_ANP_FILTERSType"))
-                        console.log(oSmartFilter.getControlByKey("DOCTYPE"))
-                        console.log(oSmartFilter.getControlByKey("DOCTYPE").getValue())
-                        clearInterval(ivSmartFilter);
-                    }                    
-                }, 500);
+                // var ivSmartFilter = setInterval(() => {
+                //     if (oSmartFilter !== undefined) {
+                // //         oSmartFilter.getControlByKey("SBU").oParent.setWidth("100px");
+                // //         oSmartFilter.getControlByKey("IONUMBER").oParent.setWidth("155px");
+                // //         oSmartFilter.getControlByKey("MATERIALGRP").oParent.setWidth("135px");
+                // //         oSmartFilter.getControlByKey("MATERIALTYPE").oParent.setWidth("135px");
+                // //         oSmartFilter.getControlByKey("SEASON").oParent.setWidth("225px");
+                // //         oSmartFilter.getControlByKey("SHIPTOPLANT").oParent.setWidth("135px");
+                // //         oSmartFilter.getControlByKey("PURCHPLANT").oParent.setWidth("135px");
+                // //         oSmartFilter.getControlByKey("PRNUMBER").oParent.setWidth("180px");
+                //         console.log(oSmartFilter.getFilterData("ZVB_3DERP_ANP_FILTERSType"))
+                //         console.log(oSmartFilter.getControlByKey("DOCTYPE"))
+                //         console.log(oSmartFilter.getControlByKey("DOCTYPE").getValue())
+                //         clearInterval(ivSmartFilter);
+                //     }                    
+                // }, 500);
 
             },
 
@@ -566,14 +586,16 @@ sap.ui.define([
                 //trigger search, reselect styles                
                 // console.log(this.getView().byId("smartFilterBar").getFilterData());
                 // console.log(this.getView().byId("smartFilterBar").getFilters());
+                var vSBU = this.getView().byId("cboxSBU").getSelectedKey();
                 this.byId("searchFieldMain").setProperty("value", "");
                 this.showLoadingDialog('Loading...');
+                this.getView().getModel("ui").setProperty("/currsbu", vSBU);
 
                 if (this.getView().getModel("ui").getData().sbu === '' || this._sbuChange) {
                     this.getColumns('MANUAL_INIT');
                 }
                 else {
-                    this.getView().getModel("ui").setProperty("/sbu", vSBU);
+                    // this.getView().getModel("ui").setProperty("/sbu", vSBU);
                     
                     if (this.getView().getModel("columns") === undefined) {
                         this.getColumns('SEARCH');
@@ -636,8 +658,8 @@ sap.ui.define([
                     }
                 }
                 
-                console.log(aFiltersObj);
-                console.log(aFilters);
+                // console.log(aFiltersObj);
+                // console.log(aFilters);
                 if (aFilters.length > 0) {
                     aFilters[0].aFilters.forEach(item => {
                         if (item.sPath === 'VENDOR') {
@@ -650,15 +672,15 @@ sap.ui.define([
 
                 // console.log(this.byId('mainTab').getColumns());
                 // this.addDateFilters(aFilters); //date not automatically added to filters
-                console.log(aFilters);
+                // console.log(aFilters);
                 oModel.read("/MainSet", { 
                     filters: aFilters,
                     success: function (oData, oResponse) {
                         var vUnassigned = 0, vPartial = 0;
-
+                        // console.log(oData.results)
                         oData.results.forEach((item, index) => {
                             if (item.VENDOR === '') vUnassigned++;
-                            if (item.QTY !== item.ORDERQTY) vPartial++;
+                            if (item.QTY !== item.ORDEREDQTY && +item.ORDEREDQTY > 0) vPartial++;
                             item.DELVDATE = dateFormat.format(item.DELVDATE);
 
                             if (index === 0) item.ACTIVE = "X";
@@ -1318,6 +1340,7 @@ sap.ui.define([
                     item.PAYTERMS = "";
                     item.INCO1 = "";
                     item.INCO2 = "";
+                    item.EDITED = false;
                 })
 
                 if (!me._AssignVendorManualDialog) {
@@ -1693,7 +1716,7 @@ sap.ui.define([
                 oSource.setValueState(isInvalid ? "Error" : "None");
     
                 var sRowPath = oSource.getBindingInfo("value").binding.oContext.sPath;
-    
+                console.log(oSource.getValue().trim())
                 oSource.getSuggestionItems().forEach(item => {
                     if (item.getProperty("key") === oSource.getValue().trim()) {
                         isInvalid = false;
@@ -1709,7 +1732,7 @@ sap.ui.define([
                         }
                     })
                 }
-    
+                console.log(this._validationErrors)
                 this._AssignVendorManualDialog.getModel().setProperty(sRowPath + '/EDITED', true);
                 this._bAssignVendorManualChanged = true;
             },
@@ -1775,7 +1798,7 @@ sap.ui.define([
                                 Purgrp: aData.at(selItemIdx).PURCHGRP,
                                 Reqsnr: aData.at(selItemIdx).REQUISITIONER,
                                 DesVendor: '',
-                                PurchOrg: '',
+                                PurchOrg: aData.at(selItemIdx).PURCHORG,
                                 Trackingno: aData.at(selItemIdx).TRACKINGNO,
                                 Supplytyp: aData.at(selItemIdx).SUPPLYTYPE,
                                 InfoRec: '',
@@ -1889,7 +1912,7 @@ sap.ui.define([
                         // console.log(oData)
                         oData.results.forEach((item, index) => {
                             if (item.VENDOR === '') vUnassigned++;
-                            if (item.QTY !== item.ORDERQTY) vPartial++;
+                            if (item.QTY !== item.ORDEREDQTY && +item.ORDEREDQTY > 0) vPartial++;
                             item.DELVDATE = dateFormat.format(item.DELVDATE);
 
                             if (index === 0) item.ACTIVE = "X";
@@ -2018,17 +2041,18 @@ sap.ui.define([
                                 GMCDESCEN: aData.at(item).GMCDESCEN,
                                 ADDTLDESC: aData.at(item).ADDTLDESC,
                                 DELVDATE: aData.at(item).DELVDATE,
-                                BASEPOQTY: aData.at(item).QTY,
-                                ORDERPOQTY: (+aData.at(item).QTY) - (+aData.at(item).ORDERQTY),
+                                BASEPOQTY: (+aData.at(item).QTY) - (+aData.at(item).ORDEREDQTY), //aData.at(item).QTY,
+                                ORDERPOQTY: (+aData.at(item).QTY) - (+aData.at(item).ORDEREDQTY),
                                 SUPPLYTYPE: aData.at(item).SUPPLYTYPE,
-                                ORDERQTY: aData.at(item).ORDERQTY,
+                                ORDERQTY: aData.at(item).ORDEREDQTY,
                                 BASEQTY: aData.at(item).QTY,
                                 BASEUOM: aData.at(item).UNIT,
                                 PLANMONTH: aData.at(item).PLANMONTH,
                                 ITEM: '00000',
                                 REMARKS: '',
                                 INFORECCHECK: false,
-                                INFOREC: ""
+                                INFOREC: "",
+                                ANDEC: aData.at(item).ANDEC
                             })
                         }
                     })
@@ -2108,7 +2132,19 @@ sap.ui.define([
                                                             itemIR.ORDERCONVFACTOR = returnData[0].ConvNum1;
                                                             itemIR.BASECONVFACTOR = returnData[0].ConvDen1;
                                                             itemIR.INFOREC = returnData[0].InfoRec;
-                                                            itemIR.ORDERPOQTY = (itemIR.ORDERPOQTY / ((+returnData[0].ConvNum1) * (+returnData[0].ConvDen1) * (+returnData[0].PriceUnit))).toFixed(3);
+
+                                                            var oDecPlaces = me.getView().getModel("uom").getData().filter(fItem => fItem.MSEHI === returnData[0].PoUnit);
+
+                                                            itemIR.ORDERUOMANDEC = oDecPlaces.length > 0 ? oDecPlaces[0].ANDEC : 0;
+
+                                                            var vComputedPOQty = itemIR.BASEPOQTY / ((+returnData[0].ConvNum1) * (+returnData[0].ConvDen1) * (+returnData[0].PriceUnit));
+                                                            var vFinalPOQty = "0";
+
+                                                            if (itemIR.ORDERUOMANDEC === 0) vFinalPOQty = Math.ceil(vComputedPOQty).toString();
+                                                            else vFinalPOQty = vComputedPOQty.toFixed(itemIR.ORDERUOMANDEC);
+
+                                                            // itemIR.BASEPOQTY = vFinalPOQty;
+                                                            itemIR.ORDERPOQTY = vFinalPOQty;
                                                         }
                                                     });
                                             })
@@ -2200,7 +2236,18 @@ sap.ui.define([
                                                                                 noir.OVERDELTOL = oDataNOIR.results[0].Uebto;
                                                                                 noir.UNDERDELTOL = oDataNOIR.results[0].Untto;
                                                                                 noir.UNLI = oDataNOIR.results[0].Uebtk === "X" ? true : false;
+
+                                                                                var oDecPlaces = me.getView().getModel("uom").getData().filter(fItem => fItem.MSEHI === oDataNOIR.results[0].Orderuom);
+
+                                                                                noir.ORDERUOMANDEC = oDecPlaces.length > 0 ? oDecPlaces[0].ANDEC : 0;
+
+                                                                                var vFinalPOQty = "0";
+
+                                                                                if (noir.ORDERUOMANDEC === 0) vFinalPOQty = Math.ceil(noir.ORDERPOQTY).toString();
+                                                                                else vFinalPOQty = noir.ORDERPOQTY.toFixed(noir.ORDERUOMANDEC);
                     
+                                                                                // itemIR.BASEPOQTY = vFinalPOQty;
+                                                                                noir.ORDERPOQTY = vFinalPOQty;
                                                                             }
                                                                             else {
                                                                                 noir.ORDERCONVFACTOR = "1";
@@ -2323,6 +2370,18 @@ sap.ui.define([
                                                                 noir.OVERDELTOL = oDataNOIR.results[0].Uebto;
                                                                 noir.UNDERDELTOL = oDataNOIR.results[0].Untto;
                                                                 noir.UNLI = oDataNOIR.results[0].Uebtk === "X" ? true : false;
+
+                                                                var oDecPlaces = me.getView().getModel("uom").getData().filter(fItem => fItem.MSEHI === oDataNOIR.results[0].Orderuom);
+
+                                                                noir.ORDERUOMANDEC = oDecPlaces.length > 0 ? oDecPlaces[0].ANDEC : 0;
+
+                                                                var vFinalPOQty = "0";
+
+                                                                if (noir.ORDERUOMANDEC === 0) vFinalPOQty = Math.ceil(noir.ORDERPOQTY).toString();
+                                                                else vFinalPOQty = noir.ORDERPOQTY.toFixed(noir.ORDERUOMANDEC);
+    
+                                                                // itemIR.BASEPOQTY = vFinalPOQty;
+                                                                noir.ORDERPOQTY = vFinalPOQty;
                                                             }
                                                             else {
                                                                 noir.ORDERCONVFACTOR = "1";
@@ -2453,7 +2512,7 @@ sap.ui.define([
                         oModel.create("/Get_POTolSet", oParam, {
                             method: "POST",
                             success: function(oData, oResponse) {
-                                console.log(oData);
+                                // console.log(oData);
                                 counter++;
                                 if ((oData.RETURN + "") !== "4") {       
                                     item.OVERDELTOL = oData.EV_UEBTO;
@@ -2479,7 +2538,7 @@ sap.ui.define([
             navToGenPO(arg1, arg2) {
                 var oCreatePOHdr = arg1;
                 var oCreatePODtls = arg2;
-                console.log("oCreatePODtls ", oCreatePODtls);
+                // console.log("oCreatePODtls ", oCreatePODtls);
                 this.getOwnerComponent().getModel("UI_MODEL").setData({sbu: this.getView().getModel("ui").getData().sbu})
                 this.getOwnerComponent().getModel("CREATEPO_MODEL").setData({
                     header: oCreatePOHdr,
@@ -2644,7 +2703,6 @@ sap.ui.define([
                 }, 1);
             },
 
-
             lock: async (me) => {
                 var oModelLock = me.getOwnerComponent().getModel("ZGW_3DERP_LOCK_SRV");
                 var oParamLock = {};
@@ -2688,11 +2746,11 @@ sap.ui.define([
                 var me = this;
 
                 oParamUnLock["N_IMPRTAB"] = this._oLock;
-                
+                console.log(oParamUnLock)
                 oModelLock.create("/Unlock_PRSet", oParamUnLock, {
                     method: "POST",
                     success: function(oResultLock) {
-                        // console.log("Unlock", oResultLock)
+                        console.log("Unlock", oResultLock)
                     },
                     error: function (err) {
                         me.closeLoadingDialog();

@@ -466,12 +466,12 @@ function (Controller, JSONModel, MessageBox, History, MessageToast, NavigationHa
                     this._bHeaderChanged = false;
                 }
                 else {
-                    this.showMessage(this.getView().getModel("ddtext").getData()["INFO_INPUT_REQD_FIELDS"]);
+                    MessageBox.information(this.getView().getModel("ddtext").getData()["INFO_INPUT_REQD_FIELDS"]);
                 }
             }
             else  {
                 var msg = this.getView().getModel("ddtext").getData()["INFO_CHECK_INVALID_ENTRIES"];
-                this.showMessage(msg);
+                MessageBox.information(msg);
             }
         },
 
@@ -495,12 +495,12 @@ function (Controller, JSONModel, MessageBox, History, MessageToast, NavigationHa
                     this._bDetailsChanged = false;
                 }
                 else {
-                    this.showMessage(this.getView().getModel("ddtext").getData()["INFO_INPUT_REQD_FIELDS"]);
+                    MessageBox.information(this.getView().getModel("ddtext").getData()["INFO_INPUT_REQD_FIELDS"]);
                 }
             }
             else  {
                 var msg = this.getView().getModel("ddtext").getData()["INFO_CHECK_INVALID_ENTRIES"];
-                this.showMessage(msg);
+                MessageBox.information(msg);
             }
         },
 
@@ -1053,21 +1053,37 @@ function (Controller, JSONModel, MessageBox, History, MessageToast, NavigationHa
 
         onNumberChange: function(oEvent) {
             if (this._validationErrors === undefined) this._validationErrors = [];
+            // console.log(oEvent.getSource().getBindingInfo("value"))
+            var oSource = oEvent.getSource();
+            var sModel = oSource.getBindingInfo("value").parts[0].model;
+            var sRowPath = oSource.getBindingInfo("value").binding.oContext.sPath;
+            var vDecPlaces = 3;
+
+            if (oSource.getBindingInfo("value").parts[0].path === "BASEPOQTY") {
+                vDecPlaces = this.getView().getModel(sModel).getProperty(sRowPath + "/ANDEC");
+            }
 
             if (oEvent.getParameters().value.split(".").length > 1) {
-                if (oEvent.getParameters().value.split(".")[1].length > 3) {
-                    // console.log("invalid");
+                if (vDecPlaces === 0) {
+                    // MessageBox.information("Value should not have decimal place/s.");
                     oEvent.getSource().setValueState("Error");
-                    oEvent.getSource().setValueStateText("Enter a number with a maximum of 3 decimal places.");
+                    oEvent.getSource().setValueStateText("Value should not have decimal place/s.");
                     this._validationErrors.push(oEvent.getSource().getId());
                 }
                 else {
-                    oEvent.getSource().setValueState("None");
-                    this._validationErrors.forEach((item, index) => {
-                        if (item === oEvent.getSource().getId()) {
-                            this._validationErrors.splice(index, 1)
-                        }
-                    })
+                    if (oEvent.getParameters().value.split(".")[1].length > vDecPlaces) {
+                        oEvent.getSource().setValueState("Error");
+                        oEvent.getSource().setValueStateText("Enter a number with a maximum decimal places: " + vDecPlaces.toString());
+                        this._validationErrors.push(oEvent.getSource().getId());
+                    }
+                    else {
+                        oEvent.getSource().setValueState("None");
+                        this._validationErrors.forEach((item, index) => {
+                            if (item === oEvent.getSource().getId()) {
+                                this._validationErrors.splice(index, 1)
+                            }
+                        })
+                    }
                 }
             }
             else {
@@ -1087,7 +1103,7 @@ function (Controller, JSONModel, MessageBox, History, MessageToast, NavigationHa
 
             if (oEvent.getSource().getBindingInfo("value").parts[0].path === "BASEPOQTY") {
                 var sActiveGroup = this.getView().getModel("ui").getData().activeGroup;
-                var sRowPath = oEvent.getSource().getBindingInfo("value").binding.oContext.sPath
+                // var sRowPath = oEvent.getSource().getBindingInfo("value").binding.oContext.sPath
 
                 this.getView().getModel("detail").getData().filter(fItem => fItem.GROUP === sActiveGroup)
                     .forEach((item, idx) => {
@@ -1095,8 +1111,13 @@ function (Controller, JSONModel, MessageBox, History, MessageToast, NavigationHa
                             var sOrderConvFactor = item.ORDERCONVFACTOR === "" || item.ORDERCONVFACTOR === "0" ? "1" : item.ORDERCONVFACTOR;
                             var sBaseConvFactor = item.BASECONVFACTOR === "" || item.BASECONVFACTOR === "0" ? "1" : item.BASECONVFACTOR;
                             var sPer = item.PER === "" ? "1" : item.PER;
+                            var vComputedPOQty = +item.BASEPOQTY / ((+sOrderConvFactor) * (+sBaseConvFactor) * (+sPer));
+                            var vFinalPOQty = "0";
+                            
+                            if (item.ORDERUOMANDEC === 0) vFinalPOQty = Math.ceil(vComputedPOQty).toString();
+                            else vFinalPOQty = vComputedPOQty.toFixed(item.ORDERUOMANDEC);
 
-                            item.ORDERPOQTY = (((+item.BASEPOQTY) - (+item.ORDERQTY)) / ((+sOrderConvFactor) * (+sBaseConvFactor) * (+sPer))).toFixed(3);
+                            item.ORDERPOQTY = vFinalPOQty;
                             this.getPOTolerance(sRowPath, item);
                         }
                 })
@@ -1326,7 +1347,7 @@ function (Controller, JSONModel, MessageBox, History, MessageToast, NavigationHa
             this.byId("detailTab").setModel(new JSONModel(this.getView().getModel("detail").getData()), "detail");
             this.byId("detailTab").bindRows({path: "detail>/"});
             this._ChangeDateDialog.close();
-            this.showMessage(this.getView().getModel("ddtext").getData()["INFO_DELVDATE_UPDATED"]);
+            MessageBox.information(this.getView().getModel("ddtext").getData()["INFO_DELVDATE_UPDATED"]);
         },
 
         onCloseChangeDate: function(oEvent) {
@@ -1410,7 +1431,7 @@ function (Controller, JSONModel, MessageBox, History, MessageToast, NavigationHa
             });
             // console.log(this.getView().getModel("ddtext").getData())
             var msg = this.getView().getModel("ddtext").getData()["INFO_FABSPECS_SAVED"];
-            this.showMessage(msg)
+            MessageBox.information(msg)
             this._FabSpecsDialog.close();
             this._bFabSpecsChanged = false;
             // console.log(this.getView().getModel("fabspecs").getData())
@@ -1610,11 +1631,11 @@ function (Controller, JSONModel, MessageBox, History, MessageToast, NavigationHa
 
             if (activeTab === "remarks") {
                 if (this._HeaderTextDialog.getModel().getData().rem_items.filter(item => item.REMARKS === "").length > 0) {
-                    this.showMessage(this.getView().getModel("ddtext").getData()["INFO_INPUT_REMARKS"]);
+                    MessageBox.information(this.getView().getModel("ddtext").getData()["INFO_INPUT_REMARKS"]);
                 }
                 else {
                     this._bRemarksChanged = false;
-                    this.showMessage(this.getView().getModel("ddtext").getData()["INFO_REMARKS_SAVED"]);
+                    MessageBox.information(this.getView().getModel("ddtext").getData()["INFO_REMARKS_SAVED"]);
 
                     // this.getView().getModel("remarks").getData().forEach(item => item.STATUS = "UPDATED");
                     this.getView().getModel("remarks").getData()[sActiveGroup].forEach(item => item.STATUS = "UPDATED");
@@ -1623,12 +1644,12 @@ function (Controller, JSONModel, MessageBox, History, MessageToast, NavigationHa
             }
             else {
                 if (this._HeaderTextDialog.getModel().getData().packins_items.filter(item => item.PACKINS === "").length > 0) {
-                    this.showMessage(this.getView().getModel("ddtext").getData()["INFO_INPUT_PACKINS"]);
+                    MessageBox.information(this.getView().getModel("ddtext").getData()["INFO_INPUT_PACKINS"]);
                 }
                 else {
                     // this._HeaderTextDialog.close();
                     this._bPackInsChanged = false;
-                    this.showMessage(this.getView().getModel("ddtext").getData()["INFO_PACKINS_SAVED"]);
+                    MessageBox.information(this.getView().getModel("ddtext").getData()["INFO_PACKINS_SAVED"]);
                     this.getView().getModel("packins").getData()[sActiveGroup].forEach(item => item.STATUS = "UPDATED");
                     // this.getView().getModel("packins").getData().forEach(item => item.STATUS = "UPDATED");
                 }
@@ -1649,7 +1670,7 @@ function (Controller, JSONModel, MessageBox, History, MessageToast, NavigationHa
             }
 
             if (oTable.getSelectedIndices().length === 0) {
-                this.showMessage(this.getView().getModel("ddtext").getData()["INFO_SEL_RECORD_TO_DELETE"]);
+                MessageBox.information(this.getView().getModel("ddtext").getData()["INFO_SEL_RECORD_TO_DELETE"]);
             }
             else {
                 var oData = {
@@ -1858,7 +1879,7 @@ function (Controller, JSONModel, MessageBox, History, MessageToast, NavigationHa
                 this.clearFabSpecs();
                 this._bFabSpecsChanged = false;
                 this._FabSpecsDialog.close();
-                this.showMessage(this.getView().getModel("ddtext").getData()["INFO_DATA_DELETED"]);
+                MessageBox.information(this.getView().getModel("ddtext").getData()["INFO_DATA_DELETED"]);
             }
             else if (this._ConfirmDialog.getModel().getData().Process === "remarks-cancel") {
                 this._bRemarksChanged = false;
@@ -2369,118 +2390,122 @@ function (Controller, JSONModel, MessageBox, History, MessageToast, NavigationHa
                 }
                 else {
                     // console.log(this.getView().getModel("ddtext").getData()["INFO_CREATE_PO_CHECK_REQD"])
-                    this.showMessage(this.getView().getModel("ddtext").getData()["INFO_CREATEPO_CHECK_REQD"], 5000);
+                    MessageBox.information(this.getView().getModel("ddtext").getData()["INFO_CREATEPO_CHECK_REQD"], 5000);
                 }
             }
             else {
-                this.showMessage(this.getView().getModel("ddtext").getData()["INFO_CHECK_INVALID_ENTRIES"]);
+                MessageBox.information(this.getView().getModel("ddtext").getData()["INFO_CHECK_INVALID_ENTRIES"]);
             }
         },
 
         onValidateExtendPO: async function(oEvent){
             // this._aCreatePOResult = [];
-            
-            var me = this;
-            var oModel = this.getOwnerComponent().getModel("ZGW_3DERP_RFC_SRV");
-            var vSBU = this.getOwnerComponent().getModel("UI_MODEL").getData().sbu;
-            var bProceed = true;
-
-            var extendPOEntitySet = "/ExtendPO";
-            var extendPOModel = this.getOwnerComponent().getModel();
-            var resultPOExtend = [];
-            var validPOExists = false;
-
-            this._toExtend = false;
-
-            this.byId("headerForm").getFormContainers().forEach(c => {
-                c.getFormElements().forEach(e => {
-                    if (e.mAggregations.label.mProperties !== undefined) {
-                        if (e.mAggregations.label.mProperties.required) {
-                            if (e.mAggregations.fields[0].mProperties.value === "") {
-                                bProceed = false;
-                                e.mAggregations.fields[0].setValueState("Error");
-                            }
-                            else {
-                                e.mAggregations.fields[0].setValueState("None");
+            if (this._validationErrors.length === 0) {
+                var me = this;
+                var oModel = this.getOwnerComponent().getModel("ZGW_3DERP_RFC_SRV");
+                var vSBU = this.getOwnerComponent().getModel("UI_MODEL").getData().sbu;
+                var bProceed = true;
+    
+                var extendPOEntitySet = "/ExtendPO";
+                var extendPOModel = this.getOwnerComponent().getModel();
+                var resultPOExtend = [];
+                var validPOExists = false;
+    
+                this._toExtend = false;
+    
+                this.byId("headerForm").getFormContainers().forEach(c => {
+                    c.getFormElements().forEach(e => {
+                        if (e.mAggregations.label.mProperties !== undefined) {
+                            if (e.mAggregations.label.mProperties.required) {
+                                if (e.mAggregations.fields[0].mProperties.value === "") {
+                                    bProceed = false;
+                                    e.mAggregations.fields[0].setValueState("Error");
+                                }
+                                else {
+                                    e.mAggregations.fields[0].setValueState("None");
+                                }
                             }
                         }
-                    }
-
+    
+                    })
                 })
-            })
-
-            // this.getView().getModel("grpheader").getData().forEach(item => {
-            //     if (item.PAYTERMS === "" || item.INCOTERMS == "" || item.DESTINATION == "" || item.SHIPMODE == "") {
-            //         bProceed = false;
-            //     }
-            // })
-
-            if (bProceed) {
-                this.getView().getModel("detail").getData().forEach(item => {
-                    if (item.DELVDATE === "" || item.BASEPOQTY == "" || item.GROSSPRICE == "") {
-                        bProceed = false;
-                    }
-                })
-            }
-
-            if (bProceed) {
-                me.showLoadingDialog('Processing...');
-                var iCounter = 0;
-
-                var result = new Promise((resolve, reject)=>{
-                    setTimeout(() => {
-                        this.getView().getModel("grpheader").getData().forEach(item => {
-                            if (!isNaN(item.VENDOR)) {
-                                while (item.VENDOR.length < 10) item.VENDOR = "0" + item.VENDOR;
-                            }
-                            var PODate = sapDateFormat.format(new Date(item.PODATE)) + "T00:00:00";
-                            var filter = encodeURIComponent("(VENDOR='"+item.VENDOR+"',PURCHGRP='" + item.PURCHGRP +"',PURCHORG='"+ item.PURCHORG +"',SHIPTOPLANT='"+ item.SHIPTOPLANT +"',PURCHPLANT='"+ item.PURCHPLANT +"',PODT=datetime'"+ PODate +"')")
-                            console.log(extendPOEntitySet+filter)
-                            extendPOModel.read(extendPOEntitySet+filter , {
-                                success: function (oData, oResponse) {
-                                    console.log(oData)
-                                    oData.PODT = dateFormat.format(new Date(oData.PODT));
-                                    resultPOExtend.push(oData);
-                                    validPOExists = true;
-                                    resolve(resultPOExtend);
-                                },
-                                error: function() {
-                                    resolve("Error");
+    
+                // this.getView().getModel("grpheader").getData().forEach(item => {
+                //     if (item.PAYTERMS === "" || item.INCOTERMS == "" || item.DESTINATION == "" || item.SHIPMODE == "") {
+                //         bProceed = false;
+                //     }
+                // })
+    
+                if (bProceed) {
+                    this.getView().getModel("detail").getData().forEach(item => {
+                        if (item.DELVDATE === "" || item.BASEPOQTY == "" || item.GROSSPRICE == "") {
+                            bProceed = false;
+                        }
+                    })
+                }
+    
+                if (bProceed) {
+                    me.showLoadingDialog('Processing...');
+                    var iCounter = 0;
+    
+                    var result = new Promise((resolve, reject)=>{
+                        setTimeout(() => {
+                            this.getView().getModel("grpheader").getData().forEach(item => {
+                                if (!isNaN(item.VENDOR)) {
+                                    while (item.VENDOR.length < 10) item.VENDOR = "0" + item.VENDOR;
                                 }
-                            });
-                        })
-                    }, 500);
-                });
-                await result;
-                me.closeLoadingDialog();
-                if(validPOExists){
-                    var oJSONModel = new JSONModel();
-                    this._poNO = resultPOExtend.at(0).PONO;
-                    var extendPOData = {
-                        Title: "Create Purchase Order: Extension Option",
-                        Text: "PO of today's date already exists",
-                        POLabel: "Purchase Order",
-                        VendorLabel: "Vendor",
-                        PurchGrpLabel: "Purchasing Group",
-                        PONO: resultPOExtend.at(0).PONO,
-                        VENDOR: resultPOExtend.at(0).VENDOR,
-                        PURCHGRP: resultPOExtend.at(0).PURCHGRP,
+                                var PODate = sapDateFormat.format(new Date(item.PODATE)) + "T00:00:00";
+                                var filter = encodeURIComponent("(VENDOR='"+item.VENDOR+"',PURCHGRP='" + item.PURCHGRP +"',PURCHORG='"+ item.PURCHORG +"',SHIPTOPLANT='"+ item.SHIPTOPLANT +"',PURCHPLANT='"+ item.PURCHPLANT +"',PODT=datetime'"+ PODate +"')")
+                                console.log(extendPOEntitySet+filter)
+                                extendPOModel.read(extendPOEntitySet+filter , {
+                                    success: function (oData, oResponse) {
+                                        console.log(oData)
+                                        oData.PODT = dateFormat.format(new Date(oData.PODT));
+                                        resultPOExtend.push(oData);
+                                        validPOExists = true;
+                                        resolve(resultPOExtend);
+                                    },
+                                    error: function() {
+                                        resolve("Error");
+                                    }
+                                });
+                            })
+                        }, 500);
+                    });
+                    await result;
+                    me.closeLoadingDialog();
+                    if(validPOExists){
+                        var oJSONModel = new JSONModel();
+                        this._poNO = resultPOExtend.at(0).PONO;
+                        var extendPOData = {
+                            Title: "Create Purchase Order: Extension Option",
+                            Text: "PO of today's date already exists",
+                            POLabel: "Purchase Order",
+                            VendorLabel: "Vendor",
+                            PurchGrpLabel: "Purchasing Group",
+                            PONO: resultPOExtend.at(0).PONO,
+                            VENDOR: resultPOExtend.at(0).VENDOR,
+                            PURCHGRP: resultPOExtend.at(0).PURCHGRP,
+                        }
+                        
+                        oJSONModel.setData(extendPOData);
+    
+                        this.loadExtendPODialog = sap.ui.xmlfragment("zuiaprocess.view.fragments.dialog.ExtendPODialog", this);
+                        this.loadExtendPODialog.setModel(oJSONModel);
+                        this.getView().addDependent(this.loadExtendPODialog);
+                        this.loadExtendPODialog.open();
+                        this._toExtend = true;
+                    }else{
+                        //code here
+                        this.onGeneratePO();
                     }
-                    
-                    oJSONModel.setData(extendPOData);
-
-                    this.loadExtendPODialog = sap.ui.xmlfragment("zuiaprocess.view.fragments.dialog.ExtendPODialog", this);
-                    this.loadExtendPODialog.setModel(oJSONModel);
-                    this.getView().addDependent(this.loadExtendPODialog);
-                    this.loadExtendPODialog.open();
-                    this._toExtend = true;
-                }else{
-                    //code here
-                    this.onGeneratePO();
+                }
+                else{
+                    MessageBox.information(this.getView().getModel("ddtext").getData()["INFO_CREATEPO_CHECK_REQD"], 5000);
                 }
             }
-            else{
-                this.showMessage(this.getView().getModel("ddtext").getData()["INFO_CREATEPO_CHECK_REQD"], 5000);
+            else {
+                MessageBox.information(this.getView().getModel("ddtext").getData()["INFO_CHECK_INVALID_ENTRIES"]);
             }
         },
 
@@ -2679,7 +2704,7 @@ function (Controller, JSONModel, MessageBox, History, MessageToast, NavigationHa
             
             if (oHeaderData.length >= ((+sActiveGroup) + 1)) {
                 //next group
-                this.showMessage(this.getView().getModel("ddtext").getData()["GENPOCANCEL"], 500); 
+                MessageBox.information(this.getView().getModel("ddtext").getData()["GENPOCANCEL"], 500); 
                 this.onNextGroup(((+sActiveGroup) + 1 ) + "");
             }
             else {
@@ -2810,7 +2835,7 @@ function (Controller, JSONModel, MessageBox, History, MessageToast, NavigationHa
             oModel.create("/Get_POTolSet", oParam, {
                 method: "POST",
                 success: function(oData, oResponse) {
-                    console.log(oData);
+                    // console.log(oData);
                     var sActiveGroup = me.getView().getModel("ui").getData().activeGroup;
                     var sRowPath = arg1;
 
@@ -2864,7 +2889,7 @@ function (Controller, JSONModel, MessageBox, History, MessageToast, NavigationHa
                                         .forEach((item, idx) => {
                                             if (idx.toString() === sRowPath.replace("/","")) {
                                                 var oOrigDtlData = me.getOwnerComponent().getModel("CREATEPO_MODEL").getData().detail.filter(fItem => fItem.GROUP === sActiveGroup);
-                                                console.log(oOrigDtlData)
+                                                // console.log(oOrigDtlData)
                                                 item.OVERDELTOL = oOrigDtlData[0].OVERDELTOL;
                                                 item.UNDERDELTOL = oOrigDtlData[0].UNDERDELTOL;
                                                 item.UNLI = oOrigDtlData[0].UNLI;
@@ -2877,7 +2902,7 @@ function (Controller, JSONModel, MessageBox, History, MessageToast, NavigationHa
 
                     me.byId("detailTab").setModel(new JSONModel(me.getView().getModel("detail").getData()), "detail");
                     me.byId("detailTab").bindRows({path: "detail>/"});
-                    console.log(me._oParamCPOTolData);
+                    // console.log(me._oParamCPOTolData);
                 },
                 error: function (err) { }
             })
