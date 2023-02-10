@@ -17,7 +17,7 @@
             <VBox fitContainer="true" class="anp">
                 <smartfilterbar:SmartFilterBar id="smartFilterBar" entitySet="ZVB_3DERP_ANP_FILTERS" search="onSearch" persistencyKey="3DERP_ANPPKey">
                     <smartfilterbar:controlConfiguration>
-                        <smartfilterbar:ControlConfiguration key="SBU" label="{ddtext>/SBU}" groupId="_BASIC" mandatory="mandatory" width="50px">
+                        <smartfilterbar:ControlConfiguration key="SBU" label="{ddtext>/SBU}" groupId="_BASIC" mandatory="mandatory" width="50px" class="mandatoryFontColor">
                             <smartfilterbar:customControl>
                                 <ComboBox id="cboxSBU"
                                     selectedKey="{ui>/sbu}"

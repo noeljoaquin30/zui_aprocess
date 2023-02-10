@@ -606,12 +606,12 @@ function (Controller, JSONModel, MessageBox, History, MessageToast, NavigationHa
                         }
 
                         if (ci.required) {
-                            col.getLabel().addStyleClass("requiredField");
+                            col.getLabel().addStyleClass("sapMLabelRequired");
                         }
                     }) 
 
                     // console.log(sColName)
-                    if (sColName === "GROSSPRICE") col.getLabel().addStyleClass("requiredField");                    
+                    if (sColName === "GROSSPRICE") col.getLabel().addStyleClass("sapMLabelRequired");                    
             })
 
             this.getView().getModel(arg).getData().forEach(item => item.Edited = false);
@@ -2022,6 +2022,7 @@ function (Controller, JSONModel, MessageBox, History, MessageToast, NavigationHa
                     var iCounter = 0;
     
                     this.getView().getModel("grpheader").getData().forEach(item => {
+                        console.log(item);
                         // console.log(vSBU, item.DOCTYPE, item.COMPANY)
     
                         setTimeout(() => {
@@ -2277,7 +2278,6 @@ function (Controller, JSONModel, MessageBox, History, MessageToast, NavigationHa
                                                     oParamCPO['N_CreatePOReturn'] = [];
                                                         
                                                     console.log(oParamCPO);
-                                                    // return;
                                                     oModel.create("/CreatePOSet", oParamCPO, {
                                                         method: "POST",
                                                         success: function(oResult, oResponse) {
