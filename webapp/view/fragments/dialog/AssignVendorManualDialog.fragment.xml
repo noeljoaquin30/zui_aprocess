@@ -29,7 +29,7 @@
                         </uit:template>
                     </uit:Column>
                     <uit:Column width="175px">
-                        <Label text="{ddtext>/VENDOR}" class="requiredField" />
+                        <Label text="{ddtext>/VENDOR}" class="sapMLabelRequired" />
                         <uit:template>
                             <Input id="iptManualVendor"
                             type="Text"

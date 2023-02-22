@@ -15,5 +15,5 @@
             "valueHelp": {"show": false, "source": "", "value": "", "desc": ""}},
         {"name": "BASEPOQTY", "label": "PO QTY (BASE)", "type": "NUMBER", "required": true, "length": "13", "precision":"13", "scale": "3",
             "valueHelp": {"show": false, "source": "", "value": "", "desc": ""}}
-    ]    
+        ]    
 }

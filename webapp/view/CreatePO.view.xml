@@ -233,8 +233,8 @@
                                 emptySpanM="0"
                                 emptySpanS="0"
                                 columnsXL="3"
-                                columnsL="2"
-                                columnsM="1"
+                                columnsL="3"
+                                columnsM="2"
                                 singleContainerFullSize="false" />
                         </form:layout>
                         <form:formContainers>
@@ -444,6 +444,38 @@
                                 <Text text="{detail>BASEPOQTY}" wrapping="false" />
                             </uiT:template>
                         </uiT:Column>
+
+                        <!-- <uiT:Column width="125px" hAlign="End">
+                            <Text text="{ddtext>/BASEPOQTY}" />
+                            <uiT:template>
+                                <Text text="{detail>BASEPOQTY2}" wrapping="false" />
+                            </uiT:template>
+                        </uiT:Column>
+                        <uiT:Column width="125px" hAlign="End">
+                            <Text text="{ddtext>/BASEPOQTY}" />
+                            <uiT:template>
+                                <Text text="{detail>BASEPOQTY3}" wrapping="false" />
+                            </uiT:template>
+                        </uiT:Column>
+                        <uiT:Column width="125px" hAlign="End">
+                            <Text text="{ddtext>/BASEPOQTY}" />
+                            <uiT:template>
+                                <Text text="{detail>BASEPOQTY4}" wrapping="false" />
+                            </uiT:template>
+                        </uiT:Column>                        
+                        <uiT:Column width="125px" hAlign="End">
+                            <Text text="{ddtext>/BASEPOQTY}" />
+                            <uiT:template>
+                                <Text text="{detail>BASEPOQTY5}" wrapping="false" />
+                            </uiT:template>
+                        </uiT:Column>
+                        <uiT:Column width="125px" hAlign="End">
+                            <Text text="{ddtext>/BASEPOQTY}" />
+                            <uiT:template>
+                                <Text text="{detail>BASEPOQTY6}" wrapping="false" />
+                            </uiT:template>
+                        </uiT:Column> -->
+
                         <uiT:Column width="100px" hAlign="End">
                             <Text text="{ddtext>/ORDERPOQTY}" />
                             <uiT:template>
@@ -459,7 +491,7 @@
                         <uiT:Column width="100px" hAlign="End">
                             <Text text="{ddtext>/GROSSPRICE}" />
                             <uiT:template>
-                                <Input value="{detail>GROSSPRICE}" enabled="true" textAlign="Right" change="onNumberChange" type="Number" />
+                                <Input value="{detail>GROSSPRICE}" enabled="true" textAlign="Right" liveChange="onNumberLiveChange" type="Number" />
                             </uiT:template>
                         </uiT:Column>
                         <uiT:Column width="100px" hAlign="End">

@@ -1253,7 +1253,8 @@ sap.ui.define([
                                             SHIPTOPLANT: aData.at(item).SHIPTOPLANT,
                                             SEASON: aData.at(item).SEASON,
                                             SHORTTEXT: aData.at(item).SHORTTEXT,
-                                            VENDOR: ""
+                                            VENDOR: "",
+                                            EDITED: false
                                         })
 
                                         me._oLock.push({
@@ -1283,7 +1284,8 @@ sap.ui.define([
                                             SHIPTOPLANT: aData.at(item).SHIPTOPLANT,
                                             SEASON: aData.at(item).SEASON,
                                             SHORTTEXT: aData.at(item).SHORTTEXT,
-                                            VENDOR: ""
+                                            VENDOR: "",
+                                            EDITED: false
                                     })
 
                                     me._oLock.push({
@@ -1397,7 +1399,7 @@ sap.ui.define([
                         success: function (oData, oResponse) {
                             oData.results.sort((a,b) => (a.LIFNR > b.LIFNR ? 1 : -1));
                             oVendorSource[vMatNo] = oData.results;                            
-                            console.log(oData)
+                            // console.log(oData)
 
                             sap.ui.getCore().byId("assignVendorManualTab").getRows()[index].getCells()[1].bindAggregation("suggestionItems", {
                                 path: "vendor>/" + vMatNo,
@@ -1408,6 +1410,8 @@ sap.ui.define([
                                 })
                             });
 
+                            sap.ui.getCore().byId("assignVendorManualTab").getRows()[index].getCells()[1].setValueState("None");
+
                             if (me._AssignVendorManualDialog.getModel().getData().rows.length === (index + 1)) {
                                 me.getView().setModel(new JSONModel(oVendorSource), "vendor");
                                 console.log(me.getView().getModel("vendor").getData())
@@ -1415,7 +1419,7 @@ sap.ui.define([
                         },
                         error: function (err) { }
                     })
-                })                 
+                })
             },
 
             onManualAV: function(oEvent) {
@@ -1716,7 +1720,7 @@ sap.ui.define([
                 oSource.setValueState(isInvalid ? "Error" : "None");
     
                 var sRowPath = oSource.getBindingInfo("value").binding.oContext.sPath;
-                console.log(oSource.getValue().trim())
+                // console.log(oSource.getValue().trim())
                 oSource.getSuggestionItems().forEach(item => {
                     if (item.getProperty("key") === oSource.getValue().trim()) {
                         isInvalid = false;
@@ -1732,7 +1736,7 @@ sap.ui.define([
                         }
                     })
                 }
-                console.log(this._validationErrors)
+                // console.log(this._validationErrors)
                 this._AssignVendorManualDialog.getModel().setProperty(sRowPath + '/EDITED', true);
                 this._bAssignVendorManualChanged = true;
             },
@@ -2052,7 +2056,8 @@ sap.ui.define([
                                 REMARKS: '',
                                 INFORECCHECK: false,
                                 INFOREC: "",
-                                ANDEC: aData.at(item).ANDEC
+                                ANDEC: aData.at(item).ANDEC,
+                                GRBASEDIV: false
                             })
                         }
                     })
@@ -2101,15 +2106,17 @@ sap.ui.define([
             
                                     oParam['N_GetInfoRecMatParam'] = oParamData;
                                     oParam['N_GetInfoRecReturn'] = [];
-                
+                                    // console.log(oParam)
+                                    // console.log(oParamData)
                                     oModel.create("/GetInfoRecordSet", oParam, {
                                         method: "POST",
                                         success: function(oResult, oResponse) {
+                                            console.log(oResult)
                                             oParamData.forEach(item => {
                                                 var returnData = jQuery.extend(true, [], oResult.N_GetInfoRecReturn.results);
 
                                                 returnData = returnData.filter(fItem => fItem.Vendor === item.Vendor && fItem.PurchOrg === item.PurchOrg && fItem.PurGroup === item.PurGroup && fItem.Material === item.Material);
-
+                                                // console.log(me._oCreateData)
                                                 me._oCreateData.filter(fItem => fItem.VENDOR === item.Vendor && fItem.PURCHORG === item.PurchOrg && fItem.PURCHGRP === item.PurGroup && fItem.MATERIALNO === item.Material && fItem.PURCHPLANT === item.Plant)
                                                     .forEach(itemIR => {
                                                         itemIR.INFORECCHECK = true;
@@ -2343,7 +2350,7 @@ sap.ui.define([
                                             if (me._oCreateData.filter(fItem => fItem.REMARKS === '').length > 0) {
                                                 var iCtr = 0;
                                                 var aNOIR = me._oCreateData.filter(fItem => fItem.REMARKS === '');                                                
-                                                console.log(aNOIR)
+                                                // console.log(aNOIR)
 
                                                 aNOIR.forEach(noir => {
                                                     var sVendor = noir.VENDOR;
@@ -2358,7 +2365,7 @@ sap.ui.define([
                                                         success: function (oDataNOIR) {
                                                             iCtr++;
                                                             noir.PER = "1";
-                                                            console.log(oDataNOIR)
+                                                            // console.log(oDataNOIR)
                                                             if (oDataNOIR.results.length > 0) {
                                                                 noir.ORDERCONVFACTOR = oDataNOIR.results[0].Umren;
                                                                 noir.BASECONVFACTOR = oDataNOIR.results[0].Umrez;

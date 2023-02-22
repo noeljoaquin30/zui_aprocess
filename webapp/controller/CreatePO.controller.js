@@ -65,6 +65,13 @@ function (Controller, JSONModel, MessageBox, History, MessageToast, NavigationHa
             // var oJSONModelDtl = new JSONModel();
             var oDataDetail = this.getOwnerComponent().getModel("CREATEPO_MODEL").getData().detail.filter(fItem => fItem.GROUP === "1");
             // oJSONModelDtl.setData(oDataDetail);
+            oDataDetail.forEach(item => {
+                item.BASEPOQTY2 = item.BASEPOQTY;
+                item.BASEPOQTY3 = item.BASEPOQTY;
+                item.BASEPOQTY4 = item.BASEPOQTY;
+                item.BASEPOQTY5 = item.BASEPOQTY;
+                item.BASEPOQTY6 = item.BASEPOQTY;
+            })
             this.getView().setModel(new JSONModel(oDataDetail), "detail");
             this.byId("detailTab").setModel(new JSONModel(oDataDetail), "detail");
             this.byId("detailTab").bindRows({path: "detail>/"});
@@ -535,6 +542,7 @@ function (Controller, JSONModel, MessageBox, History, MessageToast, NavigationHa
         },
 
         setRowEditMode(arg) {
+            var me = this;
             var oTable = this.byId(arg + "Tab");
             
             this._bHeaderChanged = false;
@@ -556,6 +564,7 @@ function (Controller, JSONModel, MessageBox, History, MessageToast, NavigationHa
 
                 this._aColumns[arg].filter(item => item.name === sColName)
                     .forEach(ci => {
+                        // console.log(ci)
                         if (ci.valueHelp["show"]) {
                             col.setTemplate(new sap.m.Input({
                                 type: "Text",
@@ -585,9 +594,68 @@ function (Controller, JSONModel, MessageBox, History, MessageToast, NavigationHa
                                 textAlign: sap.ui.core.TextAlign.Right,
                                 // value: "{" + arg + ">" + sColName + "}",
                                 value: "{path:'" + arg + ">" + sColName + "', formatOptions:{ minFractionDigits:" + ci.scale + ", maxFractionDigits:" + ci.scale + " }, constraints:{ precision:" + ci.precision + ", scale:" + ci.scale + " }}",
-                                change: this.onNumberChange.bind(this),
+                                // change: this.onNumberChange.bind(this),
+                                liveChange: this.onNumberLiveChange.bind(this), 
                                 enabled: true
                             }));
+                            // var oStepInput = new sap.m.StepInput({
+                            //     value: "{" + arg + ">" + sColName + "}",
+                            //     min: 0,
+                            //     change: this.onStepInputChange.bind(this),
+                            //     validationMode: "LiveChange"
+                            // }); 
+                            // oStepInput.addEventDelegate({
+                            //     onfocusin: function(oEvent) {
+                            //         // console.log(oEvent)
+                            //         // console.log(oEvent.srcControl.oParent.getDisplayValuePrecision())
+                            //         // if (oEvent.srcControl.getDisplayValuePrecision() ) {
+                            //             oEvent.srcControl.oParent.setDisplayValuePrecision(0);
+                            //         // }
+                            //         // me.setValuePrecision(oEvent);
+                            //         // console.log()
+                            //         // console.log("setDisplayValuePrecision")
+                            //     }
+                            //   });
+                            // col.setTemplate(oStepInput);
+                            // if (sColName === "BASEPOQTY" || sColName === "BASEPOQTY2") {
+                            //     col.setTemplate(new sap.m.Input({
+                            //         type: sap.m.InputType.Number,
+                            //         textAlign: sap.ui.core.TextAlign.Right,
+                            //         // value: "{" + arg + ">" + sColName + "}",
+                            //         value: "{path:'" + arg + ">" + sColName + "', formatOptions:{ minFractionDigits:" + ci.scale + ", maxFractionDigits:" + ci.scale + " }, constraints:{ precision:" + ci.precision + ", scale:" + ci.scale + " }}",
+                            //         // change: this.onNumberChange.bind(this),
+                            //         liveChange: this.onNumberLiveChange.bind(this), 
+                            //         enabled: true
+                            //     }));
+                            // } 
+                            // else if (sColName === "BASEPOQTY3") {
+                            //     col.setTemplate(new sap.m.StepInput({
+                            //         value: "{" + arg + ">" + sColName + "}",
+                            //         min: 0,
+                            //         displayValuePrecision: 0
+                            //     }));
+                            // }                            
+                            // else if (sColName === "BASEPOQTY4") {
+                            //     col.setTemplate(new sap.m.StepInput({
+                            //         value: "{" + arg + ">" + sColName + "}",
+                            //         min: 0,
+                            //         displayValuePrecision: 3
+                            //     }));
+                            // }
+                            // else if (sColName === "BASEPOQTY5") {
+                            //     col.setTemplate(new sap.m.MaskInput({
+                            //         value: "{" + arg + ">" + sColName + "}",
+                            //         textAlign: "End",
+                            //         mask: "9999"
+                            //     }));
+                            // }
+                            // else if (sColName === "BASEPOQTY6") {
+                            //     col.setTemplate(new sap.m.MaskInput({
+                            //         value: "{" + arg + ">" + sColName + "}",
+                            //         textAlign: "End",
+                            //         mask: "9999.999"
+                            //     }));
+                            // }
                         }
                         else if (ci.type === "DATE") {
                             col.setTemplate(new sap.m.DatePicker({
@@ -632,6 +700,22 @@ function (Controller, JSONModel, MessageBox, History, MessageToast, NavigationHa
                 else oTable.getRows()[index].getCells()[iGPCellIndex].setProperty("enabled", true);
                 
             })
+        },
+
+        setValuePrecision(oEvent) {
+            var me = this;
+            var oSource = oEvent.srcControl.oParent;
+            var sModel = oSource.getBindingInfo("value").parts[0].model;
+            var sRowPath = oSource.getBindingInfo("value").binding.oContext.sPath;
+            var vDecPlaces = 0;
+
+            if (oSource.getBindingInfo("value").parts[0].path === "BASEPOQTY") {
+                vDecPlaces = me.getView().getModel(sModel).getProperty(sRowPath + "/ANDEC");
+            }
+
+            oSource.setDisplayValuePrecision(+vDecPlaces);
+            console.log(+vDecPlaces);
+            console.log(oSource)
         },
 
         setFormInputValueHelp: function(oEvent) {
@@ -1051,16 +1135,59 @@ function (Controller, JSONModel, MessageBox, History, MessageToast, NavigationHa
             this._bHeaderChanged = true;
         },
 
+        onStepInputChange: function(oEvent) {
+            var me = this;
+            var oSource = oEvent.getSource();
+            var sRowPath = oSource.getBindingInfo("value").binding.oContext.sPath;
+            var sModel = oSource.getBindingInfo("value").parts[0].model;
+            var vDecPlaces = 0;
+
+            if (oSource.getBindingInfo("value").parts[0].path === "BASEPOQTY") {
+                vDecPlaces = me.getView().getModel(sModel).getProperty(sRowPath + "/ANDEC");
+            }
+
+            if (vDecPlaces === 0) {
+                oSource.setValue((+oSource.getValue()).toFixed(0));
+            }
+
+            if (oSource.getBindingInfo("value").parts[0].path === "BASEPOQTY") {
+                var sActiveGroup = me.getView().getModel("ui").getData().activeGroup;
+
+                me.getView().getModel("detail").getData().filter(fItem => fItem.GROUP === sActiveGroup)
+                    .forEach((item, idx) => {
+                        if (idx.toString() === sRowPath.replace("/","")) { 
+                            var sOrderConvFactor = item.ORDERCONVFACTOR === "" || item.ORDERCONVFACTOR === "0" ? "1" : item.ORDERCONVFACTOR;
+                            var sBaseConvFactor = item.BASECONVFACTOR === "" || item.BASECONVFACTOR === "0" ? "1" : item.BASECONVFACTOR;
+                            var sPer = item.PER === "" ? "1" : item.PER;
+                            var vComputedPOQty = +item.BASEPOQTY / ((+sOrderConvFactor) * (+sBaseConvFactor) * (+sPer));
+                            var vFinalPOQty = "0";
+
+                            if (item.ORDERUOMANDEC === 0) vFinalPOQty = Math.ceil(vComputedPOQty).toString();
+                            else vFinalPOQty = vComputedPOQty.toFixed(item.ORDERUOMANDEC);
+
+                            item.ORDERPOQTY = vFinalPOQty;
+                            me.getPOTolerance(sRowPath, item);
+                        }
+                })
+    
+                me.byId("detailTab").setModel(new JSONModel(me.getView().getModel("detail").getData()), "detail");
+                me.byId("detailTab").bindRows({path: "detail>/"});
+            }
+        },
+
         onNumberChange: function(oEvent) {
             if (this._validationErrors === undefined) this._validationErrors = [];
-            // console.log(oEvent.getSource().getBindingInfo("value"))
+
             var oSource = oEvent.getSource();
             var sModel = oSource.getBindingInfo("value").parts[0].model;
             var sRowPath = oSource.getBindingInfo("value").binding.oContext.sPath;
-            var vDecPlaces = 3;
+            var vDecPlaces = 0;
 
             if (oSource.getBindingInfo("value").parts[0].path === "BASEPOQTY") {
                 vDecPlaces = this.getView().getModel(sModel).getProperty(sRowPath + "/ANDEC");
+            }
+            else if (oSource.getBindingInfo("value").parts[0].path === "BASEPOQTY2") {
+                vDecPlaces = 3;
             }
 
             if (oEvent.getParameters().value.split(".").length > 1) {
@@ -1113,10 +1240,10 @@ function (Controller, JSONModel, MessageBox, History, MessageToast, NavigationHa
                             var sPer = item.PER === "" ? "1" : item.PER;
                             var vComputedPOQty = +item.BASEPOQTY / ((+sOrderConvFactor) * (+sBaseConvFactor) * (+sPer));
                             var vFinalPOQty = "0";
-                            
+                            console.log(item.BASEPOQTY, sOrderConvFactor, sBaseConvFactor, sPer)
                             if (item.ORDERUOMANDEC === 0) vFinalPOQty = Math.ceil(vComputedPOQty).toString();
                             else vFinalPOQty = vComputedPOQty.toFixed(item.ORDERUOMANDEC);
-
+                            console.log(vFinalPOQty)
                             item.ORDERPOQTY = vFinalPOQty;
                             this.getPOTolerance(sRowPath, item);
                         }
@@ -1141,6 +1268,112 @@ function (Controller, JSONModel, MessageBox, History, MessageToast, NavigationHa
     
                 this.byId("detailTab").setModel(new JSONModel(this.getView().getModel("detail").getData()), "detail");
                 this.byId("detailTab").bindRows({path: "detail>/"});
+            }
+        },
+
+        // onNumberLiveChange: function(oEvent) {
+        //     console.log("onNumberLiveChange");
+        // },
+
+        onNumberLiveChange: function(oEvent) {
+            if (this._validationErrors === undefined) this._validationErrors = [];
+            // console.log("ok")
+            var oSource = oEvent.getSource();
+            var sModel = oSource.getBindingInfo("value").parts[0].model;
+            var sRowPath = oSource.getBindingInfo("value").binding.oContext.sPath;
+            var vDecPlaces = 0;
+            var bError = false;
+
+            if (oSource.getBindingInfo("value").parts[0].path === "BASEPOQTY") {
+                vDecPlaces = this.getView().getModel(sModel).getProperty(sRowPath + "/ANDEC");
+            }
+            else if (oSource.getBindingInfo("value").parts[0].path === "GROSSPRICE")  {
+                vDecPlaces = 4;
+            }
+            
+            if (oEvent.getParameters().value.split(".").length > 1) {
+                if (vDecPlaces === 0) {
+                    // MessageBox.information("Value should not have decimal place/s.");
+                    oEvent.getSource().setValueState("Error");
+                    oEvent.getSource().setValueStateText("Value should not have decimal place/s.");
+                    this._validationErrors.push(oEvent.getSource().getId());
+                    bError = true;
+                }
+                else {
+                    if (oEvent.getParameters().value.split(".")[1].length > vDecPlaces) {
+                        oEvent.getSource().setValueState("Error");
+                        oEvent.getSource().setValueStateText("Enter a number with a maximum decimal places: " + vDecPlaces.toString());
+                        this._validationErrors.push(oEvent.getSource().getId());
+                        bError = true;
+                    }
+                    else {
+                        oEvent.getSource().setValueState("None");
+                        this._validationErrors.forEach((item, index) => {
+                            if (item === oEvent.getSource().getId()) {
+                                this._validationErrors.splice(index, 1)
+                            }
+                        })
+                        bError = false;
+                    }
+                }
+            }
+            else {
+                oEvent.getSource().setValueState("None");
+                this._validationErrors.forEach((item, index) => {
+                    if (item === oEvent.getSource().getId()) {
+                        this._validationErrors.splice(index, 1)
+                    }
+                })
+                bError = false;
+            }
+           
+            // this._bDetailsChanged = false;
+            if (!bError) {
+                if (oEvent.getSource().getBindingInfo("value").parts[0].path === "BASEPOQTY") {
+                    var sActiveGroup = this.getView().getModel("ui").getData().activeGroup;
+    
+                    this.getView().getModel("detail").getData().filter(fItem => fItem.GROUP === sActiveGroup)
+                        .forEach((item, idx) => {
+                            if (idx.toString() === sRowPath.replace("/","")) { 
+                                // console.log(item.BASEPOQTY)
+                                // console.log(oEvent.getParameters().value);
+                                item.BASEPOQTY = oEvent.getParameters().value;
+    
+                                var sOrderConvFactor = item.ORDERCONVFACTOR === "" || item.ORDERCONVFACTOR === "0" ? "1" : item.ORDERCONVFACTOR;
+                                var sBaseConvFactor = item.BASECONVFACTOR === "" || item.BASECONVFACTOR === "0" ? "1" : item.BASECONVFACTOR;
+                                var sPer = item.PER === "" ? "1" : item.PER;
+                                var vComputedPOQty = +item.BASEPOQTY / ((+sOrderConvFactor) * (+sBaseConvFactor) * (+sPer));
+                                var vFinalPOQty = "0";
+    
+                                if (item.ORDERUOMANDEC === 0) vFinalPOQty = Math.ceil(vComputedPOQty).toString();
+                                else vFinalPOQty = vComputedPOQty.toFixed(item.ORDERUOMANDEC);
+    
+                                item.ORDERPOQTY = vFinalPOQty;
+                                this.byId("detailTab").getModel("detail").setProperty(sRowPath + '/ORDERPOQTY', vFinalPOQty);
+                                this.getPOTolerance(sRowPath, item);
+                            }
+                    })
+        
+                    // this.byId("detailTab").setModel(new JSONModel(this.getView().getModel("detail").getData()), "detail");
+                    // this.byId("detailTab").bindRows({path: "detail>/"});
+                }
+                else if (oEvent.getSource().getBindingInfo("value").parts[0].path === "GROSSPRICE") {
+                    var sActiveGroup = this.getView().getModel("ui").getData().activeGroup;
+                    var sRowPath = oEvent.getSource().getBindingInfo("value").binding.oContext.sPath
+    
+                    this.getView().getModel("detail").getData().filter(fItem => fItem.GROUP === sActiveGroup)
+                        .forEach((item, idx) => {
+                            if (idx.toString() === sRowPath.replace("/","")) { 
+                                // console.log(item.GROSSPRICE)
+                                item.GROSSPRICE = oEvent.getParameters().value;
+                                item.NETPRICE = item.GROSSPRICE;
+                                this.byId("detailTab").getModel("detail").setProperty(sRowPath + '/NETPRICE', item.GROSSPRICE);
+                            }
+                    })
+        
+                    // this.byId("detailTab").setModel(new JSONModel(this.getView().getModel("detail").getData()), "detail");
+                    // this.byId("detailTab").bindRows({path: "detail>/"});
+                }
             }
         },
 
@@ -2235,7 +2468,7 @@ function (Controller, JSONModel, MessageBox, History, MessageToast, NavigationHa
                                                             oParamCPOClosePRData.push({
                                                                 Banfn: poitem.PRNUMBER,
                                                                 Bnfpo: poitem.PRITEMNO, 
-                                                                Ebakz: (poitem.BASEPOQTY + poitem.ORDERQTY) === poitem.BASEQTY ? "X" : " "
+                                                                Ebakz: (poitem.BASEPOQTY + poitem.ORDERQTY) >= poitem.BASEQTY ? "X" : " "
                                                             })
 
                                                             // me.getView().getModel("potol").getData()[item.GROUP]
@@ -2324,7 +2557,8 @@ function (Controller, JSONModel, MessageBox, History, MessageToast, NavigationHa
                                                             if (oHeaderData.length >= ((+item.GROUP) + 1)) {
                                                                 //next group
                                                                 // me.closeLoadingDialog();
-                                                                me.showMessage(oRetMsgs[0].Type + ": " + oRetMsgs[0].Message, 500);
+                                                                MessageBox.information(oRetMsgs[0].Type + ": " + oRetMsgs[0].Message);
+                                                                // me.showMessage(oRetMsgs[0].Type + ": " + oRetMsgs[0].Message, 500);
                                                                 me.onNextGroup(((+item.GROUP) + 1 ) + "");
                                                             }
                                                             else {
@@ -2336,17 +2570,18 @@ function (Controller, JSONModel, MessageBox, History, MessageToast, NavigationHa
                                                             iCounter++;
                                                             // console.log(err);
                                                             me.closeLoadingDialog();
-                                                            me._aCreatePOResult.push({
-                                                                GROUP: item.GROUP,
-                                                                VENDOR: item.VENDOR,
-                                                                PURCHORG: item.PURCHORG,
-                                                                PURCHGRP: item.PURCHGRP,
-                                                                REMARKS: err
-                                                            })
+                                                            MessageBox.information(err);
+                                                            // me._aCreatePOResult.push({
+                                                            //     GROUP: item.GROUP,
+                                                            //     VENDOR: item.VENDOR,
+                                                            //     PURCHORG: item.PURCHORG,
+                                                            //     PURCHGRP: item.PURCHGRP,
+                                                            //     REMARKS: err
+                                                            // })
         
-                                                            if (iCounter === me.getView().getModel("header").getData().length) {
-                                                                me.showGeneratePOResult();
-                                                            }
+                                                            // if (iCounter === me.getView().getModel("header").getData().length) {
+                                                            //     me.showGeneratePOResult();
+                                                            // }
                                                         }
                                                     });
                                                 }
@@ -2354,17 +2589,18 @@ function (Controller, JSONModel, MessageBox, History, MessageToast, NavigationHa
                                             error: function(err) {
                                                 iCounter++;
                                                 me.closeLoadingDialog();
-                                                me._aCreatePOResult.push({
-                                                    GROUP: item.GROUP,
-                                                    VENDOR: item.VENDOR,
-                                                    PURCHORG: item.PURCHORG,
-                                                    PURCHGRP: item.PURCHGRP,
-                                                    REMARKS: err
-                                                })
+                                                MessageBox.information(err);
+                                                // me._aCreatePOResult.push({
+                                                //     GROUP: item.GROUP,
+                                                //     VENDOR: item.VENDOR,
+                                                //     PURCHORG: item.PURCHORG,
+                                                //     PURCHGRP: item.PURCHGRP,
+                                                //     REMARKS: err
+                                                // })
         
-                                                if (iCounter === me.getView().getModel("header").getData().length) {
-                                                    me.showGeneratePOResult();
-                                                }
+                                                // if (iCounter === me.getView().getModel("header").getData().length) {
+                                                //     me.showGeneratePOResult();
+                                                // }
                                             }
                                         });
                                     }
@@ -2372,17 +2608,18 @@ function (Controller, JSONModel, MessageBox, History, MessageToast, NavigationHa
                                 error: function (err) { 
                                     iCounter++;
                                     me.closeLoadingDialog();
-                                    me._aCreatePOResult.push({
-                                        GROUP: item.GROUP,
-                                        VENDOR: item.VENDOR,
-                                        PURCHORG: item.PURCHORG,
-                                        PURCHGRP: item.PURCHGRP,
-                                        REMARKS: err
-                                    })
+                                    MessageBox.information(err);
+                                    // me._aCreatePOResult.push({
+                                    //     GROUP: item.GROUP,
+                                    //     VENDOR: item.VENDOR,
+                                    //     PURCHORG: item.PURCHORG,
+                                    //     PURCHGRP: item.PURCHGRP,
+                                    //     REMARKS: err
+                                    // })
         
-                                    if (iCounter === me.getView().getModel("header").getData().length) {
-                                        me.showGeneratePOResult();
-                                    }
+                                    // if (iCounter === me.getView().getModel("header").getData().length) {
+                                    //     me.showGeneratePOResult();
+                                    // }
                                 }
                             });                        
                         }, 500);
@@ -2390,7 +2627,7 @@ function (Controller, JSONModel, MessageBox, History, MessageToast, NavigationHa
                 }
                 else {
                     // console.log(this.getView().getModel("ddtext").getData()["INFO_CREATE_PO_CHECK_REQD"])
-                    MessageBox.information(this.getView().getModel("ddtext").getData()["INFO_CREATEPO_CHECK_REQD"], 5000);
+                    MessageBox.information(this.getView().getModel("ddtext").getData()["INFO_CREATEPO_CHECK_REQD"]);
                 }
             }
             else {
@@ -2501,7 +2738,7 @@ function (Controller, JSONModel, MessageBox, History, MessageToast, NavigationHa
                     }
                 }
                 else{
-                    MessageBox.information(this.getView().getModel("ddtext").getData()["INFO_CREATEPO_CHECK_REQD"], 5000);
+                    MessageBox.information(this.getView().getModel("ddtext").getData()["INFO_CREATEPO_CHECK_REQD"]);
                 }
             }
             else {
@@ -2559,32 +2796,39 @@ function (Controller, JSONModel, MessageBox, History, MessageToast, NavigationHa
                 IChangeonlyHdrplants: "",
             }
             //get last EBELP
-            if(resultExtendPop[0] !== undefined){
-                for(var x = 0; x < resultExtendPop[0].length; x++){
+            if (resultExtendPop[0] !== undefined) {
+                for(var x = 0; x < resultExtendPop[0].length; x++) {
                     ebelpArray.push(resultExtendPop[0][x].EBELP);
-                    
                 }
+
                 ebelpArray.sort(function(a, b){return b - a});
                 ebelpLastCount = ebelpArray[0];
-
                 ebelpLastCount = String(parseInt(ebelpLastCount) + 10);
 
                 if(ebelpLastCount != "" || ebelpLastCount != null){
                     while(ebelpLastCount.length < 5) ebelpLastCount = "0" + ebelpLastCount.toString();
-                    
                 }
 
-                for(var x = 0; x < resultExtendPop[0].length; x++){
+                for(var x = 0; x < resultExtendPop[0].length; x++) {
+                    // console.log(resultExtendPop[0])
                     oParamDataPO.push({
                         Bedat     : sapDateFormat.format(new Date(resultExtendPop[0][x].BEDAT)) + "T00:00:00",
                         Bsart     : resultExtendPop[0][x].BSART,
                         Banfn     : resultExtendPop[0][x].BANFN,
                         Bnfpo     : resultExtendPop[0][x].BNFPO,
+                        Ekorg     : resultExtendPop[0][x].EKORG,
+                        Lifnr     : resultExtendPop[0][x].LIFNR,
+                        Ekgrp     : resultExtendPop[0][x].EKGRP,
+                        Inco1     : resultExtendPop[0][x].INCO1,
+                        Inco2     : resultExtendPop[0][x].INCO2,
+                        Waers     : resultExtendPop[0][x].WAERS,
+                        Zterm     : resultExtendPop[0][x].ZTERM,
                         Ebeln     : resultExtendPop[0][x].EBELN,
-                        Ebelp     : ebelpLastCount,
+                        Ebelp     : resultExtendPop[0][x].EBELP,
                         Bukrs     : resultExtendPop[0][x].BUKRS,
                         Werks     : resultExtendPop[0][x].WERKS,
                         Unsez     : resultExtendPop[0][x].UNSEZ,
+                        Matnr     : resultExtendPop[0][x].MATNR,
                         Txz01     : resultExtendPop[0][x].TXZ01,
                         Menge     : resultExtendPop[0][x].MENGE,
                         Meins     : resultExtendPop[0][x].MEINS,
@@ -2593,54 +2837,125 @@ function (Controller, JSONModel, MessageBox, History, MessageToast, NavigationHa
                         Bprme     : resultExtendPop[0][x].BPRME,
                         Repos     : resultExtendPop[0][x].REPOS,
                         Webre     : resultExtendPop[0][x].WEBRE,
-                        Eindt     : sapDateFormat.format(new Date(delDt)) + "T00:00:00", //Delivery Date
+                        // Eindt     : sapDateFormat.format(new Date(delDt)) + "T00:00:00", //Delivery Date
                         Evers     : resultExtendPop[0][x].EVERS,
                         Uebto     : resultExtendPop[0][x].UEBTO,
                         Untto     : resultExtendPop[0][x].UNTTO,
-                        Uebtk     : resultExtendPop[0][x].UEBTK,
-                        Elikz     : resultExtendPop[0][x].ELIKZ,
-                        DeleteRec : resultExtendPop[0][x].LOEKZ
+                        Uebtk     : resultExtendPop[0][x].UEBTK
+                        // Elikz     : resultExtendPop[0][x].ELIKZ,
+                        // DeleteRec : resultExtendPop[0][x].LOEKZ
+                    });
+                }
+                
+                // console.log(this.byId("detailTab").getModel("detail").getData());
+                this.byId("detailTab").getModel("detail").getData().forEach(item => {
+                    oParamDataPO.push({
+                        Bedat     : sapDateFormat.format(new Date(resultExtendPop[0][0].BEDAT)) + "T00:00:00",
+                        Bsart     : resultExtendPop[0][0].BSART,
+                        Banfn     : item.PRNUMBER,
+                        Bnfpo     : item.PRITEMNO,
+                        Ekorg     : resultExtendPop[0][0].EKORG,
+                        Lifnr     : resultExtendPop[0][0].LIFNR,
+                        Ekgrp     : resultExtendPop[0][0].EKGRP,
+                        Inco1     : resultExtendPop[0][0].INCO1,
+                        Inco2     : resultExtendPop[0][0].INCO2,
+                        Waers     : resultExtendPop[0][0].WAERS,
+                        Zterm     : resultExtendPop[0][0].ZTERM,
+                        Ebeln     : resultExtendPop[0][0].EBELN,
+                        Ebelp     : ebelpLastCount,
+                        Bukrs     : resultExtendPop[0][0].BUKRS,
+                        Werks     : resultExtendPop[0][0].WERKS,
+                        Unsez     : resultExtendPop[0][0].UNSEZ,
+                        Matnr     : item.MATERIALNO,
+                        Txz01     : item.GMCDESCEN,
+                        Menge     : item.BASEPOQTY + "",
+                        Meins     : item.UOM,
+                        Netpr     : item.GROSSPRICE,
+                        Peinh     : item.PER,
+                        Bprme     : item.ORDERPRICEUNIT,
+                        Repos     : resultExtendPop[0][0].REPOS,
+                        Webre     : item.GRBASEDIV,
+                        // Eindt     : sapDateFormat.format(new Date(delDt)) + "T00:00:00", //Delivery Date
+                        Evers     : resultExtendPop[0][0].EVERS,
+                        Uebto     : item.OVERDELTOL,
+                        Untto     : item.UNDERDELTOL,
+                        Uebtk     : item.UNLI
+                        // Elikz     : resultExtendPop[0][x].ELIKZ,
+                        // DeleteRec : resultExtendPop[0][x].LOEKZ
                     });
 
                     ebelpLastCount = String(parseInt(ebelpLastCount) + 10);
 
                     if(ebelpLastCount != "" || ebelpLastCount != null){
                         while(ebelpLastCount.length < 5) ebelpLastCount = "0" + ebelpLastCount.toString();
-                    }
-                }
-                
+                    }                    
+                })
 
                 oParam = oParamInitParam;
                 oParam['N_ChangePOItemParam'] = oParamDataPO;
                 oParam['N_ChangePOReturn'] = [];
 
-                console.log(oParam);
+                // console.log(oParam);
+                // return;
+                var vSuccess = "", sRetMessage = "";
 
                 this.showLoadingDialog('Processing...');
                 promiseResult = new Promise((resolve, reject)=>{
                     rfcModel.create("/ChangePOSet", oParam, {
                         method: "POST",
-                        success: function(oData, oResponse){
+                        success: function(oData, oResponse) {
+                            // console.log(oData)
                             if(oData.N_ChangePOReturn.results.length > 0){
-                                message = oData.N_ChangePOReturn.results[0].Msgv1;
+                                // message = oData.N_ChangePOReturn.results[0].Msgv1;
                                 me.closeLoadingDialog();
-                                MessageBox.information(message);
+                                // MessageBox.information(message);
+                                sRetMessage = oData.N_ChangePOReturn.results[0].Msgv1;
                                 me.loadExtendPODialog.close();
-                                resolve()
+                                me._poCreated = true;
+                                me._aCreatePOResult.push({
+                                    GROUP: item.GROUP,
+                                    VENDOR: item.VENDOR,
+                                    PURCHORG: item.PURCHORG,
+                                    PURCHGRP: item.PURCHGRP,
+                                    REMARKS: oData.N_ChangePOReturn.results[0].Msgtyp + ": " + oData.N_ChangePOReturn.results[0].Msgv1
+                                })                                
+                                resolve();
                             }else{
                                 me.closeLoadingDialog();
                                 MessageBox.information(me.getView().getModel("ddtext").getData()["INFO_NO_DATA_SAVE"]);
-                                resolve()
+                                resolve();
                             }
-                        },error: function(error){
+
+                            bSuccess = oData.OutSuccess;
+                        },
+                        error: function(error) {
                             me.closeLoadingDialog();
                             MessageBox.error(me.getView().getModel("ddtext").getData()["INFO_ERROR"]);
                             resolve()
                         }
                     })
                 });
+
                 await promiseResult;
-            }else{
+
+                if (vSuccess === "X") {
+                    var oCurrHeaderData = me.getView().getModel("grpheader").getData();
+                    var oHeaderData = me.getView().getModel("header").getData();
+
+                    if (oHeaderData.length >= ((+oCurrHeaderData[0].GROUP) + 1)) {
+                        //next group
+                        MessageBox.information(sRetMessage);
+                        me.onNextGroup(((+oCurrHeaderData[0].GROUP) + 1 ) + "");
+                    }
+                    else {
+                        // console.log("showGeneratePOResult");
+                        me.showGeneratePOResult();
+                    }                    
+                }
+                else {
+                    MessageBox.information(sRetMessage);
+                }
+            } else {
                 MessageBox.information(me.getView().getModel("ddtext").getData()["INFO_NO_DATA_SAVE"]);
             }
 
@@ -2653,7 +2968,7 @@ function (Controller, JSONModel, MessageBox, History, MessageToast, NavigationHa
         onNextGroup(arg) {
             this._validationErrors = [];
             var me = this;
-            this.showLoadingDialog(" Loading next group...");
+            this.showLoadingDialog("Loading next group...");
 
             setTimeout(() => {
                 me.closeLoadingDialog();
@@ -2704,11 +3019,11 @@ function (Controller, JSONModel, MessageBox, History, MessageToast, NavigationHa
             
             if (oHeaderData.length >= ((+sActiveGroup) + 1)) {
                 //next group
-                MessageBox.information(this.getView().getModel("ddtext").getData()["GENPOCANCEL"], 500); 
+                MessageBox.information(this.getView().getModel("ddtext").getData()["GENPOCANCEL"]); 
                 this.onNextGroup(((+sActiveGroup) + 1 ) + "");
             }
             else {
-                console.log("showGeneratePOResult");
+                // console.log("showGeneratePOResult");
                 this.showGeneratePOResult();
             }
         },
@@ -2846,6 +3161,10 @@ function (Controller, JSONModel, MessageBox, History, MessageToast, NavigationHa
                                     item.OVERDELTOL = oData.EV_UEBTO;
                                     item.UNDERDELTOL = oData.EV_UNTTO;
                                     item.UNLI = oData.EV_UNLI === "" ? false : true;
+
+                                    me.byId("detailTab").getModel("detail").setProperty(sRowPath + '/OVERDELTOL', oData.EV_UEBTO);
+                                    me.byId("detailTab").getModel("detail").setProperty(sRowPath + '/UNDERDELTOL', oData.EV_UNTTO);
+                                    me.byId("detailTab").getModel("detail").setProperty(sRowPath + '/UNLI', oData.EV_UNLI === "" ? false : true);
                                 }
                             })
 
@@ -2893,6 +3212,10 @@ function (Controller, JSONModel, MessageBox, History, MessageToast, NavigationHa
                                                 item.OVERDELTOL = oOrigDtlData[0].OVERDELTOL;
                                                 item.UNDERDELTOL = oOrigDtlData[0].UNDERDELTOL;
                                                 item.UNLI = oOrigDtlData[0].UNLI;
+
+                                                me.byId("detailTab").getModel("detail").setProperty(sRowPath + '/OVERDELTOL', oOrigDtlData[0].OVERDELTOL);
+                                                me.byId("detailTab").getModel("detail").setProperty(sRowPath + '/UNDERDELTOL', oOrigDtlData[0].UNDERDELTOL);
+                                                me.byId("detailTab").getModel("detail").setProperty(sRowPath + '/UNLI', oOrigDtlData[0].UNLI);
                                             }
                                         })
                                 }
@@ -2900,8 +3223,8 @@ function (Controller, JSONModel, MessageBox, History, MessageToast, NavigationHa
                         }
                     }
 
-                    me.byId("detailTab").setModel(new JSONModel(me.getView().getModel("detail").getData()), "detail");
-                    me.byId("detailTab").bindRows({path: "detail>/"});
+                    // me.byId("detailTab").setModel(new JSONModel(me.getView().getModel("detail").getData()), "detail");
+                    // me.byId("detailTab").bindRows({path: "detail>/"});
                     // console.log(me._oParamCPOTolData);
                 },
                 error: function (err) { }
