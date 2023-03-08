@@ -6,7 +6,7 @@ sap.ui.define([
     "sap/m/MessageToast"
 ],
 
-function (Controller, JSONModel, MessageBox, History, MessageToast, NavigationHandler, NavType) {
+function (Controller123, JSONModel, MessageBox, History, MessageToast, NavigationHandler, NavType) {
     var dateFormat = sap.ui.core.format.DateFormat.getDateInstance({pattern : "MM/dd/yyyy" });
     var sapDateFormat = sap.ui.core.format.DateFormat.getDateInstance({pattern : "yyyy-MM-dd" });
     
